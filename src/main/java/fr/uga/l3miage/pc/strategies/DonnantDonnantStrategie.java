@@ -1,10 +1,10 @@
-package fr.uga.l3miage.pc.stratégies;
+package fr.uga.l3miage.pc.strategies;
 
-public class DonnantDonnantStratégie implements Strategie {
+public class DonnantDonnantStrategie implements Strategie {
     private int index;
     private String[] historique;
 
-    public DonnantDonnantStratégie(String[] historique) {
+    public DonnantDonnantStrategie(String[] historique) {
         this.historique = historique;
         this.index = 0;
     }

@@ -1,6 +1,6 @@
-package fr.uga.l3miage.pc.stratégies;
+package fr.uga.l3miage.pc.strategies;
 
-public class DonnantPourDeuxDonnants extends DonnantDonnantStratégie {
+public class DonnantPourDeuxDonnants extends DonnantDonnantStrategie {
 
     public DonnantPourDeuxDonnants(String[] historique) {
         super(historique);

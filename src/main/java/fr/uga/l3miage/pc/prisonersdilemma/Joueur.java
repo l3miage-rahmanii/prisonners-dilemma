@@ -2,8 +2,11 @@ package fr.uga.l3miage.pc.prisonersdilemma;
 
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Joueur {
+    private static final Logger logger = Logger.getLogger(Joueur.class.getName());
     private String nom;
     private boolean abandon;
     private int score;
@@ -13,6 +16,7 @@ public class Joueur {
         this.abandon = false;
         this.score = 0;
     }
+
     public String jouerCoup(Client client) throws IOException {
         String coup = decision();
         client.envoyerCoup(coup);
@@ -23,21 +27,20 @@ public class Joueur {
         Scanner scanner = new Scanner(System.in);
         String decision;
         do {
-            System.out.print(nom + ", Voulez vous trahir (t = trahir) ou cooperer (c = cooperer) ou abandonner (a = abandon) ? ");
+            logger.log(Level.INFO, "{0}, Voulez vous trahir (t = trahir) ou cooperer (c = cooperer) ou abandonner (a = abandon) ?", nom);
             decision = scanner.nextLine().toLowerCase();
         } while (!decision.equals("c") && !decision.equals("t") && !decision.equals("a"));
         return decision;
     }
 
-    public String abandonner(){
+    public String abandonner() {
         this.abandon = true;
         Scanner scanner = new Scanner(System.in);
         String stratVoulue;
         do {
-            System.out.print(nom + ", Vous avez decid? d'abandonner. Vous devez maintenant choisir une de ces strat?gie : 1- Donnant-Donnant (dd) 2- Toujours Trahir (t) 3- Toujours Coop?rer (c) 4- Rancunier (r) 5- Pavlov (p) ");
+            logger.log(Level.INFO, "{0}, Vous avez décidé d'abandonner. Vous devez maintenant choisir une de ces stratégies : 1- Donnant-Donnant (dd) 2- Toujours Trahir (t) 3- Toujours Coopérer (c) 4- Rancunier (r) 5- Pavlov (p)", nom);
             stratVoulue = scanner.nextLine().toLowerCase();
-        } while (!stratVoulue.equals("dd") && !stratVoulue.equals("t") && !stratVoulue.equals("c") && !stratVoulue.equals("r") && !stratVoulue.equals("p") );
-        //Il faudra faire appel a la factory en fonction du choix du joueur, ?a sera envoy? au client par la suite.
+        } while (!stratVoulue.equals("dd") && !stratVoulue.equals("t") && !stratVoulue.equals("c") && !stratVoulue.equals("r") && !stratVoulue.equals("p"));
         return stratVoulue;
     }
 
@@ -51,14 +54,17 @@ public class Joueur {
 
     public void setNom() {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Nom = ");
+        logger.log(Level.INFO, "Nom = ");
         this.nom = scanner.nextLine().toLowerCase();
     }
 
-    public String getNbTours(){
+    public String getNbTours() {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Nb Tours = ");
+        logger.log(Level.INFO, "Nb Tours = ");
         return scanner.nextLine();
     }
 
+    public boolean isAbandon() {
+        return abandon;
+    }
 }

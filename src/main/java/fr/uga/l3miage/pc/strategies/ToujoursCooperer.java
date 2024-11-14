@@ -1,10 +1,10 @@
-package fr.uga.l3miage.pc.stratégies;
+package fr.uga.l3miage.pc.strategies;
 
-public class ToujoursCoopérer implements Strategie{
+public class ToujoursCooperer implements Strategie{
 
     private String coupAJouer;
 
-    public ToujoursCoopérer(){
+    public ToujoursCooperer(){
         this.coupAJouer = "c";
     }
 

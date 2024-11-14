@@ -11,7 +11,6 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <sonar.host.url>http://im2ag-sonar.u-ga.fr:9000</sonar.host.url>
-        <sonar.login>sqp_5cc21c18b487d0fb4dd37d2e60f410d588c769f9</sonar.login> <!-- Ajout du token SonarQube -->
         <sonar.projectKey>prisoner_dilema_1_5</sonar.projectKey> <!-- Ajout du nom du projet SonarQube -->
     </properties>
 

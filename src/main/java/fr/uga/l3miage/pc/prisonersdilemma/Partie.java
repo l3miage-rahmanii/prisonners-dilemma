@@ -1,12 +1,12 @@
 package fr.uga.l3miage.pc.prisonersdilemma;
 
-import fr.uga.l3miage.pc.stratégies.Strategie;
-
-import java.io.BufferedReader;
+import fr.uga.l3miage.pc.strategies.Strategie;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Partie {
+    private static final Logger logger = Logger.getLogger(Partie.class.getName());
     private Client client1;
     private Client client2;
     private int nombreTours;
@@ -29,11 +29,10 @@ public class Partie {
         return instance;
     }
 
-
     public void commencer() throws IOException {
         for (int i = 0; i < nombreTours; i++) {
-            System.out.println("Tour " + i);
-            if(abandon){
+            logger.log(Level.INFO, "Tour {0}", i);
+            if (abandon) {
                 nombreTours -= i;
                 break;
             }
@@ -41,22 +40,20 @@ public class Partie {
             String coupJoueur1 = serveur.getCoup(client1);
             serveur.askCoup(client2);
             String coupJoueur2 = serveur.getCoup(client2);
-            serveur.calculScore(coupJoueur1,coupJoueur2,i);
+            serveur.calculScore(coupJoueur1, coupJoueur2, i);
             serveur.envoyerScores();
-
         }
-
         fin();
     }
 
     public void partieSuivantAbandon(Client client, Strategie strategie) throws IOException {
-            this.abandon = true;
-            for (int i = 1; i <= nombreTours; i++) {
-                serveur.askCoup(client);
-                serveur.calculScoreCasAbandon(strategie.prochainCoup(), client);
-                serveur.envoyerScoresCasAbandon(client);
-            }
-            finAbandon(client);
+        this.abandon = true;
+        for (int i = 1; i <= nombreTours; i++) {
+            serveur.askCoup(client);
+            serveur.calculScoreCasAbandon(strategie.prochainCoup(), client);
+            serveur.envoyerScoresCasAbandon(client);
+        }
+        finAbandon(client);
     }
 
     public void fin() throws IOException {
@@ -68,6 +65,8 @@ public class Partie {
         serveur.vainceurAbandon(client);
         serveur.stop();
     }
+
+    public static void setInstance(Partie nouvelleInstance) {
+        instance = nouvelleInstance;
+    }
 }
-
-

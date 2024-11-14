@@ -1,10 +1,10 @@
-package fr.uga.l3miage.pc.stratégies;
+package fr.uga.l3miage.pc.strategies;
 
-public class RancunierStratégie implements Strategie {
+public class RancunierStrategie implements Strategie {
     private int index;
     private String[] historique;
 
-    public RancunierStratégie(String[] historique) {
+    public RancunierStrategie(String[] historique) {
         this.historique = historique;
         this.index = 0;
     }

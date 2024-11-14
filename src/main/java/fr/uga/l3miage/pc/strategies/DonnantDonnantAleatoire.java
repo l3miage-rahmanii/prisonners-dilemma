@@ -1,14 +1,15 @@
-package fr.uga.l3miage.pc.stratégies;
+package fr.uga.l3miage.pc.strategies;
 
 
+import java.security.SecureRandom;
 import java.util.Random;
 
-public class DonnantDonnantAleatoire extends DonnantDonnantStratégie {
+public class DonnantDonnantAleatoire extends DonnantDonnantStrategie {
     private Random random;
 
     public DonnantDonnantAleatoire(String[] historique) {
         super(historique);
-        this.random = new Random();
+        this.random = new SecureRandom();
     }
 
     @Override

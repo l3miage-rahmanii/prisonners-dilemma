@@ -1,7 +1,7 @@
 package fr.uga.l3miage.pc.prisonersdilemma;
 
-import fr.uga.l3miage.pc.stratégies.Strategie;
-import fr.uga.l3miage.pc.stratégies.StrategieFactory;
+import fr.uga.l3miage.pc.strategies.Strategie;
+import fr.uga.l3miage.pc.strategies.StrategieFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,6 +10,8 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Serveur {
     private static Serveur instance;
@@ -29,6 +31,7 @@ public class Serveur {
     Joueur joueur1,joueur2;
     private Partie jeu;
     private int playerCount = 0;
+    private static final Logger logger = Logger.getLogger(Partie.class.getName());
 
     //Constructeur privé pour le patron Singleton
     private Serveur() {
@@ -47,10 +50,10 @@ public class Serveur {
     //Méthode pour démarrer le serveur
     public void start(int port) throws IOException {
         serverSocket = new ServerSocket(port);
-        System.out.println("Serveur démarré sur le port " + port);
+        logger.log(Level.INFO,"Serveur démarré sur le port " + port);
 
         // Le serveur doit s'assurer que deux joueurs (clients) soient connectés
-        System.out.println("En attente des joueurs...");
+        logger.log(Level.INFO,"En attente des joueurs...");
 
         Socket client1Socket = null;
         Socket client2Socket = null;
@@ -58,15 +61,15 @@ public class Serveur {
         // Boucle jusqu'à ce que deux clients soient connectés
         while (client1Socket == null || client2Socket == null) {
             if (client1Socket == null) {
-                System.out.println("En attente du premier joueur...");
+                logger.log(Level.INFO,"En attente du premier joueur...");
                 client1Socket = serverSocket.accept();
-                System.out.println("Joueur 1 connecté");
+                logger.log(Level.INFO,"Joueur 1 connecté");
             }
 
             if (client2Socket == null) {
-                System.out.println("En attente du second joueur...");
+                logger.log(Level.INFO,"En attente du second joueur...");
                 client2Socket = serverSocket.accept();
-                System.out.println("Joueur 2 connecté");
+                logger.log(Level.INFO,"Joueur 2 connecté");
             }
         }
 
@@ -84,15 +87,15 @@ public class Serveur {
         client2 = new Client(joueur2);
         // Demander aux joueurs de choisir un nom
         outClient1.println("Bienvenue ! Veuillez choisir un nom :");
-        System.out.println("je demande un nom");
+        logger.log(Level.INFO,"je demande un nom");
         outClient2.println("Bienvenue ! Veuillez choisir un nom :");
-        System.out.println("je suis ton pere");
+        logger.log(Level.INFO,"je suis ton pere");
 
         String nomJoueur1 = inClient1.readLine();
-        System.out.println(nomJoueur1);
+        logger.log(Level.INFO,nomJoueur1);
 
         String nomJoueur2 = inClient2.readLine();
-        System.out.println(nomJoueur2);
+        logger.log(Level.INFO,nomJoueur2);
 
         // Demande du nombre de tours
         outClient1.println("Veuillez choisir le nombre de tours :");
@@ -103,7 +106,7 @@ public class Serveur {
             outClient1.println("Entrée invalide. Veuillez entrer un nombre valide.");
             input = inClient1.readLine();  // Demande à nouveau si l'entrée est vide ou nulle
         }
-        System.out.println(input);
+        logger.log(Level.INFO,input);
         try {
             do {
                 nbTours = Integer.parseInt(input);
@@ -127,10 +130,10 @@ public class Serveur {
 
     public void askCoup(Client client) throws IOException {
         if (client == client1) {
-            outClient1.println("C'est à votre tour de jouer.");
+            outClient1.println("C'est a votre tour de jouer.");
         }
         else if (client == client2) {
-            outClient2.println("C'est à votre tour de jouer.");
+            outClient2.println("C'est a votre tour de jouer.");
         }
     }
 
@@ -149,19 +152,19 @@ public class Serveur {
 
     public void calculScore(String coupClient1, String coupClient2, int numeroTour) throws IOException {
         int scoreClient1 = 0, scoreClient2 = 0;
-        System.out.println(coupClient1 + " " + coupClient2);
+        logger.log(Level.INFO,coupClient1 + " " + coupClient2);
         historiqueClient1[numeroTour] = coupClient1;
         historiqueClient2[numeroTour] = coupClient2;
 
-        System.out.println(coupClient1 + " " + coupClient2);
+        logger.log(Level.INFO,coupClient1 + " " + coupClient2);
 
         if (coupClient1.equals("c") && coupClient2.equals("c")) {
             scoreClient1 = 3;
             scoreClient2 = scoreClient1;
         }
         else if (coupClient1.equals("c") && coupClient2.equals("t")) {
-            scoreClient1 = 5;
-            //scoreClient2 = 0;
+            scoreClient2 = 5;
+            scoreClient1 = 0;
         }
         else if (coupClient1.equals("t") && coupClient2.equals("c")) {
             //scoreClient1 = 0;
@@ -219,7 +222,7 @@ public class Serveur {
     }
 
     public void envoyerScores() throws IOException {
-        System.out.println("hello there ladies");
+        logger.log(Level.INFO,"hello there ladies");
         outClient1.println("Voici les scores : Vous = "+ scoreTotalClient1 + ", Votre adversaire = " +scoreTotalClient2);
         outClient2.println("Voici les scores : Vous = "+ scoreTotalClient2 + ", Votre adversaire = " +scoreTotalClient1);
         if (scoreTotalClient1 > scoreTotalClient2) {
@@ -230,7 +233,7 @@ public class Serveur {
             outClient1.println("Le gagnant de ce tour est : " + scoreTotalClient2);
             outClient2.println("Le gagnant de ce tour est : " + scoreTotalClient2);
         }
-        else if (scoreTotalClient2 == scoreTotalClient2) {
+        else if (scoreTotalClient1 == scoreTotalClient2) {
             outClient1.println("Égalité !");
             outClient2.println("Égalité !");
         }
@@ -254,7 +257,7 @@ public class Serveur {
             outClient1.println("Le vainceur est : "+ joueur2.getNom());
             outClient2.println("Vous êtes le vainceur, Bravo : "+ joueur2.getNom());
         }
-        else if (scoreTotalClient2 == scoreTotalClient2) {
+        else if (scoreTotalClient1 == scoreTotalClient2) {
             outClient1.println("Egalite!");
             outClient2.println("Egalite!");
         }
@@ -267,7 +270,7 @@ public class Serveur {
             else if (scoreTotalClient2>scoreTotalClient1) {
                 outClient1.println("Vous avez perdu.");
             }
-            else if (scoreTotalClient2==scoreTotalClient2) {
+            else if (scoreTotalClient1 == scoreTotalClient2) {
                 outClient1.println("Egalité!");
             }
         }
@@ -278,7 +281,7 @@ public class Serveur {
             else if (scoreTotalClient2>scoreTotalClient1) {
                 outClient2.println("Vous êtes le vainceur, Bravo "+ joueur1.getNom());
             }
-            else if (scoreTotalClient2==scoreTotalClient2) {
+            else if (scoreTotalClient1 == scoreTotalClient2) {
                 outClient2.println("Egalité!");
             }
         }
@@ -296,9 +299,57 @@ public class Serveur {
         try {
             serveur.start(8080); // Démarre le serveur sur le port 8080
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Erreur de connexion. Veuillez contacter le support.");
         }
     }
 
+    public int getScoreTotalClient1() {
+        return scoreTotalClient1;
+    }
+
+    public int getScoreTotalClient2() {
+        return scoreTotalClient2;
+    }
+
+    public void setScoreTotalClient1(int scoreTotalClient1) {
+        this.scoreTotalClient1 = scoreTotalClient1;
+    }
+
+    public void setScoreTotalClient2(int scoreTotalClient2) {
+        this.scoreTotalClient2 = scoreTotalClient2;
+    }
+
+    public ServerSocket getServerSocket() {
+        return serverSocket;
+    }
+
+    public void setClient1(Client client) {
+        client1 = client;
+    }
+
+    public void setClient2 (Client client) {
+        client2 = client;
+    }
+
+    public void setHistoriqueClient(int i){
+        historiqueClient1= new String [i];
+        historiqueClient2= new String [i];
+    }
+
+    public void setOutClient1(PrintWriter out) {
+        this.outClient1 = out;
+    }
+
+    public void setInClient1(BufferedReader in) {
+        this.inClient1= in;
+    }
+
+    public void setOutClient2(PrintWriter out) {
+        this.outClient2 = out;
+    }
+
+    public void setInClient2(BufferedReader in) {
+        this.inClient2= in;
+    }
 
 }
