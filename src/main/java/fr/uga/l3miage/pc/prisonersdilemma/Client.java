@@ -19,7 +19,7 @@ public class Client {
         socket = new Socket(adresse,port);
         out = new PrintWriter(socket.getOutputStream(),true);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        System.out.println("Connecte au serveur sur + " + adresse + ":" +port);
+        System.out.println("Connecte au serveur sur " + adresse + ":" +port);
     }
 
     public void envoyerCoup(String coup) throws IOException{
@@ -51,5 +51,38 @@ public class Client {
     public void askStategie() throws IOException{
        out.println(joueur.abandonner());
     }
+
+    public void receptionMessageDuClient(String messageRecu) throws IOException {
+        if (messageRecu != null) {
+            System.out.println(messageRecu);
+            switch (messageRecu) {
+                case "Bienvenue ! Veuillez choisir un nom :":
+                    this.askName();
+                    break;
+                case "Veuillez choisir le nombre de tours :":
+                    this.askTours();
+                    break;
+                case "C'est à votre tour de jouer.":
+                    this.envoyerCoup(this.recevoirCoup());
+
+            }
+        }
+    }
+
+    public static void main(String[] args){
+            Joueur joueur = new Joueur();  // Créer un joueur (le client)
+            Client client = new Client(joueur);  // Créer un client
+            try {
+                client.seConnecter("localhost", 8080);
+                BufferedReader in = new BufferedReader(new InputStreamReader(client.socket.getInputStream()));
+                    while(true) {
+                        String message = in.readLine();  // Lecture du message envoyé par le serveur
+                        client.receptionMessageDuClient(message);
+                    }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }

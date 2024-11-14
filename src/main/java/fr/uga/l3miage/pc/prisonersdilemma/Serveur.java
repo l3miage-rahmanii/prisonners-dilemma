@@ -28,6 +28,7 @@ public class Serveur {
     private int nbTours;
     Joueur joueur1,joueur2;
     private Partie jeu;
+    private int playerCount = 0;
 
     //Constructeur privé pour le patron Singleton
     private Serveur() {
@@ -46,77 +47,113 @@ public class Serveur {
     //Méthode pour démarrer le serveur
     public void start(int port) throws IOException {
         serverSocket = new ServerSocket(port);
-        System.out.println("Serveur démaré sur le port " + port);
+        System.out.println("Serveur démarré sur le port " + port);
 
-        //Le serveur doit s'assusrer que deux joueurs ( clients ) soient connectés
-        System.out.println("En attente du premier joueur...");
-        Socket client1Socket = serverSocket.accept();
-        System.out.println("Joueur 1 connecté");
+        // Le serveur doit s'assurer que deux joueurs (clients) soient connectés
+        System.out.println("En attente des joueurs...");
 
-        System.out.println("En attente du second joueur...");
-        Socket client2Socket = serverSocket.accept();
-        System.out.println("Joueur 2 connecté");
+        Socket client1Socket = null;
+        Socket client2Socket = null;
 
+        // Boucle jusqu'à ce que deux clients soient connectés
+        while (client1Socket == null || client2Socket == null) {
+            if (client1Socket == null) {
+                System.out.println("En attente du premier joueur...");
+                client1Socket = serverSocket.accept();
+                System.out.println("Joueur 1 connecté");
+            }
+
+            if (client2Socket == null) {
+                System.out.println("En attente du second joueur...");
+                client2Socket = serverSocket.accept();
+                System.out.println("Joueur 2 connecté");
+            }
+        }
+
+        // Initialisation des flux d'entrée et de sortie pour chaque client
         outClient1 = new PrintWriter(client1Socket.getOutputStream(), true);
         outClient2 = new PrintWriter(client2Socket.getOutputStream(), true);
         inClient1 = new BufferedReader(new InputStreamReader(client1Socket.getInputStream()));
         inClient2 = new BufferedReader(new InputStreamReader(client2Socket.getInputStream()));
 
+        // Initialisation des joueurs
         joueur1 = new Joueur();
         joueur2 = new Joueur();
 
         client1 = new Client(joueur1);
         client2 = new Client(joueur2);
+        // Demander aux joueurs de choisir un nom
+        outClient1.println("Bienvenue ! Veuillez choisir un nom :");
+        System.out.println("je demande un nom");
+        outClient2.println("Bienvenue ! Veuillez choisir un nom :");
+        System.out.println("je suis ton pere");
 
-
-        outClient1.println("Bienvenue ! Veuillez choisir un nom.");
-        client1.askName();
         String nomJoueur1 = inClient1.readLine();
-        outClient2.println("Bienvenue ! Veuillez choisir un nom.");
-        client2.askName();
-        String nomJoueur2 = inClient2.readLine();
+        System.out.println(nomJoueur1);
 
-        outClient1.println("Veuillez choisir le nombre de tours.");
+        String nomJoueur2 = inClient2.readLine();
+        System.out.println(nomJoueur2);
+
+        // Demande du nombre de tours
+        outClient1.println("Veuillez choisir le nombre de tours :");
         nbTours = 0;
-        outClient1.println("Combien de tours voulez-vous jouer ?");
-        client1.askTours();
         String input = inClient1.readLine();
-        try {
-            do { //if (nbTours <= 0) {
-                nbTours = Integer.parseInt(input);
-                if (nbTours<=0) {
-                outClient1.println("Veuillez entrer un nombre positif."); }
-                else {outClient2.println("Le nombre de tours choisi est : "+ nbTours);}
-            } while (nbTours<=0);
+
+        while (input == null || input.trim().isEmpty()) {
+            outClient1.println("Entrée invalide. Veuillez entrer un nombre valide.");
+            input = inClient1.readLine();  // Demande à nouveau si l'entrée est vide ou nulle
         }
-        catch (NumberFormatException e) {
+        System.out.println(input);
+        try {
+            do {
+                nbTours = Integer.parseInt(input);
+                historiqueClient1 = new String[nbTours];
+                historiqueClient2 = new String[nbTours];
+                if (nbTours <= 0) {
+                    outClient1.println("Veuillez entrer un nombre positif.");
+                } else {
+                    outClient2.println("Le nombre de tours choisi est : " + nbTours);
+                }
+            } while (nbTours <= 0);
+        } catch (NumberFormatException e) {
             outClient1.println("Entrée invalide. Veuillez entrer un nombre valide.");
         }
 
-        //Créer et lancer la partie
+        // Créer et lancer la partie
         jeu = Partie.getInstance(client1, client2, nbTours);
         jeu.commencer();
     }
 
+
     public void askCoup(Client client) throws IOException {
         if (client == client1) {
             outClient1.println("C'est à votre tour de jouer.");
-            client1.envoyerCoup(client1.recevoirCoup());
-
         }
         else if (client == client2) {
             outClient2.println("C'est à votre tour de jouer.");
-            client2.envoyerCoup(client1.recevoirCoup());
         }
     }
 
+    public String getCoup(Client client) throws IOException {
+        if (client == client1) {
+            String coupClient1 = inClient1.readLine();
+            return coupClient1;
+        }
+        else {
+            String coupClient2 = inClient2.readLine();
+            return coupClient2;
+        }
 
-    public void calculScore() throws IOException {
+    }
+
+
+    public void calculScore(String coupClient1, String coupClient2, int numeroTour) throws IOException {
         int scoreClient1 = 0, scoreClient2 = 0;
-        String coupClient1 = inClient1.readLine();
-        historiqueClient1[nbTours] = coupClient1;
-        String coupClient2 = inClient2.readLine();
-        historiqueClient2[nbTours] = coupClient2;
+        System.out.println(coupClient1 + " " + coupClient2);
+        historiqueClient1[numeroTour] = coupClient1;
+        historiqueClient2[numeroTour] = coupClient2;
+
+        System.out.println(coupClient1 + " " + coupClient2);
 
         if (coupClient1.equals("c") && coupClient2.equals("c")) {
             scoreClient1 = 3;
@@ -182,6 +219,7 @@ public class Serveur {
     }
 
     public void envoyerScores() throws IOException {
+        System.out.println("hello there ladies");
         outClient1.println("Voici les scores : Vous = "+ scoreTotalClient1 + ", Votre adversaire = " +scoreTotalClient2);
         outClient2.println("Voici les scores : Vous = "+ scoreTotalClient2 + ", Votre adversaire = " +scoreTotalClient1);
         if (scoreTotalClient1 > scoreTotalClient2) {
@@ -252,5 +290,15 @@ public class Serveur {
             serverSocket.close();
         }
     }
+
+    public static void main(String[] args) {
+        Serveur serveur = Serveur.getInstance();
+        try {
+            serveur.start(8080); // Démarre le serveur sur le port 8080
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }

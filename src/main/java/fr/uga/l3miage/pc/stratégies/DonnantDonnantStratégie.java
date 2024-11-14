@@ -9,11 +9,19 @@ public class DonnantDonnantStratégie implements Strategie {
         this.index = 0;
     }
 
-    public String prochainCoup(){
+    public String prochainCoup() {
         return index == 0 ? "c" : historique[index - 1];
     }
 
-    public void miseAJourDernierCoupAdversaire(String coupAdversaire){
+    public void miseAJourDernierCoupAdversaire(String coupAdversaire) {
         historique[index++] = coupAdversaire;
+    }
+
+    protected int getIndex() {
+        return index;
+    }
+
+    protected String[] getHistorique() {
+        return historique;
     }
 }

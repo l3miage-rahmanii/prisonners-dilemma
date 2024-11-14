@@ -31,15 +31,17 @@ public class Partie {
 
 
     public void commencer() throws IOException {
-        for (int i = 1; i <= nombreTours; i++) {
+        for (int i = 0; i < nombreTours; i++) {
             System.out.println("Tour " + i);
             if(abandon){
                 nombreTours -= i;
                 break;
             }
             serveur.askCoup(client1);
+            String coupJoueur1 = serveur.getCoup(client1);
             serveur.askCoup(client2);
-            serveur.calculScore();
+            String coupJoueur2 = serveur.getCoup(client2);
+            serveur.calculScore(coupJoueur1,coupJoueur2,i);
             serveur.envoyerScores();
 
         }
