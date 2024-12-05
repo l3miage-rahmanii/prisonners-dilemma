@@ -11,18 +11,16 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 @Setter
-public class JoueurEntity {
+@Getter
+public class ServeurEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String nom; // Nom du joueur
-    private boolean abandon; // Statut d'abandon
-    private String strategie; // Stratégie choisie en cas d'abandon (ex. "dd", "t", "c", etc.)
-    private int score; // Score total du joueur
-    private String strategiePostAbandon;
+    private String nomJoueur1;
+    private String nomJoueur2;
+    private int nbTours;
+    private int scoreTotalClient1;
+    private int scoreTotalClient2;
 }
-

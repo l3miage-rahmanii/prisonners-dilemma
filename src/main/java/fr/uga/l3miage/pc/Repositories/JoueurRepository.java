@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface JoueurRepository extends JpaRepository<JoueurEntity, Long> {
+    JoueurEntity findByNom(String nom); // Exemple : Trouver un joueur par son nom
 }
