@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+
 @Tag(name = "Gestion des parties", description = "Endpoints pour gérer les parties")
 @RestController
 @RequestMapping("/api/parties")
