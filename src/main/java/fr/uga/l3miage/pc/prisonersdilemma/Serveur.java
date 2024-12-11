@@ -32,7 +32,7 @@ public class Serveur {
     private Partie jeu;
     private int playerCount = 0;
     private static final Logger logger = Logger.getLogger(Partie.class.getName());
-
+/*
     //Constructeur privé pour le patron Singleton
     private Serveur() {
         this.scoreTotalClient1 = 0;
@@ -352,4 +352,6 @@ public class Serveur {
         this.inClient2= in;
     }
 
+
+ */
 }

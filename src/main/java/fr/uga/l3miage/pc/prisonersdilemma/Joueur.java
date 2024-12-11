@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Joueur {
+    /*
     private static final Logger logger = Logger.getLogger(Joueur.class.getName());
     private String nom;
     private boolean abandon;
@@ -67,4 +68,6 @@ public class Joueur {
     public boolean isAbandon() {
         return abandon;
     }
+
+     */
 }

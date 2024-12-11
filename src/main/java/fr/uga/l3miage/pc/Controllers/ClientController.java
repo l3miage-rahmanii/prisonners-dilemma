@@ -1,41 +1,40 @@
 package fr.uga.l3miage.pc.Controllers;
 
 
-import fr.uga.l3miage.pc.Entities.ClientEntity;
+import fr.uga.l3miage.pc.Requests.ClientRequestDTO;
+import fr.uga.l3miage.pc.Responses.ClientResponseDTO;
 import fr.uga.l3miage.pc.Services.ClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
-@Controller
+
+@RestController
+@RequestMapping("/api/clients")
 @RequiredArgsConstructor
 public class ClientController {
+
     private final ClientService clientService;
 
-    public List<ClientEntity> getAllClients() {
-        return clientService.getAllClients();
+    @PostMapping("/creer")
+    public ResponseEntity<ClientResponseDTO> creerClient(@RequestBody ClientRequestDTO request) {
+        return ResponseEntity.ok(clientService.creerClient(request));
     }
 
-
-    public ResponseEntity<ClientEntity> getClientById(@PathVariable Long id) {
-        ClientEntity client = clientService.getClientById(id);
-        if (client == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(client);
+    @PostMapping("/{id}/demarrer-partie")
+    public ResponseEntity<String> demarrerPartie(@PathVariable Long id) {
+        clientService.demarrerPartie(id);
+        return ResponseEntity.ok("Partie démarrée pour le client " + id);
     }
 
-
-    public ClientEntity createClient(@RequestBody ClientEntity clientEntity) {
-        return clientService.createClient(clientEntity);
+    @GetMapping("/{id}")
+    public ResponseEntity<ClientResponseDTO> obtenirClient(@PathVariable Long id) {
+        return ResponseEntity.ok(clientService.getClientById(id));
     }
 
-
-    public ResponseEntity<Void> deleteClient(@PathVariable Long id) {
-        clientService.deleteClient(id);
-        return ResponseEntity.noContent().build();
+    @PutMapping("/{id}/adresse")
+    public ResponseEntity<ClientResponseDTO> mettreAJourAdresse(@PathVariable Long id, @RequestParam String nouvelleAdresse) {
+        return ResponseEntity.ok(clientService.updateClientAdresse(id, nouvelleAdresse));
     }
 }

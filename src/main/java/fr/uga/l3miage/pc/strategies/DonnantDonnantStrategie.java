@@ -17,11 +17,12 @@ public class DonnantDonnantStrategie implements Strategie {
         historique[index++] = coupAdversaire;
     }
 
-    protected int getIndex() {
+    public int getIndex() {
         return index;
     }
 
-    protected String[] getHistorique() {
+    public String[] getHistorique() {
         return historique;
     }
+
 }

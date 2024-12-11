@@ -1,4 +1,4 @@
-package fr.uga.l3miage.pc.prisonersdilemma.Component;
+package fr.uga.l3miage.pc.prisonersdilemma.Components;
 
 import fr.uga.l3miage.pc.Components.JoueurComponent;
 import fr.uga.l3miage.pc.Entities.JoueurEntity;

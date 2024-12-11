@@ -1,5 +1,30 @@
-### GET request to example server
-GET https://examples.http-client.intellij.net/get
-    ?generated-in=IntelliJ IDEA
+# Créer un serveur
+POST http://localhost:8080/api/serveurs/creer
+Content-Type: application/json
+
+{
+  "adresse": "localhost",
+  "status": "disponible"
+}
 
 ###
+
+# Créer un joueur
+POST http://localhost:8080/api/joueurs/creer
+Content-Type: application/json
+
+{
+  "nom": "Joueur1"
+}
+
+###
+
+# Démarrer une partie
+POST http://localhost:8080/api/parties/demarrer
+Content-Type: application/json
+
+{
+  "serveurId": 1,
+  "joueursIds": [1, 2],
+  "nom": "Partie 1"
+}

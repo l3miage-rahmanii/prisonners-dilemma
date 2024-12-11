@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Client {
+    /*
     private static final Logger logger = Logger.getLogger(Client.class.getName());
     private Socket socket;
     private PrintWriter out;
@@ -101,4 +102,6 @@ public class Client {
     public void setIn(BufferedReader in) {
         this.in = in;
     }
+
+     */
 }

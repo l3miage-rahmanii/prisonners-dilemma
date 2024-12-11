@@ -1,4 +1,4 @@
-package fr.uga.l3miage.pc.prisonersdilemma.Controller;
+package fr.uga.l3miage.pc.prisonersdilemma.Controllers;
 
 import fr.uga.l3miage.pc.Controllers.JoueurController;
 import fr.uga.l3miage.pc.Responses.JoueurResponseDTO;

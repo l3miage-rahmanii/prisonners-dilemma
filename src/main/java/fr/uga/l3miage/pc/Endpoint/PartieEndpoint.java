@@ -1,8 +1,12 @@
 package fr.uga.l3miage.pc.Endpoint;
 
-
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import fr.uga.l3miage.pc.Requests.PartieRequestDTO;
+import fr.uga.l3miage.pc.Responses.PartieResponseDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Gestion des parties", description = "Endpoints pour gérer les parties")
 @RestController

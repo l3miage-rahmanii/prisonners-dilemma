@@ -1,26 +1,30 @@
 package fr.uga.l3miage.pc.Entities;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
 @Getter
+@Setter
+@Table(name = "serveur")
 public class ServeurEntity {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nomJoueur1;
-    private String nomJoueur2;
-    private int nbTours;
-    private int scoreTotalClient1;
-    private int scoreTotalClient2;
+    private String status;
+    private String adresse;
+
+    @ManyToOne
+    @JoinColumn(name = "instance_id")
+    private static ServeurEntity instance;
+
+    public static ServeurEntity getInstance() {
+        if (instance == null) {
+            instance = new ServeurEntity();
+        }
+        return instance;
+    }
 }

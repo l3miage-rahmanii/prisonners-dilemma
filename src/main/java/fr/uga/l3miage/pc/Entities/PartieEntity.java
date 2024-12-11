@@ -1,32 +1,37 @@
 package fr.uga.l3miage.pc.Entities;
 
+import fr.uga.l3miage.pc.Responses.ServeurResponseDTO;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
 @Getter
+@Setter
+@Table(name = "partie")
 public class PartieEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    private JoueurEntity client1;
+    private String nom;
+
+    private String status;
 
     @ManyToOne
-    private JoueurEntity client2;
+    @JoinColumn(name = "serveur_id", nullable = false)
+    private ServeurEntity serveur;
 
-    private int nombreTours; // Nombre total de tours
-
-    private boolean abandon; // Indique si un joueur a abandonné
-
-    private String strategieAbandon; // Stratégie utilisée en cas d'abandon
-
-    private String resultat; // Résultat ou gagnant de la partie
+    @ManyToMany
+    @JoinTable(
+            name = "partie_joueurs",
+            joinColumns = @JoinColumn(name = "partie_id"),
+            inverseJoinColumns = @JoinColumn(name = "joueur_id")
+    )
+    private List<JoueurEntity> joueurs;
 }
-

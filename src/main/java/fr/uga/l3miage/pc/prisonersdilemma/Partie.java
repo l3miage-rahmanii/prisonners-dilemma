@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Partie {
+    /*
     private static final Logger logger = Logger.getLogger(Partie.class.getName());
     private Client client1;
     private Client client2;
@@ -69,4 +70,6 @@ public class Partie {
     public static void setInstance(Partie nouvelleInstance) {
         instance = nouvelleInstance;
     }
+
+     */
 }

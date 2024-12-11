@@ -1,4 +1,4 @@
-package fr.uga.l3miage.pc.prisonersdilemma.Enum;
+package fr.uga.l3miage.pc.Enum;
 
 public enum StrategieEnum {
     ADAPTATIF,

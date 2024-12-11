@@ -1,29 +1,29 @@
 package fr.uga.l3miage.pc.Controllers;
 
+
+import fr.uga.l3miage.pc.Responses.JoueurResponseDTO;
 import fr.uga.l3miage.pc.Services.JoueurService;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+
+
 
 @RestController
-@RequestMapping("/joueurs")
+@RequestMapping("/api/joueurs")
+@RequiredArgsConstructor
 public class JoueurController {
+
     private final JoueurService joueurService;
 
-    public JoueurController(JoueurService joueurService) {
-        this.joueurService = joueurService;
+    @GetMapping("/{id}")
+    public ResponseEntity<JoueurResponseDTO> obtenirJoueur(@PathVariable Long id) {
+        return ResponseEntity.ok(joueurService.getJoueurById(id));
     }
 
-    @PostMapping("/{id}/nom")
-    public String definirNomJoueur(@PathVariable Long id) {
-        joueurService.enregistrerNomDuJoueur(id);
-        return "Nom du joueur défini avec succès.";
-    }
-
-    @PostMapping("/{id}/tour")
-    public String jouerTour(@PathVariable Long id) {
-        joueurService.jouerTour(id);
-        return "Tour joué avec succès.";
+    @PutMapping("/{id}/score")
+    public ResponseEntity<JoueurResponseDTO> mettreAJourScore(@PathVariable Long id, @RequestParam int nouveauScore) {
+        return ResponseEntity.ok(joueurService.updateScore(id, nouveauScore));
     }
 }

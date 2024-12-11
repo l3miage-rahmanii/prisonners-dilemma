@@ -1,59 +1,82 @@
 package fr.uga.l3miage.pc.Services;
 
+import fr.uga.l3miage.pc.Components.PartieComponent;
 import fr.uga.l3miage.pc.Entities.JoueurEntity;
 import fr.uga.l3miage.pc.Entities.PartieEntity;
+import fr.uga.l3miage.pc.Entities.ServeurEntity;
+import fr.uga.l3miage.pc.Exceptions.Rest.BadRequestRestException;
+import fr.uga.l3miage.pc.Exceptions.Rest.NotFoundEntityRestException;
+import fr.uga.l3miage.pc.Exceptions.Technical.BadRequestException;
+import fr.uga.l3miage.pc.Exceptions.Technical.NotFoundPartieEntityException;
+import fr.uga.l3miage.pc.Mappers.PartieMapper;
 import fr.uga.l3miage.pc.Repositories.PartieRepository;
+import fr.uga.l3miage.pc.Requests.PartieRequestDTO;
+import fr.uga.l3miage.pc.Responses.PartieResponseDTO;
+import fr.uga.l3miage.pc.Responses.ServeurResponseDTO;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+
 @Service
 @RequiredArgsConstructor
 public class PartieService {
 
+    private final PartieMapper partieMapper;
+    private final PartieComponent partieComponent;
     private final PartieRepository partieRepository;
+    private final JoueurService joueurService;
+    private final ServeurService serveurService;
 
-    // Créer une partie
-    public PartieEntity createPartie(JoueurEntity client1, JoueurEntity client2, int nombreTours) {
-        PartieEntity partie = PartieEntity.builder()
-                .client1(client1)
-                .client2(client2)
-                .nombreTours(nombreTours)
-                .abandon(false)
-                .resultat(null)
-                .build();
-        return partieRepository.save(partie);
+
+    public PartieResponseDTO getPartieById(Long id) {
+        try {
+            PartieEntity partie = partieComponent.getPartieById(id);
+            return partieMapper.toResponse(partie);
+        } catch (NotFoundPartieEntityException e) {
+            throw new NotFoundEntityRestException(e.getMessage());
+        }
     }
 
-    // Récupérer une partie par ID
-    public PartieEntity getPartieById(Long id) {
-        return partieRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Partie non trouvée avec l'id : " + id));
+    public PartieResponseDTO updatePartieStatus(Long id, String nouveauStatus) {
+        try {
+            PartieEntity partie = partieComponent.updateStatus(id, nouveauStatus);
+            return partieMapper.toResponse(partie);
+        } catch (NotFoundPartieEntityException e) {
+            throw new NotFoundEntityRestException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestRestException(e.getMessage());
+        }
     }
 
-    // Récupérer toutes les parties
-    public List<PartieEntity> getAllParties() {
-        return partieRepository.findAll();
-    }
 
-    // Mettre à jour l'abandon dans une partie
-    public PartieEntity updateAbandon(Long id, boolean abandon, String strategieAbandon) {
-        PartieEntity partie = getPartieById(id);
-        partie.setAbandon(abandon);
-        partie.setStrategieAbandon(strategieAbandon);
-        return partieRepository.save(partie);
-    }
+    public PartieResponseDTO demarrerPartie(PartieRequestDTO request) {
+        try {
+            // Réserver le serveur pour la partie
+            ServeurEntity serveur = serveurService.reserverServeur(request.getServeurId());
 
-    // Mettre à jour le résultat d'une partie
-    public PartieEntity updateResultat(Long id, String resultat) {
-        PartieEntity partie = getPartieById(id);
-        partie.setResultat(resultat);
-        return partieRepository.save(partie);
-    }
+            // Récupérer les joueurs par leurs IDs
+            List<JoueurEntity> joueurs = joueurService.getJoueursByIds(request.getJoueursIds());
 
-    // Supprimer une partie
-    public void deletePartie(Long id) {
-        partieRepository.deleteById(id);
+            if (joueurs.size() != 2) {
+                throw new BadRequestRestException("Il faut exactement deux joueurs pour commencer une partie.");
+            }
+
+            // Créer la partie avec le serveur et les joueurs associés
+            PartieEntity nouvellePartie = PartieEntity.builder()
+                    .nom(request.getNom())
+                    .serveur(serveur)
+                    .joueurs(joueurs)
+                    .status("en cours")
+                    .build();
+
+            partieRepository.save(nouvellePartie);
+
+            return partieMapper.toResponse(nouvellePartie);
+        } catch (NotFoundEntityRestException e) {
+            throw new NotFoundEntityRestException(e.getMessage());
+        }
     }
 }

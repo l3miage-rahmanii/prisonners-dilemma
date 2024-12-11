@@ -1,4 +1,4 @@
-package fr.uga.l3miage.pc.prisonersdilemma.Controller;
+package fr.uga.l3miage.pc.prisonersdilemma.Controllers;
 
 import fr.uga.l3miage.pc.Controllers.PartieController;
 import fr.uga.l3miage.pc.Requests.PartieRequestDTO;
