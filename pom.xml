@@ -138,10 +138,14 @@
             </plugin>
 
             <!-- Spring Boot Maven Plugin -->
+            <!-- Plugin Maven pour Spring Boot -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.7.12</version>
+                <version>3.1.2</version>
+                <configuration>
+                    <mainClass>fr.uga.l3miage.pc.Main</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>
