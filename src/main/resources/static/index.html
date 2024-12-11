@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dilemme du Prisonnier</title>
+    <script src="https://unpkg.com/htmx.org"></script>
+</head>
+<body>
+<h1>Dilemme du Prisonnier</h1>
+<div id="score-container">
+    <h2>Score</h2>
+    <div id="score">0</div>
+</div>
+<div id="message-container">
+    <h2>Messages</h2>
+    <div id="message">Bienvenue au jeu !</div>
+</div>
+    <div id="actions">
+        <button hx-post="/api/serveurs/action?type=cooperer" hx-target="#message">Coopérer</button>
+        <button hx-post="/api/serveurs/action?type=trahir" hx-target="#message">Trahir</button>
+        <button hx-post="/api/serveurs/action?type=abandonner" hx-target="#message">Abandonner</button>
+    </div>
+</body>
+</html>
