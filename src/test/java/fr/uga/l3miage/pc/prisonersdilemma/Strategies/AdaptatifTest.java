@@ -1,10 +1,8 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Strategies;
 
-import fr.uga.l3miage.pc.strategies.Adaptatif;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
 
 public class AdaptatifTest {
     /*

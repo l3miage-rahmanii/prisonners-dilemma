@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class RancunierStrategieTest {
+class RancunierStrategieTest {
 
     private RancunierStrategie strategie;
     private String[] historique;

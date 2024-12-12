@@ -7,7 +7,7 @@ import fr.uga.l3miage.pc.strategies.SondeurNaif;
 
 import java.util.Random;
 
-public class SondeurNaifTest {
+class SondeurNaifTest {
 
     private SondeurNaif strategie;
     private String[] historique;

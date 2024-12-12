@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Random;
 
-public class PavlovAleatoireTest {
+class PavlovAleatoireTest {
 
     private PavlovAleatoire strategie;
 
