@@ -15,7 +15,7 @@ public class AdaptatifTest {
     @BeforeEach
     void setUp() {
         historique = new String[20]; // Taille arbitraire pour les tests
-        adaptatif = new Adaptatif(historique);
+        adaptatif = nesw Adaptatif(historique);
     }
 
     @Test

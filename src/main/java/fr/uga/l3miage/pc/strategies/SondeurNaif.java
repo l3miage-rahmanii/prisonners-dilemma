@@ -22,6 +22,7 @@ public class SondeurNaif implements Strategie {
         return index > 0 && historique[index - 1].equals("t") ? "t" : "c";
     }
 
+
     public void miseAJourDernierCoupAdversaire(String coupAdversaire) {
         historique[index++] = coupAdversaire;
     }
