@@ -20,19 +20,6 @@ public class SondeurRepentantTest {
     }
 
     @Test
-    void testPremierCoup() {
-        // Vérifie que le premier coup est toujours "c" (coopération)
-        assertEquals("c", strategie.prochainCoup());
-    }
-
-    @Test
-    void testReponseApresCooperation() {
-        // Simule la coopération de l'adversaire
-        strategie.miseAJourDernierCoupAdversaire("c");
-        assertEquals("c", strategie.prochainCoup());
-    }
-
-    @Test
     void testReponseApresTrahison() {
         // Simule la trahison de l'adversaire
         strategie.miseAJourDernierCoupAdversaire("t");

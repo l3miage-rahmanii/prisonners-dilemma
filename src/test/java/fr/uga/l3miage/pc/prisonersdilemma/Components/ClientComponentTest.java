@@ -44,6 +44,21 @@ public class ClientComponentTest {
     }
 
     @Test
+    void testGetClientByIdWithInvalidId() {
+        Long invalidId = null;
+
+        assertThrows(NotFoundClientEntityException.class, () -> clientComponent.getClientById(invalidId));
+    }
+
+    @Test
+    void testUpdateAdresseWithInvalidId() {
+        Long invalidId = null;
+        String nouvelleAdresse = "Nouvelle Adresse";
+
+        assertThrows(NotFoundClientEntityException.class, () -> clientComponent.updateAdresse(invalidId, nouvelleAdresse));
+    }
+
+    @Test
     void testGetClientByIdNotFound() {
         Long id = 1L;
         when(clientRepository.findById(id)).thenReturn(Optional.empty());
@@ -94,4 +109,36 @@ public class ClientComponentTest {
 
         assertThrows(NotFoundClientEntityException.class, () -> clientComponent.deleteClient(id));
     }
+
+    @Test
+    void testUpdateAdresseClientNotFound() {
+        Long id = 1L;
+        String nouvelleAdresse = "Nouvelle Adresse";
+        when(clientRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundClientEntityException.class, () -> clientComponent.updateAdresse(id, nouvelleAdresse));
+    }
+
+    @Test
+    void testUpdateAdresseNullAdresse() {
+        Long id = 1L;
+        when(clientRepository.findById(id)).thenReturn(Optional.of(new ClientEntity()));
+
+        assertThrows(BadRequestException.class, () -> clientComponent.updateAdresse(id, null));
+    }
+
+    @Test
+    void testUpdateAdresseSaveFailure() throws NotFoundClientEntityException {
+        Long id = 1L;
+        String nouvelleAdresse = "Nouvelle Adresse";
+        ClientEntity client = new ClientEntity();
+        client.setId(id);
+        when(clientRepository.findById(id)).thenReturn(Optional.of(client));
+        when(clientRepository.save(client)).thenThrow(new RuntimeException("Échec de la sauvegarde"));
+
+        assertThrows(RuntimeException.class, () -> clientComponent.updateAdresse(id, nouvelleAdresse));
+    }
+
+
+
 }
