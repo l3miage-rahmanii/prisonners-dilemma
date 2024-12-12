@@ -1,8 +1,8 @@
 package fr.uga.l3miage.pc.components;
 
 import fr.uga.l3miage.pc.Entities.JoueurEntity;
-import fr.uga.l3miage.pc.exceptions.Technical.BadRequestException;
-import fr.uga.l3miage.pc.exceptions.Technical.NotFoundJoueurEntityException;
+import fr.uga.l3miage.pc.exceptions.technical.BadRequestException;
+import fr.uga.l3miage.pc.exceptions.technical.NotFoundJoueurEntityException;
 import fr.uga.l3miage.pc.repositories.JoueurRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

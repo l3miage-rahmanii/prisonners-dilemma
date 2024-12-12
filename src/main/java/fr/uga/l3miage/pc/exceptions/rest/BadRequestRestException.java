@@ -1,4 +1,4 @@
-package fr.uga.l3miage.pc.exceptions.Rest;
+package fr.uga.l3miage.pc.exceptions.rest;
 
 public class BadRequestRestException extends RuntimeException {
     public BadRequestRestException(String message) {

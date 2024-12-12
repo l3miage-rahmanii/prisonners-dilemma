@@ -2,8 +2,8 @@ package fr.uga.l3miage.pc.prisonersdilemma.Services;
 
 import fr.uga.l3miage.pc.components.JoueurComponent;
 import fr.uga.l3miage.pc.Entities.JoueurEntity;
-import fr.uga.l3miage.pc.exceptions.Rest.BadRequestRestException;
-import fr.uga.l3miage.pc.exceptions.Rest.NotFoundEntityRestException;
+import fr.uga.l3miage.pc.exceptions.rest.BadRequestRestException;
+import fr.uga.l3miage.pc.exceptions.rest.NotFoundEntityRestException;
 import fr.uga.l3miage.pc.Mappers.JoueurMapper;
 import fr.uga.l3miage.pc.repositories.JoueurRepository;
 import fr.uga.l3miage.pc.responses.JoueurResponseDTO;

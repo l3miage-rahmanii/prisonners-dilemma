@@ -1,8 +1,8 @@
 package fr.uga.l3miage.pc.components;
 
 import fr.uga.l3miage.pc.Entities.ClientEntity;
-import fr.uga.l3miage.pc.exceptions.Technical.BadRequestException;
-import fr.uga.l3miage.pc.exceptions.Technical.NotFoundClientEntityException;
+import fr.uga.l3miage.pc.exceptions.technical.BadRequestException;
+import fr.uga.l3miage.pc.exceptions.technical.NotFoundClientEntityException;
 import fr.uga.l3miage.pc.repositories.ClientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

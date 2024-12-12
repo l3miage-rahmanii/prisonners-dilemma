@@ -1,4 +1,4 @@
-package fr.uga.l3miage.pc.exceptions.Technical;
+package fr.uga.l3miage.pc.exceptions.technical;
 
 public class BadRequestException extends Exception {
     public BadRequestException(String message) {

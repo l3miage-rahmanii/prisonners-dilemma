@@ -2,8 +2,8 @@ package fr.uga.l3miage.pc.prisonersdilemma.Components;
 
 import fr.uga.l3miage.pc.components.PartieComponent;
 import fr.uga.l3miage.pc.Entities.PartieEntity;
-import fr.uga.l3miage.pc.exceptions.Technical.BadRequestException;
-import fr.uga.l3miage.pc.exceptions.Technical.NotFoundPartieEntityException;
+import fr.uga.l3miage.pc.exceptions.technical.BadRequestException;
+import fr.uga.l3miage.pc.exceptions.technical.NotFoundPartieEntityException;
 import fr.uga.l3miage.pc.repositories.PartieRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

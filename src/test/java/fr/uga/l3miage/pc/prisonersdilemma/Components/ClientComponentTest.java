@@ -3,8 +3,8 @@ package fr.uga.l3miage.pc.prisonersdilemma.Components;
 
 import fr.uga.l3miage.pc.components.ClientComponent;
 import fr.uga.l3miage.pc.Entities.ClientEntity;
-import fr.uga.l3miage.pc.exceptions.Technical.BadRequestException;
-import fr.uga.l3miage.pc.exceptions.Technical.NotFoundClientEntityException;
+import fr.uga.l3miage.pc.exceptions.technical.BadRequestException;
+import fr.uga.l3miage.pc.exceptions.technical.NotFoundClientEntityException;
 import fr.uga.l3miage.pc.repositories.ClientRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
