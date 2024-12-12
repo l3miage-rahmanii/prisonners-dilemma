@@ -1,7 +1,7 @@
 package fr.uga.l3miage.pc.strategies;
 
 
-import fr.uga.l3miage.pc.Enum.StrategieEnum;
+import fr.uga.l3miage.pc.enums.StrategieEnum;
 
 public class StrategieFactory {
 

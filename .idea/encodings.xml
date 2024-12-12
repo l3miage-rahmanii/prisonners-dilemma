@@ -2,10 +2,10 @@
 <project version="4">
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/src/main/java" charset="ISO-8859-1" />
-    <file url="file://$PROJECT_DIR$/src/main/java/fr/uga/l3miage/pc/Components/ClientComponent.java" charset="ISO-8859-1" />
-    <file url="file://$PROJECT_DIR$/src/main/java/fr/uga/l3miage/pc/Endpoint/PartieEndpoint.java" charset="ISO-8859-1" />
-    <file url="file://$PROJECT_DIR$/src/main/java/fr/uga/l3miage/pc/Enum/StrategieEnum.java" charset="ISO-8859-1" />
     <file url="file://$PROJECT_DIR$/src/main/java/fr/uga/l3miage/pc/Responses" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/main/java/fr/uga/l3miage/pc/components/ClientComponent.java" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/main/java/fr/uga/l3miage/pc/endpoint/PartieEndpoint.java" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/src/main/java/fr/uga/l3miage/pc/enums/StrategieEnum.java" charset="ISO-8859-1" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="ISO-8859-1" />
   </component>
 </project>

@@ -1,9 +1,9 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Controllers;
 
-import fr.uga.l3miage.pc.Controllers.ServeurController;
-import fr.uga.l3miage.pc.Requests.ServeurRequestDTO;
+import fr.uga.l3miage.pc.controllers.ServeurController;
+import fr.uga.l3miage.pc.requests.ServeurRequestDTO;
 import fr.uga.l3miage.pc.Responses.ServeurResponseDTO;
-import fr.uga.l3miage.pc.Services.ServeurService;
+import fr.uga.l3miage.pc.services.ServeurService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

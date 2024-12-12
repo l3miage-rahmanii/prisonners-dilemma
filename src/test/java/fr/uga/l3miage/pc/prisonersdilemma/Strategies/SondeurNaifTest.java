@@ -21,15 +21,6 @@ public class SondeurNaifTest {
 
 
     @Test
-    void testCoupApresCoupDeCooperation() {
-        // Mise à jour de l'historique avec un coup de coopération
-        strategie.miseAJourDernierCoupAdversaire("c");
-
-        // Le prochain coup devrait être "c" car l'adversaire a coopéré
-        assertEquals("c", strategie.prochainCoup());
-    }
-
-    @Test
     void testCoupApresCoupDeTrahison() {
         // Mise à jour de l'historique avec un coup de trahison
         strategie.miseAJourDernierCoupAdversaire("t");

@@ -1,10 +1,10 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Components;
 
-import fr.uga.l3miage.pc.Components.PartieComponent;
+import fr.uga.l3miage.pc.components.PartieComponent;
 import fr.uga.l3miage.pc.Entities.PartieEntity;
-import fr.uga.l3miage.pc.Exceptions.Technical.BadRequestException;
-import fr.uga.l3miage.pc.Exceptions.Technical.NotFoundPartieEntityException;
-import fr.uga.l3miage.pc.Repositories.PartieRepository;
+import fr.uga.l3miage.pc.exceptions.Technical.BadRequestException;
+import fr.uga.l3miage.pc.exceptions.Technical.NotFoundPartieEntityException;
+import fr.uga.l3miage.pc.repositories.PartieRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
