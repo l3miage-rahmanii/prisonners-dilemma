@@ -15,8 +15,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 class ClientComponentTest {
@@ -128,7 +127,7 @@ class ClientComponentTest {
     }
 
     @Test
-    void testUpdateAdresseSaveFailure() throws NotFoundClientEntityException {
+    void testUpdateAdresseSaveFailure() {
         Long id = 1L;
         String nouvelleAdresse = "Nouvelle Adresse";
         ClientEntity client = new ClientEntity();
@@ -139,6 +138,38 @@ class ClientComponentTest {
         assertThrows(RuntimeException.class, () -> clientComponent.updateAdresse(id, nouvelleAdresse));
     }
 
+
+
+    @Test
+    void testDeleteClientRepositoryFailure() throws NotFoundClientEntityException {
+        Long id = 1L;
+        ClientEntity client = new ClientEntity();
+        client.setId(id);
+        when(clientRepository.findById(id)).thenReturn(Optional.of(client));
+        doThrow(new RuntimeException("Échec de la suppression"))
+                .when(clientRepository).delete(client);
+
+        assertThrows(RuntimeException.class, () -> clientComponent.deleteClient(id));
+    }
+
+
+    @Test
+    void testUpdateAdresseTrimsInput() throws NotFoundClientEntityException, BadRequestException {
+        Long id = 1L;
+        String nouvelleAdresse = "Nouvelle Adresse";
+        ClientEntity client = new ClientEntity();
+        client.setId(id);
+        when(clientRepository.findById(id)).thenReturn(Optional.of(client));
+        when(clientRepository.save(client)).thenAnswer(invocation -> {
+            ClientEntity savedClient = invocation.getArgument(0);
+            assertEquals("Nouvelle Adresse", savedClient.getAdresse());
+            return savedClient;
+        });
+
+        clientComponent.updateAdresse(id, nouvelleAdresse);
+
+        verify(clientRepository, times(1)).save(client);
+    }
 
 
 }
