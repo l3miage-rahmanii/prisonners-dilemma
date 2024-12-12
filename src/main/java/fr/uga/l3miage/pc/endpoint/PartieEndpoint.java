@@ -1,7 +1,7 @@
 package fr.uga.l3miage.pc.endpoint;
 
 import fr.uga.l3miage.pc.requests.PartieRequestDTO;
-import fr.uga.l3miage.pc.Responses.PartieResponseDTO;
+import fr.uga.l3miage.pc.responses.PartieResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;

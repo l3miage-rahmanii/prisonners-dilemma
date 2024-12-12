@@ -1,7 +1,7 @@
 package fr.uga.l3miage.pc.Mappers;
 
 import fr.uga.l3miage.pc.Entities.ServeurEntity;
-import fr.uga.l3miage.pc.Responses.ServeurResponseDTO;
+import fr.uga.l3miage.pc.responses.ServeurResponseDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

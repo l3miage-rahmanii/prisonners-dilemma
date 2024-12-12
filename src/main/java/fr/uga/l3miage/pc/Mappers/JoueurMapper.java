@@ -2,7 +2,7 @@ package fr.uga.l3miage.pc.Mappers;
 
 
 import fr.uga.l3miage.pc.Entities.JoueurEntity;
-import fr.uga.l3miage.pc.Responses.JoueurResponseDTO;
+import fr.uga.l3miage.pc.responses.JoueurResponseDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

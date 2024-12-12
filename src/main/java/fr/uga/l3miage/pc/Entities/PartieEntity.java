@@ -1,6 +1,6 @@
 package fr.uga.l3miage.pc.Entities;
 
-import fr.uga.l3miage.pc.Responses.ServeurResponseDTO;
+
 import jakarta.persistence.*;
 import lombok.*;
 

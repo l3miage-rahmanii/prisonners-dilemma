@@ -1,4 +1,4 @@
-package fr.uga.l3miage.pc.services;
+package fr.uga.l3miage.pc.Services;
 
 
 import fr.uga.l3miage.pc.components.ClientComponent;
@@ -10,7 +10,7 @@ import fr.uga.l3miage.pc.exceptions.Technical.NotFoundClientEntityException;
 import fr.uga.l3miage.pc.Mappers.ClientMapper;
 import fr.uga.l3miage.pc.repositories.ClientRepository;
 import fr.uga.l3miage.pc.requests.ClientRequestDTO;
-import fr.uga.l3miage.pc.Responses.ClientResponseDTO;
+import fr.uga.l3miage.pc.responses.ClientResponseDTO;
 import lombok.*;
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package fr.uga.l3miage.pc.Responses;
+package fr.uga.l3miage.pc.responses;
 
 import lombok.*;
 

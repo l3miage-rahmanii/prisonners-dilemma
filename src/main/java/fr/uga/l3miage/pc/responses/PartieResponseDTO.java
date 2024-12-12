@@ -1,4 +1,4 @@
-package fr.uga.l3miage.pc.Responses;
+package fr.uga.l3miage.pc.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,10 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class JoueurResponseDTO {
+public class PartieResponseDTO {
     private Long id;
     private String nom;
-    private int score;
-    private boolean abandon;
+    private String status;
 }
-

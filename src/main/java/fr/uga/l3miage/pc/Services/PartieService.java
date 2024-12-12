@@ -1,4 +1,4 @@
-package fr.uga.l3miage.pc.services;
+package fr.uga.l3miage.pc.Services;
 
 import fr.uga.l3miage.pc.components.PartieComponent;
 import fr.uga.l3miage.pc.Entities.JoueurEntity;
@@ -11,7 +11,7 @@ import fr.uga.l3miage.pc.exceptions.Technical.NotFoundPartieEntityException;
 import fr.uga.l3miage.pc.Mappers.PartieMapper;
 import fr.uga.l3miage.pc.repositories.PartieRepository;
 import fr.uga.l3miage.pc.requests.PartieRequestDTO;
-import fr.uga.l3miage.pc.Responses.PartieResponseDTO;
+import fr.uga.l3miage.pc.responses.PartieResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

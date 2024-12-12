@@ -1,8 +1,8 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Controllers;
 
 import fr.uga.l3miage.pc.controllers.JoueurController;
-import fr.uga.l3miage.pc.Responses.JoueurResponseDTO;
-import fr.uga.l3miage.pc.services.JoueurService;
+import fr.uga.l3miage.pc.responses.JoueurResponseDTO;
+import fr.uga.l3miage.pc.Services.JoueurService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
