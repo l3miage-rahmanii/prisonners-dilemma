@@ -20,7 +20,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
-public class JoueurComponentTest {
+class JoueurComponentTest {
 
     @Mock
     private JoueurRepository joueurRepository;
