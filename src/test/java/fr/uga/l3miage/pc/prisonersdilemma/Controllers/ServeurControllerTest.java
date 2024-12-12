@@ -17,7 +17,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
-public class ServeurControllerTest {
+class ServeurControllerTest {
 
     @Mock
     private ServeurService serveurService;
