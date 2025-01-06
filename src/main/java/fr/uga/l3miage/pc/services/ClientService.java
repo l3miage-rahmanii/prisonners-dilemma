@@ -59,8 +59,7 @@ public class ClientService {
 
     public void demarrerPartie(Long clientId) {
         try {
-            // Capture l'entité pour valider son existence
-            ClientEntity client = clientRepository.findById(clientId)
+            clientRepository.findById(clientId)
                     .orElseThrow(() -> new NotFoundClientEntityException("Client non trouvé"));
 
             logger.info("Partie démarrée pour le client avec ID : {}", clientId);
@@ -69,5 +68,6 @@ public class ClientService {
             throw new NotFoundEntityRestException(e.getMessage());
         }
     }
+
 
 }
