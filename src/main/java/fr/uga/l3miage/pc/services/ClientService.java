@@ -59,15 +59,17 @@ public class ClientService {
 
     public void demarrerPartie(Long clientId) {
         try {
-            clientRepository.findById(clientId)
+            ClientEntity client = clientRepository.findById(clientId)
                     .orElseThrow(() -> new NotFoundClientEntityException("Client non trouvé"));
 
-            logger.info("Partie démarrée pour le client avec ID : {}", clientId);
+
+            logger.info("Partie démarrée pour le client : {} ", client.getNom());
 
         } catch (NotFoundClientEntityException e) {
             throw new NotFoundEntityRestException(e.getMessage());
         }
     }
+
 
 
 }
