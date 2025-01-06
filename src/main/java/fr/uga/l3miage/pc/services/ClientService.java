@@ -11,6 +11,8 @@ import fr.uga.l3miage.pc.repositories.ClientRepository;
 import fr.uga.l3miage.pc.requests.ClientRequestDTO;
 import fr.uga.l3miage.pc.responses.ClientResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,6 +22,7 @@ public class ClientService {
     private final ClientMapper clientMapper;
     private final ClientComponent clientComponent;
     private final ClientRepository clientRepository;
+    private static final Logger logger = LoggerFactory.getLogger(ClientService.class);
 
     public ClientResponseDTO getClientById(Long id) {
         try {
@@ -60,7 +63,7 @@ public class ClientService {
             ClientEntity client = clientRepository.findById(clientId)
                     .orElseThrow(() -> new NotFoundClientEntityException("Client non trouvé"));
 
-            System.out.println("Partie démarrée pour le client : " + client.getNom());
+            logger.info("Partie démarrée pour le client avec ID : {}", clientId);
 
         } catch (NotFoundClientEntityException e) {
             throw new NotFoundEntityRestException(e.getMessage());
