@@ -1,4 +1,4 @@
-package fr.uga.l3miage.pc.Entities;
+package fr.uga.l3miage.pc.entities;
 
 
 

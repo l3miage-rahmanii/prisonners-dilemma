@@ -1,7 +1,7 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Components;
 
 import fr.uga.l3miage.pc.components.PartieComponent;
-import fr.uga.l3miage.pc.Entities.PartieEntity;
+import fr.uga.l3miage.pc.entities.PartieEntity;
 import fr.uga.l3miage.pc.exceptions.technical.BadRequestException;
 import fr.uga.l3miage.pc.exceptions.technical.NotFoundPartieEntityException;
 import fr.uga.l3miage.pc.repositories.PartieRepository;

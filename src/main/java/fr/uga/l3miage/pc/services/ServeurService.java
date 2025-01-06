@@ -1,12 +1,12 @@
-package fr.uga.l3miage.pc.Services;
+package fr.uga.l3miage.pc.services;
 
 import fr.uga.l3miage.pc.components.ServeurComponent;
-import fr.uga.l3miage.pc.Entities.ServeurEntity;
+import fr.uga.l3miage.pc.entities.ServeurEntity;
 import fr.uga.l3miage.pc.exceptions.rest.BadRequestRestException;
 import fr.uga.l3miage.pc.exceptions.rest.NotFoundEntityRestException;
 import fr.uga.l3miage.pc.exceptions.technical.BadRequestException;
 import fr.uga.l3miage.pc.exceptions.technical.NotFoundServeurEntityException;
-import fr.uga.l3miage.pc.Mappers.ServeurMapper;
+import fr.uga.l3miage.pc.mappers.ServeurMapper;
 import fr.uga.l3miage.pc.repositories.ServeurRepository;
 import fr.uga.l3miage.pc.requests.ServeurRequestDTO;
 import fr.uga.l3miage.pc.responses.ServeurResponseDTO;
@@ -17,13 +17,15 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ServeurService {
 
+    private static final String SERVER_NOT_FOUND_MESSAGE = "Serveur non trouve";
+
     private final ServeurMapper serveurMapper;
     private final ServeurComponent serveurComponent;
     private final ServeurRepository serveurRepository;
 
     public ServeurEntity getServeurEntityById(Long id) {
         return serveurRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Serveur non trouve"));
+                .orElseThrow(() -> new RuntimeException(SERVER_NOT_FOUND_MESSAGE));
     }
 
     public ServeurResponseDTO getServeurById(Long id) {
@@ -63,19 +65,19 @@ public class ServeurService {
 
     public void supprimerServeur(Long id) {
         ServeurEntity serveur = serveurRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Serveur non trouve"));
+                .orElseThrow(() -> new RuntimeException(SERVER_NOT_FOUND_MESSAGE));
         serveurRepository.delete(serveur);
     }
 
     public boolean isServeurDisponible(Long serveurId) {
         ServeurEntity serveur = serveurRepository.findById(serveurId)
-                .orElseThrow(() -> new NotFoundEntityRestException("Serveur non trouve"));
+                .orElseThrow(() -> new NotFoundEntityRestException(SERVER_NOT_FOUND_MESSAGE));
         return serveur.getStatus().equalsIgnoreCase("disponible");
     }
 
     public ServeurEntity reserverServeur(Long serveurId) {
         ServeurEntity serveur = serveurRepository.findById(serveurId)
-                .orElseThrow(() -> new NotFoundEntityRestException("Serveur non trouve"));
+                .orElseThrow(() -> new NotFoundEntityRestException(SERVER_NOT_FOUND_MESSAGE));
 
         if (!serveur.getStatus().equalsIgnoreCase("disponible")) {
             throw new BadRequestRestException("Le serveur n'est pas disponible");
@@ -84,5 +86,4 @@ public class ServeurService {
         serveur.setStatus("occupe");
         return serveurRepository.save(serveur);
     }
-
 }

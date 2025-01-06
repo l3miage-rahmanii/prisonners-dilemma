@@ -1,16 +1,16 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Services;
 
 import fr.uga.l3miage.pc.components.ServeurComponent;
-import fr.uga.l3miage.pc.Entities.ServeurEntity;
+import fr.uga.l3miage.pc.entities.ServeurEntity;
 import fr.uga.l3miage.pc.exceptions.rest.BadRequestRestException;
 import fr.uga.l3miage.pc.exceptions.rest.NotFoundEntityRestException;
 import fr.uga.l3miage.pc.exceptions.technical.BadRequestException;
 import fr.uga.l3miage.pc.exceptions.technical.NotFoundServeurEntityException;
-import fr.uga.l3miage.pc.Mappers.ServeurMapper;
+import fr.uga.l3miage.pc.mappers.ServeurMapper;
 import fr.uga.l3miage.pc.repositories.ServeurRepository;
 import fr.uga.l3miage.pc.requests.ServeurRequestDTO;
 import fr.uga.l3miage.pc.responses.ServeurResponseDTO;
-import fr.uga.l3miage.pc.Services.ServeurService;
+import fr.uga.l3miage.pc.services.ServeurService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

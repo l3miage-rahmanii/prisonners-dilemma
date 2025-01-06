@@ -1,7 +1,7 @@
 package fr.uga.l3miage.pc.components;
 
 
-import fr.uga.l3miage.pc.Entities.ServeurEntity;
+import fr.uga.l3miage.pc.entities.ServeurEntity;
 import fr.uga.l3miage.pc.exceptions.technical.BadRequestException;
 import fr.uga.l3miage.pc.exceptions.technical.NotFoundServeurEntityException;
 import fr.uga.l3miage.pc.repositories.ServeurRepository;

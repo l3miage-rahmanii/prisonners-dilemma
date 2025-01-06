@@ -1,12 +1,12 @@
-package fr.uga.l3miage.pc.Services;
+package fr.uga.l3miage.pc.services;
 
 import fr.uga.l3miage.pc.components.JoueurComponent;
-import fr.uga.l3miage.pc.Entities.JoueurEntity;
+import fr.uga.l3miage.pc.entities.JoueurEntity;
 import fr.uga.l3miage.pc.exceptions.rest.BadRequestRestException;
 import fr.uga.l3miage.pc.exceptions.rest.NotFoundEntityRestException;
 import fr.uga.l3miage.pc.exceptions.technical.BadRequestException;
 import fr.uga.l3miage.pc.exceptions.technical.NotFoundJoueurEntityException;
-import fr.uga.l3miage.pc.Mappers.JoueurMapper;
+import fr.uga.l3miage.pc.mappers.JoueurMapper;
 import fr.uga.l3miage.pc.repositories.JoueurRepository;
 import fr.uga.l3miage.pc.responses.JoueurResponseDTO;
 import lombok.RequiredArgsConstructor;

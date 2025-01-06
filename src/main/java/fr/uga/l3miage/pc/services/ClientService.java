@@ -1,20 +1,17 @@
-package fr.uga.l3miage.pc.Services;
-
+package fr.uga.l3miage.pc.services;
 
 import fr.uga.l3miage.pc.components.ClientComponent;
-import fr.uga.l3miage.pc.Entities.ClientEntity;
+import fr.uga.l3miage.pc.entities.ClientEntity;
 import fr.uga.l3miage.pc.exceptions.rest.BadRequestRestException;
 import fr.uga.l3miage.pc.exceptions.rest.NotFoundEntityRestException;
 import fr.uga.l3miage.pc.exceptions.technical.BadRequestException;
 import fr.uga.l3miage.pc.exceptions.technical.NotFoundClientEntityException;
-import fr.uga.l3miage.pc.Mappers.ClientMapper;
+import fr.uga.l3miage.pc.mappers.ClientMapper;
 import fr.uga.l3miage.pc.repositories.ClientRepository;
 import fr.uga.l3miage.pc.requests.ClientRequestDTO;
 import fr.uga.l3miage.pc.responses.ClientResponseDTO;
-import lombok.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +42,6 @@ public class ClientService {
     }
 
     public ClientResponseDTO creerClient(ClientRequestDTO request) {
-        // Logique métier pour créer un client
         ClientEntity clientEntity = new ClientEntity();
         clientEntity.setNom(request.getNom());
         clientEntity.setAdresse(request.getAdresse());
@@ -60,9 +56,10 @@ public class ClientService {
 
     public void demarrerPartie(Long clientId) {
         try {
-            // Logique pour démarrer une partie (vérifications, préparation, etc.)
-            ClientEntity client = clientRepository.findById(clientId)
+            // Ensures an exception is thrown if the client doesn't exist
+            clientRepository.findById(clientId)
                     .orElseThrow(() -> new NotFoundClientEntityException("Client non trouvé"));
+            // Additional game-start logic could go here
         } catch (NotFoundClientEntityException e) {
             throw new NotFoundEntityRestException(e.getMessage());
         }

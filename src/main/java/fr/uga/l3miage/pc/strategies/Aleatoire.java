@@ -3,7 +3,6 @@ package fr.uga.l3miage.pc.strategies;
 
 
 import java.security.SecureRandom;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class Aleatoire implements Strategie {
     private final SecureRandom secureRandom;

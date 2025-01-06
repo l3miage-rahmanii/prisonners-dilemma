@@ -2,7 +2,7 @@ package fr.uga.l3miage.pc.controllers;
 
 
 import fr.uga.l3miage.pc.responses.JoueurResponseDTO;
-import fr.uga.l3miage.pc.Services.JoueurService;
+import fr.uga.l3miage.pc.services.JoueurService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

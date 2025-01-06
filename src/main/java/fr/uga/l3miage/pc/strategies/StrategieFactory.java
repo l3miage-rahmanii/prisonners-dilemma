@@ -1,9 +1,11 @@
 package fr.uga.l3miage.pc.strategies;
 
-
 import fr.uga.l3miage.pc.enums.StrategieEnum;
 
 public class StrategieFactory {
+
+
+    private StrategieFactory() {}
 
     public static Strategie getStrategie(StrategieEnum choixStrategie, String[] historique) {
         switch (choixStrategie) {

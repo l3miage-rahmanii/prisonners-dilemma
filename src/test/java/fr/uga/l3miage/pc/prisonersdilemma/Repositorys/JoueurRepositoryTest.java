@@ -1,6 +1,6 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Repositorys;
 
-import fr.uga.l3miage.pc.Entities.JoueurEntity;
+import fr.uga.l3miage.pc.entities.JoueurEntity;
 import fr.uga.l3miage.pc.repositories.JoueurRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

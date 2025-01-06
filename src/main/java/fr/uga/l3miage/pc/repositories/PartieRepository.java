@@ -1,6 +1,6 @@
 package fr.uga.l3miage.pc.repositories;
 
-import fr.uga.l3miage.pc.Entities.PartieEntity;
+import fr.uga.l3miage.pc.entities.PartieEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

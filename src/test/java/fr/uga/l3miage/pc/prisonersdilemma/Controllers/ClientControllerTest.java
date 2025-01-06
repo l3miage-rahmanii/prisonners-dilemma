@@ -3,7 +3,7 @@ package fr.uga.l3miage.pc.prisonersdilemma.Controllers;
 import fr.uga.l3miage.pc.controllers.ClientController;
 import fr.uga.l3miage.pc.requests.ClientRequestDTO;
 import fr.uga.l3miage.pc.responses.ClientResponseDTO;
-import fr.uga.l3miage.pc.Services.ClientService;
+import fr.uga.l3miage.pc.services.ClientService;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;

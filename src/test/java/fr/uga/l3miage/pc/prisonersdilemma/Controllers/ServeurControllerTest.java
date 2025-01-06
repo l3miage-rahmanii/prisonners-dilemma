@@ -3,7 +3,7 @@ package fr.uga.l3miage.pc.prisonersdilemma.Controllers;
 import fr.uga.l3miage.pc.controllers.ServeurController;
 import fr.uga.l3miage.pc.requests.ServeurRequestDTO;
 import fr.uga.l3miage.pc.responses.ServeurResponseDTO;
-import fr.uga.l3miage.pc.Services.ServeurService;
+import fr.uga.l3miage.pc.services.ServeurService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,9 +13,14 @@ import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 class ServeurControllerTest {
 
@@ -80,7 +85,8 @@ class ServeurControllerTest {
         response.setId(id);
         response.setStatus(nouveauStatus);
 
-        when(serveurService.updateServeurStatus(eq(id), eq(nouveauStatus))).thenReturn(response);
+
+        when(serveurService.updateServeurStatus(id, nouveauStatus)).thenReturn(response);
 
         // When
         ResponseEntity<ServeurResponseDTO> result = serveurController.mettreAJourStatus(id, nouveauStatus);
@@ -88,7 +94,7 @@ class ServeurControllerTest {
         // Then
         assertEquals(200, result.getStatusCodeValue());
         assertEquals(nouveauStatus, result.getBody().getStatus());
-        verify(serveurService, times(1)).updateServeurStatus(eq(id), eq(nouveauStatus));
+        verify(serveurService, times(1)).updateServeurStatus(id, nouveauStatus);
     }
 
     @Test
@@ -105,55 +111,30 @@ class ServeurControllerTest {
         verify(serveurService, times(1)).supprimerServeur(id);
     }
 
-    @Test
-    void testEffectuerActionCooperer() {
-        // Given
-        String type = "cooperer";
-
+    /**
+     * Consolidated test for effectuerAction, using multiple scenarios (cooperer, trahir, abandonner, inconnue).
+     */
+    @ParameterizedTest(name = "When action = {0}, response should be: {1}")
+    @MethodSource("provideEffectuerActionScenarios")
+    void testEffectuerActionParameterized(String actionType, String expectedResponse) {
         // When
-        ResponseEntity<String> result = serveurController.effectuerAction(type);
+        ResponseEntity<String> result = serveurController.effectuerAction(actionType);
 
         // Then
         assertEquals(200, result.getStatusCodeValue());
-        assertEquals("Vous avez choisi de cooperer.", result.getBody());
+        assertEquals(expectedResponse, result.getBody());
     }
 
-    @Test
-    void testEffectuerActionTrahir() {
-        // Given
-        String type = "trahir";
-
-        // When
-        ResponseEntity<String> result = serveurController.effectuerAction(type);
-
-        // Then
-        assertEquals(200, result.getStatusCodeValue());
-        assertEquals("Vous avez choisi de trahir.", result.getBody());
-    }
-
-    @Test
-    void testEffectuerActionAbandonner() {
-        // Given
-        String type = "abandonner";
-
-        // When
-        ResponseEntity<String> result = serveurController.effectuerAction(type);
-
-        // Then
-        assertEquals(200, result.getStatusCodeValue());
-        assertEquals("Vous avez abandonne la partie.", result.getBody());
-    }
-
-    @Test
-    void testEffectuerActionInconnue() {
-        // Given
-        String type = "inconnue";
-
-        // When
-        ResponseEntity<String> result = serveurController.effectuerAction(type);
-
-        // Then
-        assertEquals(200, result.getStatusCodeValue());
-        assertEquals("Action inconnue.", result.getBody());
+    /**
+     * Provides the different action + expected response pairs
+     * that used to be in separate test methods.
+     */
+    private static Stream<Arguments> provideEffectuerActionScenarios() {
+        return Stream.of(
+                Arguments.of("cooperer", "Vous avez choisi de cooperer."),
+                Arguments.of("trahir", "Vous avez choisi de trahir."),
+                Arguments.of("abandonner", "Vous avez abandonne la partie."),
+                Arguments.of("inconnue", "Action inconnue.")
+        );
     }
 }

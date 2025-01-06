@@ -3,7 +3,7 @@ package fr.uga.l3miage.pc.prisonersdilemma.Controllers;
 import fr.uga.l3miage.pc.controllers.PartieController;
 import fr.uga.l3miage.pc.requests.PartieRequestDTO;
 import fr.uga.l3miage.pc.responses.PartieResponseDTO;
-import fr.uga.l3miage.pc.Services.PartieService;
+import fr.uga.l3miage.pc.services.PartieService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -12,7 +12,6 @@ import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 class PartieControllerTest {
@@ -55,7 +54,8 @@ class PartieControllerTest {
         response.setId(id);
         response.setStatus(nouveauStatus);
 
-        when(partieService.updatePartieStatus(eq(id), eq(nouveauStatus))).thenReturn(response);
+        // Remove eq(...) usage and pass values directly
+        when(partieService.updatePartieStatus(id, nouveauStatus)).thenReturn(response);
 
         // When
         PartieResponseDTO result = partieController.updatePartieStatus(id, nouveauStatus);

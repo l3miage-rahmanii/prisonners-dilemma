@@ -4,7 +4,7 @@ package fr.uga.l3miage.pc.controllers;
 import fr.uga.l3miage.pc.endpoint.PartieEndpoint;
 import fr.uga.l3miage.pc.requests.PartieRequestDTO;
 import fr.uga.l3miage.pc.responses.PartieResponseDTO;
-import fr.uga.l3miage.pc.Services.PartieService;
+import fr.uga.l3miage.pc.services.PartieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

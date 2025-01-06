@@ -1,6 +1,6 @@
-package fr.uga.l3miage.pc.Mappers;
+package fr.uga.l3miage.pc.mappers;
 
-import fr.uga.l3miage.pc.Entities.ClientEntity;
+import fr.uga.l3miage.pc.entities.ClientEntity;
 import fr.uga.l3miage.pc.responses.ClientResponseDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

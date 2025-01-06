@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 @SpringBootApplication(scanBasePackages = {"fr.uga.l3miage.pc"})
-@EntityScan(basePackages = "fr.uga.l3miage.pc.Entities")
+@EntityScan(basePackages = "fr.uga.l3miage.pc.entities")
 public class Main {
 
     public static void main(String[] args) {

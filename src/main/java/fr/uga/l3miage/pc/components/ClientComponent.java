@@ -1,6 +1,6 @@
 package fr.uga.l3miage.pc.components;
 
-import fr.uga.l3miage.pc.Entities.ClientEntity;
+import fr.uga.l3miage.pc.entities.ClientEntity;
 import fr.uga.l3miage.pc.exceptions.technical.BadRequestException;
 import fr.uga.l3miage.pc.exceptions.technical.NotFoundClientEntityException;
 import fr.uga.l3miage.pc.repositories.ClientRepository;

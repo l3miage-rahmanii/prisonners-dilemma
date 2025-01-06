@@ -1,14 +1,14 @@
-package fr.uga.l3miage.pc.Services;
+package fr.uga.l3miage.pc.services;
 
 import fr.uga.l3miage.pc.components.PartieComponent;
-import fr.uga.l3miage.pc.Entities.JoueurEntity;
-import fr.uga.l3miage.pc.Entities.PartieEntity;
-import fr.uga.l3miage.pc.Entities.ServeurEntity;
+import fr.uga.l3miage.pc.entities.JoueurEntity;
+import fr.uga.l3miage.pc.entities.PartieEntity;
+import fr.uga.l3miage.pc.entities.ServeurEntity;
 import fr.uga.l3miage.pc.exceptions.rest.BadRequestRestException;
 import fr.uga.l3miage.pc.exceptions.rest.NotFoundEntityRestException;
 import fr.uga.l3miage.pc.exceptions.technical.BadRequestException;
 import fr.uga.l3miage.pc.exceptions.technical.NotFoundPartieEntityException;
-import fr.uga.l3miage.pc.Mappers.PartieMapper;
+import fr.uga.l3miage.pc.mappers.PartieMapper;
 import fr.uga.l3miage.pc.repositories.PartieRepository;
 import fr.uga.l3miage.pc.requests.PartieRequestDTO;
 import fr.uga.l3miage.pc.responses.PartieResponseDTO;

@@ -2,7 +2,7 @@ package fr.uga.l3miage.pc.prisonersdilemma.Controllers;
 
 import fr.uga.l3miage.pc.controllers.JoueurController;
 import fr.uga.l3miage.pc.responses.JoueurResponseDTO;
-import fr.uga.l3miage.pc.Services.JoueurService;
+import fr.uga.l3miage.pc.services.JoueurService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -10,7 +10,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 class JoueurControllerTest {
@@ -56,7 +55,8 @@ class JoueurControllerTest {
         response.setNom("Test Joueur");
         response.setScore(nouveauScore);
 
-        when(joueurService.updateScore(eq(id), eq(nouveauScore))).thenReturn(response);
+        // Removed eq(...) and passed values directly
+        when(joueurService.updateScore(id, nouveauScore)).thenReturn(response);
 
         // When
         ResponseEntity<JoueurResponseDTO> result = joueurController.mettreAJourScore(id, nouveauScore);
