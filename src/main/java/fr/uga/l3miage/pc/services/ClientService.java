@@ -56,12 +56,15 @@ public class ClientService {
 
     public void demarrerPartie(Long clientId) {
         try {
-            // Ensures an exception is thrown if the client doesn't exist
-            clientRepository.findById(clientId)
+            // Capture l'entité pour valider son existence
+            ClientEntity client = clientRepository.findById(clientId)
                     .orElseThrow(() -> new NotFoundClientEntityException("Client non trouvé"));
-            // Additional game-start logic could go here
+
+            System.out.println("Partie démarrée pour le client : " + client.getNom());
+
         } catch (NotFoundClientEntityException e) {
             throw new NotFoundEntityRestException(e.getMessage());
         }
     }
+
 }
