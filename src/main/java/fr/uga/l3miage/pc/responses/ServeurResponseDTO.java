@@ -5,12 +5,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class ServeurResponseDTO {
     private Long id;
-    private String status;
-    private String adresse;
+    private String nom;
+    private String description;
+    private PartieResponseDTO partie;
+    private List<JoueurResponseDTO> joueurs;
 }

@@ -97,7 +97,7 @@ class JoueurServiceTest {
         when(joueurMapper.toResponse(joueurEntity)).thenReturn(joueurResponseDTO);
 
         // When
-        JoueurResponseDTO result = joueurService.updateScore(joueurId, nouveauScore);
+        JoueurEntity result = joueurService.updateScore(joueurId, nouveauScore);
 
         // Then
         assertThat(result).isNotNull();

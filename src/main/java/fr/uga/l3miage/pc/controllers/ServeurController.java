@@ -1,68 +1,50 @@
 package fr.uga.l3miage.pc.controllers;
 
+import fr.uga.l3miage.pc.entities.ServeurEntity;
 import fr.uga.l3miage.pc.requests.ServeurRequestDTO;
 import fr.uga.l3miage.pc.responses.ServeurResponseDTO;
 import fr.uga.l3miage.pc.services.ServeurService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/serveurs")
 @RequiredArgsConstructor
 public class ServeurController {
-
     private final ServeurService serveurService;
 
-    @PostMapping("/creer")
-    public ResponseEntity<ServeurResponseDTO> creerServeur(@RequestBody ServeurRequestDTO request) {
-        ServeurResponseDTO serveur = serveurService.creerServeur(request);
-        return ResponseEntity.ok(serveur);
+    @GetMapping
+    public ResponseEntity<List<ServeurResponseDTO>> getAllServeurs() {
+        return ResponseEntity.ok(serveurService.getAllServeurs());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ServeurResponseDTO> obtenirServeur(@PathVariable Long id) {
+    public ResponseEntity<ServeurResponseDTO> getServeurById(@PathVariable Long id) {
         return ResponseEntity.ok(serveurService.getServeurById(id));
     }
 
-    @GetMapping("/")
-    public String afficherPage() {
-        return "index.html"; // Si vous utilisez le répertoire "static"
+    @PostMapping
+    public ResponseEntity<ServeurResponseDTO> createServeur(@RequestBody ServeurRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(serveurService.createServeur(request));
     }
 
-    @PutMapping("/{id}/status")
-    public ResponseEntity<ServeurResponseDTO> mettreAJourStatus(@PathVariable Long id, @RequestParam String nouveauStatus) {
-        return ResponseEntity.ok(serveurService.updateServeurStatus(id, nouveauStatus));
+    @PutMapping("/{id}")
+    public ResponseEntity<ServeurResponseDTO> updateServeur(
+            @PathVariable Long id,
+            @RequestBody ServeurRequestDTO request) {
+        return ResponseEntity.ok(serveurService.updateServeur(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> supprimerServeur(@PathVariable Long id) {
-        serveurService.supprimerServeur(id);
+    public ResponseEntity<Void> deleteServeur(@PathVariable Long id) {
+        serveurService.deleteServeur(id);
         return ResponseEntity.noContent().build();
     }
-
-    @PostMapping("/action")
-    public ResponseEntity<String> effectuerAction(@RequestParam String type) {
-        String message;
-
-        switch (type) {
-            case "cooperer":
-                // Logique pour l'action "coopérer"
-                message = "Vous avez choisi de cooperer.";
-                break;
-            case "trahir":
-                // Logique pour l'action "trahir"
-                message = "Vous avez choisi de trahir.";
-                break;
-            case "abandonner":
-                // Logique pour l'action "abandonner"
-                message = "Vous avez abandonne la partie.";
-                break;
-            default:
-                message = "Action inconnue.";
-        }
-
-        return ResponseEntity.ok(message);
-    }
-
 }

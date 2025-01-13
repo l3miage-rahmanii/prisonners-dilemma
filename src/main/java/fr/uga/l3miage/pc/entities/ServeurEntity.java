@@ -4,6 +4,8 @@ package fr.uga.l3miage.pc.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Builder
 @NoArgsConstructor
@@ -13,18 +15,16 @@ import lombok.*;
 @Table(name = "serveur")
 public class ServeurEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String nom;
+    private String description;
     private String status;
-    private String adresse;
 
-    @ManyToOne
-    @JoinColumn(name = "instance_id")
-    private static ServeurEntity instance;
+    @OneToOne(mappedBy = "serveur")
+    private PartieEntity partie;
 
-    public static ServeurEntity getInstance() {
-        if (instance == null) {
-            instance = new ServeurEntity();
-        }
-        return instance;
-    }
+    @ManyToMany(mappedBy = "serveurs")
+    private List<JoueurEntity> joueurs;
 }
+

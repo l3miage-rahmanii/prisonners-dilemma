@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface ServeurRepository extends JpaRepository<ServeurEntity, Long> {
     Optional<ServeurEntity> findById(Long id);
+    boolean existsByPartieNotNull();
 }

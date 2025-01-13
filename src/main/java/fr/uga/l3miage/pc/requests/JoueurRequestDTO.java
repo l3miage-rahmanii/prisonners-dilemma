@@ -11,6 +11,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class JoueurRequestDTO {
     private String nom;
-    private int score;
-    private boolean abandon;
+    private String email;
 }

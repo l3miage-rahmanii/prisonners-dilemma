@@ -1,6 +1,7 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Controllers;
 
 import fr.uga.l3miage.pc.controllers.JoueurController;
+import fr.uga.l3miage.pc.entities.JoueurEntity;
 import fr.uga.l3miage.pc.responses.JoueurResponseDTO;
 import fr.uga.l3miage.pc.services.JoueurService;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,7 +60,7 @@ class JoueurControllerTest {
         when(joueurService.updateScore(id, nouveauScore)).thenReturn(response);
 
         // When
-        ResponseEntity<JoueurResponseDTO> result = joueurController.mettreAJourScore(id, nouveauScore);
+        ResponseEntity<JoueurEntity> result = joueurController.mettreAJourScore(id, nouveauScore);
 
         // Then
         assertEquals(200, result.getStatusCodeValue());

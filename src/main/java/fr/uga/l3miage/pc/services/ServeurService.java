@@ -13,77 +13,57 @@ import fr.uga.l3miage.pc.responses.ServeurResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class ServeurService {
-
-    private static final String SERVER_NOT_FOUND_MESSAGE = "Serveur non trouve";
-
-    private final ServeurMapper serveurMapper;
-    private final ServeurComponent serveurComponent;
     private final ServeurRepository serveurRepository;
+    private final ServeurMapper serveurMapper;
+    private final PartieService partieService;
 
-    public ServeurEntity getServeurEntityById(Long id) {
-        return serveurRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(SERVER_NOT_FOUND_MESSAGE));
+    public List<ServeurResponseDTO> getAllServeurs() {
+        return serveurRepository.findAll().stream()
+                .map(serveurMapper::toResponse)
+                .collect(Collectors.toList());
     }
 
     public ServeurResponseDTO getServeurById(Long id) {
-        try {
-            ServeurEntity serveur = serveurComponent.getServeurById(id);
-            return serveurMapper.toResponse(serveur);
-        } catch (NotFoundServeurEntityException e) {
-            throw new NotFoundEntityRestException(e.getMessage());
+        return serveurRepository.findById(id)
+                .map(serveurMapper::toResponse)
+                .orElseThrow(() -> new NotFoundEntityRestException("Serveur non trouvé"));
+    }
+
+    public ServeurResponseDTO createServeur(ServeurRequestDTO request) {
+        // Vérifier si le serveur a déjà une partie active
+        if (serveurRepository.existsByPartieNotNull()) {
+            throw new BadRequestRestException("Un serveur avec une partie active existe déjà");
         }
+
+        ServeurEntity serveur = serveurMapper.toEntity(request);
+        return serveurMapper.toResponse(serveurRepository.save(serveur));
     }
 
-    public ServeurResponseDTO updateServeurStatus(Long id, String nouveauStatus) {
-        try {
-            ServeurEntity serveur = serveurComponent.updateStatus(id, nouveauStatus);
-            return serveurMapper.toResponse(serveur);
-        } catch (NotFoundServeurEntityException e) {
-            throw new NotFoundEntityRestException(e.getMessage());
-        } catch (BadRequestException e) {
-            throw new BadRequestRestException(e.getMessage());
-        }
-    }
-
-    public ServeurResponseDTO creerServeur(ServeurRequestDTO request) {
-        ServeurEntity serveur = ServeurEntity.builder()
-                .status(request.getStatus())
-                .adresse(request.getAdresse())
-                .build();
-
-        serveurRepository.save(serveur);
-
-        return ServeurResponseDTO.builder()
-                .id(serveur.getId())
-                .status(serveur.getStatus())
-                .adresse(serveur.getAdresse())
-                .build();
-    }
-
-    public void supprimerServeur(Long id) {
+    public ServeurResponseDTO updateServeur(Long id, ServeurRequestDTO request) {
         ServeurEntity serveur = serveurRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(SERVER_NOT_FOUND_MESSAGE));
-        serveurRepository.delete(serveur);
+                .orElseThrow(() -> new NotFoundEntityRestException("Serveur non trouvé"));
+
+        serveurMapper.updateEntityFromRequest(request, serveur);
+        return serveurMapper.toResponse(serveurRepository.save(serveur));
     }
 
-    public boolean isServeurDisponible(Long serveurId) {
-        ServeurEntity serveur = serveurRepository.findById(serveurId)
-                .orElseThrow(() -> new NotFoundEntityRestException(SERVER_NOT_FOUND_MESSAGE));
-        return serveur.getStatus().equalsIgnoreCase("disponible");
-    }
+    public void deleteServeur(Long id) {
+        ServeurEntity serveur = serveurRepository.findById(id)
+                .orElseThrow(() -> new NotFoundEntityRestException("Serveur non trouvé"));
 
-    public ServeurEntity reserverServeur(Long serveurId) {
-        ServeurEntity serveur = serveurRepository.findById(serveurId)
-                .orElseThrow(() -> new NotFoundEntityRestException(SERVER_NOT_FOUND_MESSAGE));
-
-        if (!serveur.getStatus().equalsIgnoreCase("disponible")) {
-            throw new BadRequestRestException("Le serveur n'est pas disponible");
+        if (serveur.getPartie() != null &&
+                !serveur.getPartie().getStatus().equals("terminée")) {
+            throw new BadRequestRestException("Impossible de supprimer un serveur avec une partie en cours");
         }
 
-        serveur.setStatus("occupe");
-        return serveurRepository.save(serveur);
+        serveurRepository.deleteById(id);
     }
 }
+
+

@@ -1,6 +1,7 @@
 package fr.uga.l3miage.pc.controllers;
 
 
+import fr.uga.l3miage.pc.entities.JoueurEntity;
 import fr.uga.l3miage.pc.responses.JoueurResponseDTO;
 import fr.uga.l3miage.pc.services.JoueurService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class JoueurController {
     }
 
     @PutMapping("/{id}/score")
-    public ResponseEntity<JoueurResponseDTO> mettreAJourScore(@PathVariable Long id, @RequestParam int nouveauScore) {
+    public ResponseEntity<JoueurEntity> mettreAJourScore(@PathVariable Long id, @RequestParam int nouveauScore) {
         return ResponseEntity.ok(joueurService.updateScore(id, nouveauScore));
     }
 }

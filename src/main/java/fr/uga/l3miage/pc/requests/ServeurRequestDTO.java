@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ServeurRequestDTO {
-    private String status;
-    private String adresse;
+    private String nom;
+    private String description;
 }
+
