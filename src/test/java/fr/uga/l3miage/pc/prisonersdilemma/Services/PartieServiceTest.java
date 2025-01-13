@@ -4,6 +4,7 @@ import fr.uga.l3miage.pc.components.PartieComponent;
 import fr.uga.l3miage.pc.entities.JoueurEntity;
 import fr.uga.l3miage.pc.entities.PartieEntity;
 import fr.uga.l3miage.pc.entities.ServeurEntity;
+import fr.uga.l3miage.pc.enums.StrategieEnum;
 import fr.uga.l3miage.pc.exceptions.rest.BadRequestRestException;
 import fr.uga.l3miage.pc.exceptions.rest.NotFoundEntityRestException;
 import fr.uga.l3miage.pc.mappers.PartieMapper;
@@ -19,7 +20,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -54,140 +57,191 @@ class PartieServiceTest {
     }
 
     @Test
-    void testGetPartieByIdSuccess() throws Exception {
+    void testJouerCoupSuccess() {
         // Given
         Long partieId = 1L;
+        Long joueurId = 1L;
+        String coup = "c";
         PartieEntity partieEntity = new PartieEntity();
-        partieEntity.setId(partieId);
-        partieEntity.setNom("Partie Test");
-
-        PartieResponseDTO partieResponseDTO = PartieResponseDTO.builder()
-                .id(partieId)
-                .nom("Partie Test")
-                .build();
-
-        when(partieComponent.getPartieById(partieId)).thenReturn(partieEntity);
-        when(partieMapper.toResponse(partieEntity)).thenReturn(partieResponseDTO);
-
-        // When
-        PartieResponseDTO result = partieService.getPartieById(partieId);
-
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getNom()).isEqualTo("Partie Test");
-        verify(partieComponent, times(1)).getPartieById(partieId);
-        verify(partieMapper, times(1)).toResponse(partieEntity);
-    }
-
-    @Test
-    void testGetPartieByIdNotFound() throws Exception {
-        // Given
-        Long partieId = 1L;
-        when(partieComponent.getPartieById(partieId)).thenThrow(new NotFoundEntityRestException("Partie introuvable"));
-
-        // When / Then
-        assertThrows(NotFoundEntityRestException.class, () -> partieService.getPartieById(partieId));
-        verify(partieComponent, times(1)).getPartieById(partieId);
-    }
-
-    @Test
-    void testUpdatePartieStatusSuccess() throws Exception {
-        // Given
-        Long partieId = 1L;
-        String nouveauStatus = "terminée";
-
-        PartieEntity partieEntity = new PartieEntity();
-        partieEntity.setId(partieId);
-        partieEntity.setStatus(nouveauStatus);
-
-        PartieResponseDTO partieResponseDTO = PartieResponseDTO.builder()
-                .id(partieId)
-                .status(nouveauStatus)
-                .build();
-
-        when(partieComponent.updateStatus(partieId, nouveauStatus)).thenReturn(partieEntity);
-        when(partieMapper.toResponse(partieEntity)).thenReturn(partieResponseDTO);
-
-        // When
-        PartieResponseDTO result = partieService.updatePartieStatus(partieId, nouveauStatus);
-
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getStatus()).isEqualTo(nouveauStatus);
-        verify(partieComponent, times(1)).updateStatus(partieId, nouveauStatus);
-        verify(partieMapper, times(1)).toResponse(partieEntity);
-    }
-
-    @Test
-    void testUpdatePartieStatusBadRequest() throws Exception {
-        // Given
-        Long partieId = 1L;
-        String nouveauStatus = "";
-
-        when(partieComponent.updateStatus(partieId, nouveauStatus)).thenThrow(new BadRequestRestException("Statut invalide"));
-
-        // When / Then
-        assertThrows(BadRequestRestException.class, () -> partieService.updatePartieStatus(partieId, nouveauStatus));
-        verify(partieComponent, times(1)).updateStatus(partieId, nouveauStatus);
-    }
-
-    @Test
-    void testDemarrerPartieSuccess() {
-        // Given
-        PartieRequestDTO request = new PartieRequestDTO();
-        request.setNom("Nouvelle Partie");
-        request.setServeurId(1L);
-        request.setJoueursIds(Arrays.asList(1L, 2L));
-
-        ServeurEntity serveur = new ServeurEntity();
-        serveur.setId(1L);
-
         JoueurEntity joueur1 = new JoueurEntity();
         joueur1.setId(1L);
         JoueurEntity joueur2 = new JoueurEntity();
         joueur2.setId(2L);
 
-        PartieEntity partieEntity = new PartieEntity();
-        partieEntity.setId(1L);
-        partieEntity.setNom("Nouvelle Partie");
-        partieEntity.setServeur(serveur);
         partieEntity.setJoueurs(Arrays.asList(joueur1, joueur2));
-        partieEntity.setStatus("en cours");
+        partieEntity.setCoupsJoueur1(new ArrayList<>());
+        partieEntity.setCoupsJoueur2(new ArrayList<>());
+
+        PartieResponseDTO partieResponseDTO = PartieResponseDTO.builder()
+                .id(partieId)
+                .build();
+
+        when(partieRepository.findById(partieId)).thenReturn(Optional.of(partieEntity));
+        when(partieMapper.toResponse(any())).thenReturn(partieResponseDTO);
+
+        // When
+        PartieResponseDTO result = partieService.jouerCoup(partieId, joueurId, coup);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(partieId);
+        verify(partieRepository, times(1)).save(partieEntity);
+    }
+
+    @Test
+    void testJouerCoupPartieNotFound() {
+        // Given
+        Long partieId = 1L;
+        Long joueurId = 1L;
+        String coup = "c";
+        when(partieRepository.findById(partieId)).thenReturn(Optional.empty());
+
+        // When / Then
+        assertThrows(NotFoundEntityRestException.class, () -> partieService.jouerCoup(partieId, joueurId, coup));
+    }
+
+    @Test
+    void testJouerCoupInvalidCoup() {
+        // Given
+        Long partieId = 1L;
+        Long joueurId = 1L;
+        String coup = "x";
+        PartieEntity partieEntity = new PartieEntity();
+        JoueurEntity joueur1 = new JoueurEntity();
+        joueur1.setId(1L);
+        JoueurEntity joueur2 = new JoueurEntity();
+        joueur2.setId(2L);
+
+        partieEntity.setJoueurs(Arrays.asList(joueur1, joueur2));
+
+        when(partieRepository.findById(partieId)).thenReturn(Optional.of(partieEntity));
+
+        // When / Then
+        assertThrows(BadRequestRestException.class, () -> partieService.jouerCoup(partieId, joueurId, coup));
+    }
+
+    @Test
+    void testCreerPartieSuccess() {
+        // Given
+        PartieRequestDTO partieRequestDTO = new PartieRequestDTO();
+        partieRequestDTO.setNom("Nouvelle Partie");
+        partieRequestDTO.setNbTours(5);
+
+        PartieEntity partieEntity = new PartieEntity();
+        partieEntity.setNom("Nouvelle Partie");
+        partieEntity.setNbTours(5);
 
         PartieResponseDTO partieResponseDTO = PartieResponseDTO.builder()
                 .id(1L)
                 .nom("Nouvelle Partie")
-                .status("en cours")
                 .build();
 
-        when(serveurService.reserverServeur(request.getServeurId())).thenReturn(serveur);
-        when(joueurService.getJoueursByIds(request.getJoueursIds())).thenReturn(Arrays.asList(joueur1, joueur2));
-        when(partieMapper.toResponse(any(PartieEntity.class))).thenReturn(partieResponseDTO);
+        when(partieRepository.save(any())).thenReturn(partieEntity);
+        when(partieMapper.toResponse(any())).thenReturn(partieResponseDTO);
 
         // When
-        PartieResponseDTO result = partieService.demarrerPartie(request);
+        PartieResponseDTO result = partieService.creerPartie(partieRequestDTO);
 
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getNom()).isEqualTo("Nouvelle Partie");
-        assertThat(result.getStatus()).isEqualTo("en cours");
-        verify(partieRepository, times(1)).save(any(PartieEntity.class));
-        verify(partieMapper, times(1)).toResponse(any(PartieEntity.class));
+        verify(partieRepository, times(1)).save(any());
     }
 
     @Test
-    void testDemarrerPartieBadRequest() {
+    void testChangerStrategieSuccess() {
         // Given
-        PartieRequestDTO request = new PartieRequestDTO();
-        request.setNom("Nouvelle Partie");
-        request.setServeurId(1L);
-        request.setJoueursIds(Arrays.asList(1L)); // Only one player
+        Long partieId = 1L;
+        Long joueurId = 1L;
+        StrategieEnum strategie = StrategieEnum.DONNANT_DONNANT;
 
-        when(joueurService.getJoueursByIds(request.getJoueursIds()))
-                .thenThrow(new BadRequestRestException("Il faut exactement deux joueurs pour commencer une partie."));
+        PartieEntity partieEntity = new PartieEntity();
+        JoueurEntity joueur1 = new JoueurEntity();
+        joueur1.setId(joueurId);
+        partieEntity.setJoueurs(Arrays.asList(joueur1));
+
+        PartieResponseDTO partieResponseDTO = PartieResponseDTO.builder()
+                .id(partieId)
+                .build();
+
+        when(partieRepository.findById(partieId)).thenReturn(Optional.of(partieEntity));
+        when(partieMapper.toResponse(any())).thenReturn(partieResponseDTO);
+
+        // When
+        PartieResponseDTO result = partieService.changerStrategie(partieId, joueurId, strategie);
+
+        // Then
+        assertThat(result).isNotNull();
+        verify(partieRepository, times(1)).save(partieEntity);
+    }
+    @Test
+    void testRejoindrePartieSuccess() {
+        // Given
+        Long partieId = 1L;
+        Long joueurId = 1L;
+        PartieEntity partieEntity = new PartieEntity();
+        partieEntity.setStatus("en_attente");
+
+        JoueurEntity joueur = new JoueurEntity();
+        joueur.setId(joueurId);
+
+        PartieResponseDTO partieResponseDTO = PartieResponseDTO.builder()
+                .id(partieId)
+                .status("en_attente")
+                .build();
+
+        when(partieRepository.findById(partieId)).thenReturn(Optional.of(partieEntity));
+        when(joueurService.getJoueurEntityById(joueurId)).thenReturn(joueur);
+        when(partieMapper.toResponse(any())).thenReturn(partieResponseDTO);
+
+        // When
+        PartieResponseDTO result = partieService.rejoindrePartie(partieId, joueurId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getStatus()).isEqualTo("en_attente");
+        verify(partieRepository, times(1)).save(partieEntity);
+    }
+
+    @Test
+    void testRejoindrePartiePartieComplete() {
+        // Given
+        Long partieId = 1L;
+        Long joueurId = 1L;
+        PartieEntity partieEntity = new PartieEntity();
+        partieEntity.setStatus("en_attente");
+        partieEntity.setJoueurs(Arrays.asList(new JoueurEntity(), new JoueurEntity()));
+
+        when(partieRepository.findById(partieId)).thenReturn(Optional.of(partieEntity));
 
         // When / Then
-        assertThrows(BadRequestRestException.class, () -> partieService.demarrerPartie(request));
-        verify(joueurService, times(1)).getJoueursByIds(request.getJoueursIds());
+        assertThrows(BadRequestRestException.class, () -> partieService.rejoindrePartie(partieId, joueurId));
     }
+    @Test
+    void testAbandonnerPartieSuccess() {
+        // Given
+        Long partieId = 1L;
+        Long joueurId = 1L;
+        StrategieEnum strategie = StrategieEnum.RANCUNIER;
+
+        PartieEntity partieEntity = new PartieEntity();
+        JoueurEntity joueur1 = new JoueurEntity();
+        joueur1.setId(1L);
+        partieEntity.setJoueurs(Arrays.asList(joueur1));
+
+        PartieResponseDTO partieResponseDTO = PartieResponseDTO.builder()
+                .id(partieId)
+                .build();
+
+        when(partieRepository.findById(partieId)).thenReturn(Optional.of(partieEntity));
+        when(partieMapper.toResponse(any())).thenReturn(partieResponseDTO);
+
+        // When
+        PartieResponseDTO result = partieService.abandonnerPartie(partieId, joueurId, strategie);
+
+        // Then
+        assertThat(result).isNotNull();
+        verify(partieRepository, times(1)).save(partieEntity);
+    }
+
 }
