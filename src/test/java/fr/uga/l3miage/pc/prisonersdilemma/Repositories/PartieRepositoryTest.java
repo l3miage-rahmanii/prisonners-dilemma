@@ -1,4 +1,4 @@
-package fr.uga.l3miage.pc.prisonersdilemma.Repositorys;
+package fr.uga.l3miage.pc.prisonersdilemma.Repositories;
 
 import fr.uga.l3miage.pc.entities.PartieEntity;
 import fr.uga.l3miage.pc.repositories.PartieRepository;

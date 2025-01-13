@@ -1,6 +1,7 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Controllers;
 
 import fr.uga.l3miage.pc.controllers.ServeurController;
+import fr.uga.l3miage.pc.exceptions.rest.BadRequestRestException;
 import fr.uga.l3miage.pc.requests.ServeurRequestDTO;
 import fr.uga.l3miage.pc.responses.ServeurResponseDTO;
 import fr.uga.l3miage.pc.services.ServeurService;
@@ -9,9 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
@@ -20,6 +23,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 class ServeurControllerTest {
@@ -45,15 +49,32 @@ class ServeurControllerTest {
         response.setId(1L);
         response.setStatus("Actif");
 
-        when(serveurService.creerServeur(any(ServeurRequestDTO.class))).thenReturn(response);
+        when(serveurService.createServeur(any(ServeurRequestDTO.class))).thenReturn(response);
 
         // When
-        ResponseEntity<ServeurResponseDTO> result = serveurController.creerServeur(request);
+        ResponseEntity<ServeurResponseDTO> result = serveurController.createServeur(request);
 
         // Then
-        assertEquals(200, result.getStatusCodeValue());
-        assertEquals("Actif", result.getBody().getStatus());
-        verify(serveurService, times(1)).creerServeur(any(ServeurRequestDTO.class));
+        assertEquals(HttpStatus.CREATED, result.getStatusCode()); // Vérifie le code de statut HTTP
+        assertEquals("Actif", result.getBody().getStatus()); // Vérifie la valeur dans le corps de la réponse
+        verify(serveurService, times(1)).createServeur(any(ServeurRequestDTO.class));
+    }
+
+
+    @Test
+    void testCreerServeurAvecPartieActive() {
+        // Given
+        ServeurRequestDTO request = new ServeurRequestDTO();
+        request.setStatus("Actif");
+
+        when(serveurService.createServeur(any(ServeurRequestDTO.class)))
+                .thenThrow(new BadRequestRestException("Un serveur avec une partie active existe déjà"));
+
+        // When
+        ResponseEntity<ServeurResponseDTO> responseEntity = serveurController.createServeur(request);
+
+        // Then
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode()); // Vérifie le code de statut
     }
 
     @Test
@@ -67,10 +88,10 @@ class ServeurControllerTest {
         when(serveurService.getServeurById(id)).thenReturn(response);
 
         // When
-        ResponseEntity<ServeurResponseDTO> result = serveurController.obtenirServeur(id);
+        ResponseEntity<ServeurResponseDTO> result = serveurController.getServeurById(id);
 
         // Then
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(id, result.getBody().getId());
         assertEquals("Actif", result.getBody().getStatus());
         verify(serveurService, times(1)).getServeurById(id);
@@ -85,56 +106,43 @@ class ServeurControllerTest {
         response.setId(id);
         response.setStatus(nouveauStatus);
 
-
-        when(serveurService.updateServeurStatus(id, nouveauStatus)).thenReturn(response);
+        when(serveurService.updateServeur(id, any(ServeurRequestDTO.class))).thenReturn(response);
 
         // When
-        ResponseEntity<ServeurResponseDTO> result = serveurController.mettreAJourStatus(id, nouveauStatus);
+        ResponseEntity<ServeurResponseDTO> result = serveurController.updateServeur(id, new ServeurRequestDTO());
 
         // Then
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(nouveauStatus, result.getBody().getStatus());
-        verify(serveurService, times(1)).updateServeurStatus(id, nouveauStatus);
+        verify(serveurService, times(1)).updateServeur(id, any(ServeurRequestDTO.class));
     }
 
     @Test
     void testSupprimerServeur() {
         // Given
         Long id = 1L;
-        doNothing().when(serveurService).supprimerServeur(id);
+        doNothing().when(serveurService).deleteServeur(id);
 
         // When
-        ResponseEntity<Void> result = serveurController.supprimerServeur(id);
+        ResponseEntity<Void> result = serveurController.deleteServeur(id);
 
         // Then
-        assertEquals(204, result.getStatusCodeValue());
-        verify(serveurService, times(1)).supprimerServeur(id);
+        assertEquals(HttpStatus.NO_CONTENT, result.getStatusCode());
+        verify(serveurService, times(1)).deleteServeur(id);
     }
 
-    /**
-     * Consolidated test for effectuerAction, using multiple scenarios (cooperer, trahir, abandonner, inconnue).
-     */
-    @ParameterizedTest(name = "When action = {0}, response should be: {1}")
-    @MethodSource("provideEffectuerActionScenarios")
-    void testEffectuerActionParameterized(String actionType, String expectedResponse) {
+    @Test
+    void testSupprimerServeurAvecPartieEnCours() {
+        // Given
+        Long id = 1L;
+        doThrow(new BadRequestRestException("Impossible de supprimer un serveur avec une partie en cours"))
+                .when(serveurService).deleteServeur(id);
+
         // When
-        ResponseEntity<String> result = serveurController.effectuerAction(actionType);
+        BadRequestRestException exception = assertThrows(BadRequestRestException.class,
+                () -> serveurController.deleteServeur(id));
 
         // Then
-        assertEquals(200, result.getStatusCodeValue());
-        assertEquals(expectedResponse, result.getBody());
-    }
-
-    /**
-     * Provides the different action + expected response pairs
-     * that used to be in separate test methods.
-     */
-    private static Stream<Arguments> provideEffectuerActionScenarios() {
-        return Stream.of(
-                Arguments.of("cooperer", "Vous avez choisi de cooperer."),
-                Arguments.of("trahir", "Vous avez choisi de trahir."),
-                Arguments.of("abandonner", "Vous avez abandonne la partie."),
-                Arguments.of("inconnue", "Action inconnue.")
-        );
+        assertEquals("Impossible de supprimer un serveur avec une partie en cours", exception.getMessage());
     }
 }

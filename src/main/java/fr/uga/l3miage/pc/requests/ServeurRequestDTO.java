@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 public class ServeurRequestDTO {
     private String nom;
     private String description;
+    private String status;
 }
 

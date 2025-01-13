@@ -63,6 +63,19 @@ class JoueurComponentTest {
     }
 
     @Test
+    void testUpdateScoreJoueurNotFound() {
+        // Given
+        Long id = 1L;
+        int nouveauScore = 100;
+        when(joueurRepository.findById(id)).thenReturn(Optional.empty());
+
+        // When/Then
+        assertThrows(NotFoundJoueurEntityException.class, () -> joueurComponent.updateScore(id, nouveauScore));
+        verify(joueurRepository, times(1)).findById(id);
+        verify(joueurRepository, times(0)).save(any(JoueurEntity.class));
+    }
+
+    @Test
     void testUpdateScoreSuccess() throws NotFoundJoueurEntityException, BadRequestException {
         // Given
         Long id = 1L;

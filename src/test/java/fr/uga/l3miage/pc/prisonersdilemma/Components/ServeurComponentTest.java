@@ -11,13 +11,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 class ServeurComponentTest {
@@ -35,17 +33,14 @@ class ServeurComponentTest {
 
     @Test
     void testGetServeurByIdSuccess() throws NotFoundServeurEntityException {
-        // Given
         Long id = 1L;
         ServeurEntity serveur = new ServeurEntity();
         serveur.setId(id);
         serveur.setStatus("En ligne");
         when(serveurRepository.findById(id)).thenReturn(Optional.of(serveur));
 
-        // When
         ServeurEntity result = serveurComponent.getServeurById(id);
 
-        // Then
         assertEquals(serveur, result);
         assertEquals("En ligne", result.getStatus());
         verify(serveurRepository, times(1)).findById(id);
@@ -53,18 +48,15 @@ class ServeurComponentTest {
 
     @Test
     void testGetServeurByIdNotFound() {
-        // Given
         Long id = 1L;
         when(serveurRepository.findById(id)).thenReturn(Optional.empty());
 
-        // When/Then
         assertThrows(NotFoundServeurEntityException.class, () -> serveurComponent.getServeurById(id));
         verify(serveurRepository, times(1)).findById(id);
     }
 
     @Test
     void testUpdateStatusSuccess() throws NotFoundServeurEntityException, BadRequestException {
-        // Given
         Long id = 1L;
         String nouveauStatus = "Maintenance";
         ServeurEntity serveur = new ServeurEntity();
@@ -73,10 +65,8 @@ class ServeurComponentTest {
         when(serveurRepository.findById(id)).thenReturn(Optional.of(serveur));
         when(serveurRepository.save(serveur)).thenReturn(serveur);
 
-        // When
         ServeurEntity result = serveurComponent.updateStatus(id, nouveauStatus);
 
-        // Then
         assertNotNull(result);
         assertEquals(nouveauStatus, result.getStatus());
         verify(serveurRepository, times(1)).findById(id);
@@ -85,14 +75,25 @@ class ServeurComponentTest {
 
     @Test
     void testUpdateStatusInvalid() {
-        // Given
         Long id = 1L;
         String nouveauStatus = "";
         ServeurEntity serveur = new ServeurEntity();
         serveur.setId(id);
         when(serveurRepository.findById(id)).thenReturn(Optional.of(serveur));
 
-        // When/Then
+        assertThrows(BadRequestException.class, () -> serveurComponent.updateStatus(id, nouveauStatus));
+        verify(serveurRepository, times(1)).findById(id);
+        verify(serveurRepository, times(0)).save(serveur);
+    }
+
+    @Test
+    void testUpdateStatusWithNullStatus() {
+        Long id = 1L;
+        String nouveauStatus = null;
+        ServeurEntity serveur = new ServeurEntity();
+        serveur.setId(id);
+        when(serveurRepository.findById(id)).thenReturn(Optional.of(serveur));
+
         assertThrows(BadRequestException.class, () -> serveurComponent.updateStatus(id, nouveauStatus));
         verify(serveurRepository, times(1)).findById(id);
         verify(serveurRepository, times(0)).save(serveur);
@@ -100,29 +101,37 @@ class ServeurComponentTest {
 
     @Test
     void testDeleteServeurSuccess() throws NotFoundServeurEntityException {
-        // Given
         Long id = 1L;
         ServeurEntity serveur = new ServeurEntity();
         serveur.setId(id);
         when(serveurRepository.findById(id)).thenReturn(Optional.of(serveur));
 
-        // When
         serveurComponent.deleteServeur(id);
 
-        // Then
         verify(serveurRepository, times(1)).findById(id);
         verify(serveurRepository, times(1)).delete(serveur);
     }
 
     @Test
     void testDeleteServeurNotFound() {
-        // Given
         Long id = 1L;
         when(serveurRepository.findById(id)).thenReturn(Optional.empty());
 
-        // When/Then
         assertThrows(NotFoundServeurEntityException.class, () -> serveurComponent.deleteServeur(id));
         verify(serveurRepository, times(1)).findById(id);
         verify(serveurRepository, times(0)).delete(any(ServeurEntity.class));
+    }
+
+    @Test
+    void testDeleteServeurExceptionDuringDelete() {
+        Long id = 1L;
+        ServeurEntity serveur = new ServeurEntity();
+        serveur.setId(id);
+        when(serveurRepository.findById(id)).thenReturn(Optional.of(serveur));
+        doThrow(new RuntimeException("Suppression échouée")).when(serveurRepository).delete(serveur);
+
+        assertThrows(RuntimeException.class, () -> serveurComponent.deleteServeur(id));
+        verify(serveurRepository, times(1)).findById(id);
+        verify(serveurRepository, times(1)).delete(serveur);
     }
 }

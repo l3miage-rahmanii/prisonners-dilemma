@@ -82,6 +82,59 @@ class PartieComponentTest {
         verify(partieRepository, times(1)).save(partie);
     }
 
+
+    @Test
+    void testUpdateStatusWithNullStatus() {
+        // Given
+        Long id = 1L;
+        String nouveauStatus = null;
+        PartieEntity partie = new PartieEntity();
+        partie.setId(id);
+        when(partieRepository.findById(id)).thenReturn(Optional.of(partie));
+
+        // When/Then
+        assertThrows(BadRequestException.class, () -> partieComponent.updateStatus(id, nouveauStatus));
+        verify(partieRepository, times(1)).findById(id);
+        verify(partieRepository, times(0)).save(partie);
+    }
+
+    @Test
+    void testUpdateStatusWithSameStatus() throws NotFoundPartieEntityException, BadRequestException {
+        // Given
+        Long id = 1L;
+        String nouveauStatus = "En cours";
+        PartieEntity partie = new PartieEntity();
+        partie.setId(id);
+        partie.setStatus(nouveauStatus);
+        when(partieRepository.findById(id)).thenReturn(Optional.of(partie));
+
+        // When
+        PartieEntity result = partieComponent.updateStatus(id, nouveauStatus);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(nouveauStatus, result.getStatus());
+        verify(partieRepository, times(1)).findById(id);
+        verify(partieRepository, times(1)).save(partie);
+    }
+
+
+    @Test
+    void testDeletePartieFoundAndDeleted() throws NotFoundPartieEntityException {
+        // Given
+        Long id = 1L;
+        PartieEntity partie = new PartieEntity();
+        partie.setId(id);
+        when(partieRepository.findById(id)).thenReturn(Optional.of(partie));
+
+        // When
+        partieComponent.deletePartie(id);
+
+        // Then
+        verify(partieRepository, times(1)).findById(id);
+        verify(partieRepository, times(1)).delete(partie);
+    }
+
     @Test
     void testUpdateStatusInvalid() {
         // Given

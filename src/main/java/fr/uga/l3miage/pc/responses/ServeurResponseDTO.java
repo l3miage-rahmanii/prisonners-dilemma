@@ -14,6 +14,7 @@ import java.util.List;
 public class ServeurResponseDTO {
     private Long id;
     private String nom;
+    private String status;
     private String description;
     private PartieResponseDTO partie;
     private List<JoueurResponseDTO> joueurs;

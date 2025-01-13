@@ -1,7 +1,9 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Controllers;
 
+
 import fr.uga.l3miage.pc.controllers.JoueurController;
 import fr.uga.l3miage.pc.entities.JoueurEntity;
+import fr.uga.l3miage.pc.exceptions.technical.NotFoundJoueurEntityException;
 import fr.uga.l3miage.pc.responses.JoueurResponseDTO;
 import fr.uga.l3miage.pc.services.JoueurService;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,7 +12,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 class JoueurControllerTest {
@@ -51,13 +55,11 @@ class JoueurControllerTest {
         // Given
         Long id = 1L;
         int nouveauScore = 150;
-        JoueurResponseDTO response = new JoueurResponseDTO();
-        response.setId(id);
-        response.setNom("Test Joueur");
-        response.setScore(nouveauScore);
-
-        // Removed eq(...) and passed values directly
-        when(joueurService.updateScore(id, nouveauScore)).thenReturn(response);
+        JoueurEntity joueur = new JoueurEntity();
+        joueur.setId(id);
+        joueur.setNom("Test Joueur");
+        joueur.setScore(nouveauScore);
+        when(joueurService.updateScore(id, nouveauScore)).thenReturn(joueur);
 
         // When
         ResponseEntity<JoueurEntity> result = joueurController.mettreAJourScore(id, nouveauScore);
@@ -67,5 +69,26 @@ class JoueurControllerTest {
         assertEquals(id, result.getBody().getId());
         assertEquals("Test Joueur", result.getBody().getNom());
         assertEquals(nouveauScore, result.getBody().getScore());
+    }
+
+    @Test
+    void testObtenirJoueurNotFound() {
+        // Given
+        Long id = 2L;
+        when(joueurService.getJoueurById(id)).thenThrow(new NotFoundJoueurEntityException("Joueur introuvable"));
+
+        // When/Then
+        assertThrows(NotFoundJoueurEntityException.class, () -> joueurController.obtenirJoueur(id));
+    }
+
+    @Test
+    void testMettreAJourScoreNotFound() {
+        // Given
+        Long id = 2L;
+        int nouveauScore = 200;
+        when(joueurService.updateScore(id, nouveauScore)).thenThrow(new NotFoundJoueurEntityException("Joueur introuvable"));
+
+        // When/Then
+        assertThrows(NotFoundJoueurEntityException.class, () -> joueurController.mettreAJourScore(id, nouveauScore));
     }
 }
