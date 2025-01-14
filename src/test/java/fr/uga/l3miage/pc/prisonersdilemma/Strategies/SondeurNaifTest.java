@@ -14,7 +14,6 @@ class SondeurNaifTest {
 
     @BeforeEach
     void setUp() {
-        // Initialisation de l'historique avec une taille suffisante pour tester
         historique = new String[10];
         strategie = new SondeurNaif(historique);
     }
@@ -53,5 +52,63 @@ class SondeurNaifTest {
         // Le prochain coup dépend de l'historique, mais le comportement devrait être basé sur l'état actuel
         // Par exemple, si le dernier coup adversaire était une trahison, on doit trahir.
         assertTrue(strategie.prochainCoup().equals("t") || strategie.prochainCoup().equals("c"));
+    }
+
+    @Test
+    void testCoupInitialSansDernierCoup() {
+        // Test le premier coup sans historique précédent
+        String premierCoup = strategie.prochainCoup();
+        assertTrue(premierCoup.equals("c") || premierCoup.equals("t"),
+                "Le premier coup devrait être soit 'c' ou 't'");
+    }
+
+    @Test
+    void testMiseAJourHistoriqueConsecutif() {
+        // Test la mise à jour consécutive de l'historique
+        strategie.miseAJourDernierCoupAdversaire("c");
+        strategie.miseAJourDernierCoupAdversaire("c");
+        strategie.miseAJourDernierCoupAdversaire("t");
+
+        assertEquals("c", historique[0]);
+        assertEquals("c", historique[1]);
+        assertEquals("t", historique[2]);
+        assertNull(historique[3], "Les positions non utilisées devraient être null");
+    }
+
+    @Test
+    void testGestionEntreesInvalides() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            strategie.miseAJourDernierCoupAdversaire("x");
+        }, "Devrait rejeter les coups invalides");
+    }
+
+    @Test
+    void testComportementCyclique() {
+        // Test du comportement sur plusieurs tours
+        String[] coups = new String[]{"c", "c", "t", "c", "t"};
+        for (String coup : coups) {
+            strategie.miseAJourDernierCoupAdversaire(coup);
+        }
+
+        // Vérifie que le comportement est cohérent après plusieurs coups
+        String prochaincoup = strategie.prochainCoup();
+        assertTrue(prochaincoup.equals("c") || prochaincoup.equals("t"),
+                "Le prochain coup devrait toujours être valide");
+    }
+
+    @Test
+    void testLimiteHistorique() {
+        for (int i = 0; i < 10; i++) {
+            strategie.miseAJourDernierCoupAdversaire("c");
+        }
+
+        for (int i = 0; i < historique.length; i++) {
+            assertEquals("c", historique[i],
+                    "La position " + i + " devrait contenir 'c'");
+        }
+
+        assertThrows(ArrayIndexOutOfBoundsException.class, () -> {
+            strategie.miseAJourDernierCoupAdversaire("t");
+        }, "Devrait lancer une exception quand l'historique est plein");
     }
 }

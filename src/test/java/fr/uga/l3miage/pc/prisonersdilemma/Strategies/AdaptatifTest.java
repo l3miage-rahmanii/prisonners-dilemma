@@ -1,71 +1,114 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Strategies;
 
+
 import fr.uga.l3miage.pc.strategies.Adaptatif;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.springframework.test.util.AssertionErrors.assertEquals;
 
-public class AdaptatifTest {
-    /*
-
-    private Adaptatif adaptatif;
+class AdaptatifTest {
+    private static final int HISTORY_SIZE = 100;
     private String[] historique;
+    private Adaptatif strategie;
 
     @BeforeEach
     void setUp() {
-        historique = new String[20]; // Taille arbitraire pour les tests
-        adaptatif = nesw Adaptatif(historique);
+        historique = new String[HISTORY_SIZE];
+        strategie = new Adaptatif(historique);
     }
 
     @Test
-    void testProchainCoupInitialSequence() {
-        // Vérifie que les premiers coups suivent la séquence initiale
-        String expectedSequence = "cccccccttttt";
-        for (int i = 0; i < expectedSequence.length(); i++) {
-            assertEquals(String.valueOf(expectedSequence.charAt(i)), adaptatif.prochainCoup());
-            adaptatif.miseAJourDernierCoupAdversaire("c", 1); // Mettre à jour avec des valeurs arbitraires
+    void testInitialSequence() {
+        String expected = "cccccccttttt";
+        for (int i = 0; i < expected.length(); i++) {
+            String coup = strategie.prochainCoup();
+            String expectedChar = String.valueOf(expected.charAt(i));
+
+            assertEquals(expectedChar, coup,
+                    String.format("Move %d should match initial sequence", i));
+
+            // Simulate some opponent move and score
+            strategie.miseAJourDernierCoupAdversaire("c", 1);
         }
     }
 
+
     @Test
-    void testProchainCoupApresSequenceInitialeFavoriseCooperation() {
-        // Simule une situation où coopérer rapporte plus de points
-        String initialSequence = "cccccccttttt";
-        for (int i = 0; i < initialSequence.length(); i++) {
-            adaptatif.miseAJourDernierCoupAdversaire("c", 1);
+    void testAdaptationToCooperation() {
+        // Play through initial sequence
+        String initial = "cccccccttttt";
+        for (int i = 0; i < initial.length(); i++) {
+            String coup = strategie.prochainCoup();
+            // Simulate opponent always cooperating with high scores for cooperation
+            strategie.miseAJourDernierCoupAdversaire("c", coup.equals("c") ? 3 : 1);
         }
 
-        // Coopération a un score plus élevé
-        adaptatif.miseAJourDernierCoupAdversaire("c", 10); // Score élevé pour coopération
-        adaptatif.miseAJourDernierCoupAdversaire("t", 1);  // Score bas pour trahison
-
-        assertEquals("c", adaptatif.prochainCoup());
+        // After initial sequence, strategy should prefer cooperation due to higher scores
+        assertEquals("c", strategie.prochainCoup(),
+                "Should choose cooperation when it has historically yielded better scores");
     }
 
     @Test
-    void testProchainCoupApresSequenceInitialeFavoriseTrahison() {
-        // Simule une situation où trahir rapporte plus de points
-        String initialSequence = "cccccccttttt";
-        for (int i = 0; i < initialSequence.length(); i++) {
-            adaptatif.miseAJourDernierCoupAdversaire("t", 1);
+    void testAdaptationToBetrayals() {
+        // Play through initial sequence
+        String initial = "cccccccttttt";
+        for (int i = 0; i < initial.length(); i++) {
+            String coup = strategie.prochainCoup();
+            // Simulate opponent always betraying with high scores for betrayal
+            strategie.miseAJourDernierCoupAdversaire("t", coup.equals("t") ? 5 : 0);
         }
 
-        // Trahison a un score plus élevé
-        adaptatif.miseAJourDernierCoupAdversaire("t", 10); // Score élevé pour trahison
-        adaptatif.miseAJourDernierCoupAdversaire("c", 1);  // Score bas pour coopération
-
-        assertEquals("t", adaptatif.prochainCoup());
+        // After initial sequence, strategy should prefer betrayal due to higher scores
+        assertEquals("t", strategie.prochainCoup(),
+                "Should choose betrayal when it has historically yielded better scores");
     }
 
     @Test
-    void testMiseAJourDernierCoupAdversaire() {
-        adaptatif.miseAJourDernierCoupAdversaire("c", 5);
-        adaptatif.miseAJourDernierCoupAdversaire("t", 10);
+    void testEqualScores() {
+        // Play through initial sequence with equal scores for both strategies
+        String initial = "cccccccttttt";
+        for (int i = 0; i < initial.length(); i++) {
+            String coup = strategie.prochainCoup();
+            strategie.miseAJourDernierCoupAdversaire("c", 2);
+        }
 
-        assertEquals("c", historique[0]); // Vérifie que le premier coup enregistré est correct
-        assertEquals("t", historique[1]); // Vérifie que le deuxième coup enregistré est correct
+        // When scores are equal, should default to cooperation (>= in the comparison)
+        assertEquals("c", strategie.prochainCoup(),
+                "Should choose cooperation when scores are equal");
     }
 
-     */
+    @Test
+    void testDivisionByZero() {
+        // This test verifies that the strategy handles the case where no moves of a certain type have been made
+        String initial = "cccccccttttt";
+        for (int i = 0; i < initial.length(); i++) {
+            strategie.prochainCoup();
+            // Don't update scores, leaving counters at 0
+        }
+
+        // Should not throw exception due to division by zero
+        assertDoesNotThrow(() -> strategie.prochainCoup(),
+                "Should handle division by zero case gracefully");
+    }
+
+    @Test
+    void testHistoryUpdate() {
+        // Test that the history array is properly updated
+        String[] expectedHistory = new String[HISTORY_SIZE];
+        String initial = "cccccccttttt";
+
+        for (int i = 0; i < initial.length(); i++) {
+            strategie.prochainCoup();
+            strategie.miseAJourDernierCoupAdversaire("c", 1);
+            expectedHistory[i] = "c";
+        }
+
+        // Verify the first 12 entries of history
+        for (int i = 0; i < initial.length(); i++) {
+            assertEquals(expectedHistory[i], historique[i],
+                    "History should be properly updated at position " + i);
+        }
+    }
 }

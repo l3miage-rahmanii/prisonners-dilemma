@@ -13,9 +13,9 @@ public class DonnantPourDeuxDonnantsAleatoire extends DonnantPourDeuxDonnants {
 
     @Override
     public String prochainCoup() {
-        if (random.nextDouble() < 0.1) { // 10% de chance de jouer au hasard
+        if (random.nextDouble() < 0.1) {
             return random.nextBoolean() ? "c" : "t";
         }
-        return super.prochainCoup(); // Sinon, utiliser Donnant pour deux donnants
+        return super.prochainCoup();
     }
 }
