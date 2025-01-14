@@ -34,7 +34,7 @@ public class PartieController {
                     coupNormalise = "t";
                     break;
                 case "abandonner":
-                    partieService.abandonnerPartie(partieId, joueurId, StrategieEnum.TOUJOURS_TRAHIR);
+                    partieService.changerStrategie(partieId, joueurId, StrategieEnum.TOUJOURS_TRAHIR);
                     return ResponseEntity.ok("Partie abandonnée");
                 case "reinitialiser":
                     // Create new game

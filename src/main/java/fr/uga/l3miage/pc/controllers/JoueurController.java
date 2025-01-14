@@ -36,13 +36,7 @@ public class JoueurController {
     public JoueurResponseDTO creerJoueur(@RequestBody JoueurRequestDTO joueurRequestDTO) {
         return joueurService.creerJoueur(joueurRequestDTO);
     }
-/*
-    @PutMapping("/{id}/dernier-coup")
-    public JoueurResponseDTO updateDernierCoup(@PathVariable Long id, @RequestParam String dernierCoup) {
-        return joueurService.updateDernierCoup(id, dernierCoup);
-    }
 
- */
 
 
     @PutMapping("/{id}/score")

@@ -11,25 +11,25 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ServeurService {
     private final ServeurRepository serveurRepository;
     private final ServeurMapper serveurMapper;
+    private String serveurNonTrouve = "Serveur non trouvé";
 
 
     public List<ServeurResponseDTO> getAllServeurs() {
         return serveurRepository.findAll().stream()
                 .map(serveurMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public ServeurResponseDTO getServeurById(Long id) {
         return serveurRepository.findById(id)
                 .map(serveurMapper::toResponse)
-                .orElseThrow(() -> new NotFoundEntityRestException("Serveur non trouvé"));
+                .orElseThrow(() -> new NotFoundEntityRestException(serveurNonTrouve));
     }
 
     public ServeurResponseDTO createServeur(ServeurRequestDTO request) {
@@ -44,7 +44,7 @@ public class ServeurService {
 
     public ServeurResponseDTO updateServeur(Long id, ServeurRequestDTO request) {
         ServeurEntity serveur = serveurRepository.findById(id)
-                .orElseThrow(() -> new NotFoundEntityRestException("Serveur non trouvé"));
+                .orElseThrow(() -> new NotFoundEntityRestException(serveurNonTrouve));
 
         serveurMapper.updateEntityFromRequest(request, serveur);
         return serveurMapper.toResponse(serveurRepository.save(serveur));
@@ -52,7 +52,7 @@ public class ServeurService {
 
     public void deleteServeur(Long id) {
         ServeurEntity serveur = serveurRepository.findById(id)
-                .orElseThrow(() -> new NotFoundEntityRestException("Serveur non trouvé"));
+                .orElseThrow(() -> new NotFoundEntityRestException(serveurNonTrouve));
 
         if (serveur.getPartie() != null &&
                 !serveur.getPartie().getStatus().equals("terminée")) {

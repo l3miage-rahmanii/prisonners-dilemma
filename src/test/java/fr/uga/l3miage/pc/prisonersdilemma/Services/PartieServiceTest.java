@@ -283,7 +283,7 @@ class PartieServiceTest {
         when(partieMapper.toResponse(any())).thenReturn(partieResponseDTO);
 
         // When
-        PartieResponseDTO result = partieService.abandonnerPartie(partieId, joueurId, strategie);
+        PartieResponseDTO result = partieService.changerStrategie(partieId, joueurId, strategie);
 
         // Then
         assertThat(result).isNotNull();

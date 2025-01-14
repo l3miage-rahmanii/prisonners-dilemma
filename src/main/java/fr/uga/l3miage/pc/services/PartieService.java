@@ -25,10 +25,12 @@
         private final PartieRepository partieRepository;
         private final JoueurService joueurService;
         private final JoueurMapper joueurMapper;
+        private String partieNonTrouve = "Partie non trouvée";
+        private String enCours = "en_cours";
 
         public PartieResponseDTO jouerCoup(Long partieId, Long joueurId, String coup) {
             PartieEntity partie = partieRepository.findById(partieId)
-                    .orElseThrow(() -> new NotFoundEntityRestException("Partie non trouvée"));
+                    .orElseThrow(() -> new NotFoundEntityRestException(partieNonTrouve));
 
 
             boolean estJoueur1 = partie.getJoueurs().get(0).getId().equals(joueurId);
@@ -75,7 +77,7 @@
 
         public PartieResponseDTO changerStrategie(Long partieId, Long joueurId, StrategieEnum strategie) {
             PartieEntity partie = partieRepository.findById(partieId)
-                    .orElseThrow(() -> new NotFoundEntityRestException("Partie non trouvée"));
+                    .orElseThrow(() -> new NotFoundEntityRestException(partieNonTrouve));
 
             boolean estJoueur1 = partie.getJoueurs().get(0).getId().equals(joueurId);
             if (estJoueur1) {
@@ -116,7 +118,7 @@
 
         public PartieResponseDTO rejoindrePartie(Long partieId, Long joueurId) {
             PartieEntity partie = partieRepository.findById(partieId)
-                    .orElseThrow(() -> new NotFoundEntityRestException("Partie non trouvée"));
+                    .orElseThrow(() -> new NotFoundEntityRestException(partieNonTrouve));
 
             JoueurEntity joueur = joueurService.getJoueurEntityById(joueurId);
 
@@ -131,22 +133,7 @@
             partie.getJoueurs().add(joueur); // Ajouter directement l'entité
 
             if (partie.getJoueurs().size() == 2) {
-                partie.setStatus("en_cours");
-            }
-
-            return partieMapper.toResponse(partieRepository.save(partie));
-        }
-
-        public PartieResponseDTO abandonnerPartie(Long partieId, Long joueurId, StrategieEnum strategie) {
-            PartieEntity partie = partieRepository.findById(partieId)
-                    .orElseThrow(() -> new NotFoundEntityRestException("Partie non trouvée"));
-
-            boolean estJoueur1 = partie.getJoueurs().get(0).getId().equals(joueurId);
-
-            if (estJoueur1) {
-                partie.setStrategieJoueur1(strategie);
-            } else {
-                partie.setStrategieJoueur2(strategie);
+                partie.setStatus(enCours);
             }
 
             return partieMapper.toResponse(partieRepository.save(partie));
@@ -154,10 +141,10 @@
 
         public void verifierStatutPartie(PartieEntity partie) {
             if (partie.getStatus().equals("en_attente") && partie.getJoueurs().size() == 2) {
-                partie.setStatus("en_cours");
+                partie.setStatus(enCours);
             }
 
-            if (partie.getStatus().equals("en_cours") &&
+            if (partie.getStatus().equals(enCours) &&
                     partie.getCoupsJoueur1().size() >= partie.getNbTours()) {
                 partie.setStatus("terminée");
                 // Mettre à jour les scores finaux

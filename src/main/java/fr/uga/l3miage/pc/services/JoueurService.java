@@ -22,7 +22,7 @@ public class JoueurService {
     private final JoueurMapper joueurMapper;
     private final JoueurComponent joueurComponent;
     private final JoueurRepository joueurRepository;
-    private String joueurNonTrouvé = "Joueur non trouve";
+    private String joueurNonTrouve = "Joueur non trouve";
 
     public JoueurResponseDTO getJoueurById(Long id) {
         try {
@@ -35,7 +35,7 @@ public class JoueurService {
 
     public JoueurEntity getJoueurEntityById(Long id) {
         return joueurRepository.findById(id)
-                .orElseThrow(() -> new NotFoundEntityRestException(joueurNonTrouvé));
+                .orElseThrow(() -> new NotFoundEntityRestException(joueurNonTrouve));
     }
 
     public JoueurResponseDTO creerJoueur(JoueurRequestDTO joueurRequestDTO) {
@@ -66,14 +66,14 @@ public class JoueurService {
 
     public JoueurEntity updateDernierCoup(Long id, String dernierCoup) {
         JoueurEntity joueur = joueurRepository.findById(id)
-                .orElseThrow(() -> new NotFoundEntityRestException(joueurNonTrouvé));
+                .orElseThrow(() -> new NotFoundEntityRestException(joueurNonTrouve));
         joueur.setDernierCoup(dernierCoup);
         return joueurRepository.save(joueur);
     }
 
     public JoueurEntity updateScore(Long id, int points) {
         JoueurEntity joueur = joueurRepository.findById(id)
-                .orElseThrow(() -> new NotFoundEntityRestException(joueurNonTrouvé));
+                .orElseThrow(() -> new NotFoundEntityRestException(joueurNonTrouve));
         joueur.setScore(joueur.getScore() + points);
         return joueurRepository.save(joueur);
     }
