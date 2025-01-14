@@ -290,4 +290,51 @@ class PartieServiceTest {
         verify(partieRepository, times(1)).save(partieEntity);
     }
 
+
+    @Test
+    void testRejoindrePartiePasDePlace() {
+        // Given
+        Long partieId = 1L;
+        Long joueurId = 3L;
+        partieEntity.setJoueurs(Arrays.asList(new JoueurEntity(), new JoueurEntity())); // La partie est pleine
+
+        when(partieRepository.findById(partieId)).thenReturn(Optional.of(partieEntity));
+
+        // When / Then
+        assertThrows(BadRequestRestException.class, () -> partieService.rejoindrePartie(partieId, joueurId));
+    }
+
+
+    @Test
+    void testChangerStrategiePartieInexistante() {
+        // Given
+        Long partieId = 999L;
+        Long joueurId = 1L;
+        StrategieEnum strategie = StrategieEnum.DONNANT_DONNANT;
+
+        when(partieRepository.findById(partieId)).thenReturn(Optional.empty());
+
+        // When / Then
+        assertThrows(NotFoundEntityRestException.class, () -> partieService.changerStrategie(partieId, joueurId, strategie));
+    }
+
+    @Test
+    void testJouerCoupJoueurNonParticipant() {
+        // Given
+        Long partieId = 1L;
+        Long joueurId = 999L; // Joueur non participant
+        String coup = "c";
+        PartieEntity partieEntity = new PartieEntity();
+        JoueurEntity joueur1 = new JoueurEntity();
+        joueur1.setId(1L);
+        JoueurEntity joueur2 = new JoueurEntity();
+        joueur2.setId(2L);
+        partieEntity.setJoueurs(Arrays.asList(joueur1, joueur2));
+
+        when(partieRepository.findById(partieId)).thenReturn(Optional.of(partieEntity));
+
+        // When / Then
+        assertThrows(BadRequestRestException.class, () -> partieService.jouerCoup(partieId, joueurId, coup));
+    }
+
 }
