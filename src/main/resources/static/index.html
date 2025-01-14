@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dilemme du Prisonnier</title>
+    <script src="https://unpkg.com/htmx.org"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-top: 20px;
+            color: #444;
+        }
+
+        #score-container, #message-container {
+            margin: 20px 0;
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+        }
+
+        #score {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0078d4;
+        }
+
+        #message {
+            font-size: 1.2rem;
+            color: #444;
+        }
+
+        #actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #005ea6;
+        }
+
+        button:active {
+            background-color: #003e70;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+<h1>Dilemme du Prisonnier</h1>
+
+<!-- Score Section -->
+<div id="score-container">
+    <h2>Score</h2>
+    <div id="score" hx-get="/api/joueurs/1" hx-trigger="load" hx-target="#score" hx-swap="innerHTML">
+        0 <!-- Score initial -->
+    </div>
+</div>
+
+<!-- Message Section -->
+<div id="message-container">
+    <h2>Message</h2>
+    <div id="message">Bienvenue au jeu !</div>
+</div>
+
+<!-- Action Buttons -->
+<div id="actions">
+    <button hx-post="/api/parties/1/joueurs/1/coup?coup=cooperer"
+            hx-target="#message"
+            hx-swap="innerHTML">
+        Coopérer
+    </button>
+    <button hx-post="/api/parties/1/joueurs/1/coup?coup=trahir"
+            hx-target="#message"
+            hx-swap="innerHTML">
+        Trahir
+    </button>
+    <button hx-post="/api/parties/1/joueurs/1/coup?coup=abandonner"
+            hx-target="#message"
+            hx-swap="innerHTML">
+        Abandonner
+    </button>
+    <button hx-post="/api/parties/1/joueurs/1/coup?coup=reinitialiser"
+            hx-target="#message"
+            hx-swap="innerHTML">
+        Réinitialiser
+    </button>
+</div>
+</body>
+</html>

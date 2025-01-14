@@ -1,87 +1,117 @@
 @startuml
-class Jeu {
-    -int nombreTours
-    +commencerPartie(): void
-    +calculerScore(): void
-}
 
 class Joueur {
     -String nom
     -int score
-    -Stratégie stratégie
-    +jouer(): void
-}
-
-class Stratégie {
-    +jouerCoup(): String
-}
-
-class Serveur {
-    -List<Jeu> jeuxEnCours
-    +lancerJeu(Joueur, Joueur): Jeu
-    +gererRencontre(): void
+    -boolean abandon
+    +String jouerCoup(Client client): String
+    +String decision(): String
+    +String abandonner(): String
+    +int getScore(): int
+    +String getNom(): String
+    +void setNom(): void
+    +String getNbTours(): String
 }
 
 class Client {
-    -Serveur serveur
-    +seConnecter(Serveur): void
-    +envoyerCoup(): void
+    -Socket socket
+    -PrintWriter out
+    -BufferedReader in
+    -Joueur joueur
+    +Client(Joueur joueur)
+    +void seConnecter(String adresse, int port): void
+    +void envoyerCoup(String coup): void
+    +String recevoirCoup(): String
+    +void askName(): void
+    +void askTours(): void
+    +void seDeconnecter(): void
+    +void askStrategie(): void
 }
 
-Jeu "2" - "1" Joueur : "Joue"
-Joueur "0..2" -- "1" Stratégie : "utilise"
-Serveur "1"-"1" Jeu : "gère"
-Client "1" - "2" Serveur : "se connecte à"
+class Serveur {
+    -ServerSocket serverSocket
+    -BufferedReader inClient1
+    -BufferedReader inClient2
+    -PrintWriter outClient1
+    -PrintWriter outClient2
+    -int scoreTotalClient1
+    -int scoreTotalClient2
+    -Client client1
+    -Client client2
+    -String[] historiqueClient1
+    -String[] historiqueClient2
+    -int nbTours
+    -Partie jeu
+    +static Serveur getInstance(): Serveur
+    +void start(int port): void
+    +void askCoup(Client client): void
+    +void calculScore(): void
+    +void envoyerScores(): void
+    +void stop(): void
+}
 
-Stratégie <|-- DonnantDonnant
-Stratégie <|-- ToujoursTrahir
-Stratégie <|-- ToujoursCooperer
-Stratégie <|-- Aleatoire
-Stratégie <|-- Rancunier
-Stratégie <|-- Pavlov
-Stratégie <|-- Adaptatif
-Stratégie <|-- Graduel
-Stratégie <|-- SondeurNaif
-Stratégie <|-- PacificateurNaif
+class Partie {
+    -Client client1
+    -Client client2
+    -int nombreTours
+    -Serveur serveur
+    -boolean abandon
+    +Partie(Client client1, Client client2, int nombreTours)
+    +void commencer(): void
+    +void partieSuivantAbandon(Client client, Strategie strategie): void
+    +void fin(): void
+}
 
-DonnantDonnant <|-- DonnantDonnantAleatoire
-DonnantDonnant <|-- DonnantPourDeuxDonnants
-DonnantPourDeuxDonnants <|-- DonnantPourDeuxDonnantsAleatoire
-DonnantDonnant <|-- DonnantDonnantSoupconneux
+interface Strategie {
+    +jouerCoup(): String
+}
 
-Pavlov <|-- PavlovAleatoire
+class StrategieFactory {
+    +getStrategie(choixStrategie: String, historique: String[]): Strategie
+}
+
+Joueur "0..2" -- "1" Client : "représente"
+Client "1" - "1" Serveur : "se connecte à"
+Partie "1" - "2" Client : "contient"
+Serveur "1" - "1" Partie : "gère"
+
+Strategie <|.. DonnantDonnant
+Strategie <|.. ToujoursTrahir
+Strategie <|.. ToujoursCooperer
+Strategie <|.. Rancunier
+Strategie <|.. Pavlov
+Strategie <|.. Adaptatif
 
 class DonnantDonnant {
     +jouerCoup(): String
 }
+
+class Rancunier {
+    +jouerCoup(): String
+}
+
 class DonnantDonnantAleatoire {
     +jouerCoup(): String
 }
+
 class DonnantPourDeuxDonnants {
     +jouerCoup(): String
 }
-class DonnantPourDeuxDonnantsAleatoire {
-    +jouerCoup(): String
-}
+
 class DonnantDonnantSoupconneux {
     +jouerCoup(): String
 }
 
-class SondeurNaif {
-    +jouerCoup(): String
-}
-class SondeurRepentant {
+class Pavlov {
     +jouerCoup(): String
 }
 
-class PacificateurNaif {
-    +jouerCoup(): String
-}
-class VraiPacificateur {
-    +jouerCoup(): String
-}
+DonnantPourDeuxDonnants <|-- DonnantDonnantSoupconneux
+DonnantDonnant <|-- DonnantDonnantAleatoire
+DonnantDonnant <|-- DonnantPourDeuxDonnants
+Pavlov <|-- PavlovAleatoire
 
-SondeurNaif <|-- SondeurRepentant
-PacificateurNaif <|-- VraiPacificateur
+
+StrategieFactory ..> Strategie : "utilise"
 
 @enduml
