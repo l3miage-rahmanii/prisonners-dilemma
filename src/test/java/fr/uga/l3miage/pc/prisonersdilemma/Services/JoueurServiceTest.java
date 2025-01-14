@@ -16,11 +16,13 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 class JoueurServiceTest {
@@ -80,44 +82,130 @@ class JoueurServiceTest {
     }
 
     @Test
-    void testUpdateScoreSuccess() throws Exception {
-        // Given
-        Long joueurId = 1L;
-        int nouveauScore = 100;
-        JoueurEntity joueurEntity = new JoueurEntity();
-        joueurEntity.setId(joueurId);
-        joueurEntity.setScore(nouveauScore);
+    void updateScoreSuccess() {
+        // Arrange
+        Long id = 1L;
+        int initialScore = 100;
+        int pointsToAdd = 50;
 
-        JoueurResponseDTO joueurResponseDTO = JoueurResponseDTO.builder()
-                .id(joueurId)
-                .score(nouveauScore)
+        JoueurEntity existingJoueur = JoueurEntity.builder()
+                .id(id)
+                .nom("Test Player")
+                .score(initialScore)
                 .build();
 
-        when(joueurComponent.updateScore(joueurId, nouveauScore)).thenReturn(joueurEntity);
-        when(joueurMapper.toResponse(joueurEntity)).thenReturn(joueurResponseDTO);
+        JoueurEntity expectedJoueur = JoueurEntity.builder()
+                .id(id)
+                .nom("Test Player")
+                .score(initialScore + pointsToAdd)
+                .build();
 
-        // When
-        JoueurEntity result = joueurService.updateScore(joueurId, nouveauScore);
+        when(joueurRepository.findById(id)).thenReturn(Optional.of(existingJoueur));
+        when(joueurRepository.save(any(JoueurEntity.class))).thenReturn(expectedJoueur);
 
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getScore()).isEqualTo(nouveauScore);
-        verify(joueurComponent, times(1)).updateScore(joueurId, nouveauScore);
-        verify(joueurMapper, times(1)).toResponse(joueurEntity);
+        // Act
+        JoueurEntity result = joueurService.updateScore(id, pointsToAdd);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(initialScore + pointsToAdd, result.getScore());
+        verify(joueurRepository).findById(id);
+        verify(joueurRepository).save(argThat(joueur ->
+                joueur.getId().equals(id) &&
+                        joueur.getScore() == initialScore + pointsToAdd
+        ));
     }
 
     @Test
-    void testUpdateScoreBadRequest() throws Exception {
+    void updateScoreWithNegativePoints() {
+        // Arrange
+        Long id = 1L;
+        int initialScore = 100;
+        int pointsToSubtract = -30;
+
+        JoueurEntity existingJoueur = JoueurEntity.builder()
+                .id(id)
+                .nom("Test Player")
+                .score(initialScore)
+                .build();
+
+        JoueurEntity expectedJoueur = JoueurEntity.builder()
+                .id(id)
+                .nom("Test Player")
+                .score(initialScore + pointsToSubtract)
+                .build();
+
+        when(joueurRepository.findById(id)).thenReturn(Optional.of(existingJoueur));
+        when(joueurRepository.save(any(JoueurEntity.class))).thenReturn(expectedJoueur);
+
+        // Act
+        JoueurEntity result = joueurService.updateScore(id, pointsToSubtract);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(initialScore + pointsToSubtract, result.getScore());
+        verify(joueurRepository).findById(id);
+        verify(joueurRepository).save(argThat(joueur ->
+                joueur.getId().equals(id) &&
+                        joueur.getScore() == initialScore + pointsToSubtract
+        ));
+    }
+
+    @Test
+    void updateScore_PlayerNotFound() {
+        // Arrange
+        Long id = 1L;
+        when(joueurRepository.findById(id)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(NotFoundEntityRestException.class,
+                () -> joueurService.updateScore(id, 50));
+
+        verify(joueurRepository).findById(id);
+        verify(joueurRepository, never()).save(any());
+    }
+
+    @Test
+    void updateScore_WithZeroPoints() {
+        // Arrange
+        Long id = 1L;
+        int initialScore = 100;
+        int pointsToAdd = 0;
+
+        JoueurEntity existingJoueur = JoueurEntity.builder()
+                .id(id)
+                .nom("Test Player")
+                .score(initialScore)
+                .build();
+
+        when(joueurRepository.findById(id)).thenReturn(Optional.of(existingJoueur));
+        when(joueurRepository.save(any(JoueurEntity.class))).thenReturn(existingJoueur);
+
+        // Act
+        JoueurEntity result = joueurService.updateScore(id, pointsToAdd);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(initialScore, result.getScore());
+        verify(joueurRepository).findById(id);
+        verify(joueurRepository).save(argThat(joueur ->
+                joueur.getId().equals(id) &&
+                        joueur.getScore() == initialScore
+        ));
+    }
+
+    @Test
+    void testUpdateScoreNotFound() throws Exception {
         // Given
         Long joueurId = 1L;
-        int nouveauScore = -10;
-
-        when(joueurComponent.updateScore(joueurId, nouveauScore)).thenThrow(new BadRequestRestException("Score invalide"));
+        int nouveauScore = -10;  // Assuming this is an invalid score that should cause the player to be not found
+        when(joueurRepository.findById(joueurId)).thenReturn(Optional.empty());
 
         // When / Then
-        assertThrows(BadRequestRestException.class, () -> joueurService.updateScore(joueurId, nouveauScore));
-        verify(joueurComponent, times(1)).updateScore(joueurId, nouveauScore);
+        assertThrows(NotFoundEntityRestException.class, () -> joueurService.updateScore(joueurId, nouveauScore));
+        verify(joueurRepository, times(1)).findById(joueurId);
     }
+
 
     @Test
     void testGetJoueursByIdsSuccess() {

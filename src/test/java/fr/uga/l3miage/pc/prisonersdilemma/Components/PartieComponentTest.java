@@ -106,17 +106,21 @@ class PartieComponentTest {
         PartieEntity partie = new PartieEntity();
         partie.setId(id);
         partie.setStatus(nouveauStatus);
+
         when(partieRepository.findById(id)).thenReturn(Optional.of(partie));
+
+        when(partieRepository.save(partie)).thenReturn(partie);
 
         // When
         PartieEntity result = partieComponent.updateStatus(id, nouveauStatus);
 
         // Then
-        assertNotNull(result);
-        assertEquals(nouveauStatus, result.getStatus());
+        assertNotNull(result);  // Ensure the result is not null
+        assertEquals(nouveauStatus, result.getStatus());  // Ensure the status was updated
         verify(partieRepository, times(1)).findById(id);
-        verify(partieRepository, times(1)).save(partie);
+        verify(partieRepository, times(1)).save(partie);  // Verify save was called
     }
+
 
 
     @Test

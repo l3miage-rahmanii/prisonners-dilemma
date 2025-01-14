@@ -3,7 +3,6 @@ package fr.uga.l3miage.pc.prisonersdilemma.Services;
 import fr.uga.l3miage.pc.components.PartieComponent;
 import fr.uga.l3miage.pc.entities.JoueurEntity;
 import fr.uga.l3miage.pc.entities.PartieEntity;
-import fr.uga.l3miage.pc.entities.ServeurEntity;
 import fr.uga.l3miage.pc.enums.StrategieEnum;
 import fr.uga.l3miage.pc.exceptions.rest.BadRequestRestException;
 import fr.uga.l3miage.pc.exceptions.rest.NotFoundEntityRestException;
@@ -25,13 +24,20 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 class PartieServiceTest {
+
+    private PartieEntity partieEntity;
+    private JoueurEntity joueur1;
+    private JoueurEntity joueur2;
+    private PartieResponseDTO partieResponseDTO;
 
     @Mock
     private PartieMapper partieMapper;
@@ -54,6 +60,24 @@ class PartieServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        joueur1 = JoueurEntity.builder()
+                .id(1L)
+                .nom("Joueur 1")
+                .build();
+
+        joueur2 = JoueurEntity.builder()
+                .id(2L)
+                .nom("Joueur 2")
+                .build();
+
+        partieEntity = PartieEntity.builder()
+                .id(1L)
+                .status("en_attente")
+                .joueurs(new ArrayList<>())
+                .build();
+
+        partieResponseDTO = new PartieResponseDTO(); // Initialize with appropriate fields
     }
 
     @Test
@@ -174,33 +198,55 @@ class PartieServiceTest {
         assertThat(result).isNotNull();
         verify(partieRepository, times(1)).save(partieEntity);
     }
+
     @Test
-    void testRejoindrePartieSuccess() {
-        // Given
+    void rejoindrePartieSuccessFirstPlayer() {
+        // Arrange
         Long partieId = 1L;
         Long joueurId = 1L;
-        PartieEntity partieEntity = new PartieEntity();
-        partieEntity.setStatus("en_attente");
-
-        JoueurEntity joueur = new JoueurEntity();
-        joueur.setId(joueurId);
-
-        PartieResponseDTO partieResponseDTO = PartieResponseDTO.builder()
-                .id(partieId)
-                .status("en_attente")
-                .build();
 
         when(partieRepository.findById(partieId)).thenReturn(Optional.of(partieEntity));
-        when(joueurService.getJoueurEntityById(joueurId)).thenReturn(joueur);
-        when(partieMapper.toResponse(any())).thenReturn(partieResponseDTO);
+        when(joueurService.getJoueurEntityById(joueurId)).thenReturn(joueur1);
+        when(partieRepository.save(any(PartieEntity.class))).thenReturn(partieEntity);
+        when(partieMapper.toResponse(any(PartieEntity.class))).thenReturn(partieResponseDTO);
 
-        // When
+        // Act
         PartieResponseDTO result = partieService.rejoindrePartie(partieId, joueurId);
 
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getStatus()).isEqualTo("en_attente");
-        verify(partieRepository, times(1)).save(partieEntity);
+        // Assert
+        assertNotNull(result);
+        verify(partieRepository).findById(partieId);
+        verify(joueurService).getJoueurEntityById(joueurId);
+        verify(partieRepository).save(argThat(partie ->
+                partie.getJoueurs().size() == 1 &&
+                        partie.getJoueurs().contains(joueur1) &&
+                        "en_attente".equals(partie.getStatus())
+        ));
+    }
+
+    @Test
+    void rejoindrePartieSuccessSecondPlayer() {
+        // Arrange
+        Long partieId = 1L;
+        Long joueurId = 2L;
+        partieEntity.getJoueurs().add(joueur1);
+
+        when(partieRepository.findById(partieId)).thenReturn(Optional.of(partieEntity));
+        when(joueurService.getJoueurEntityById(joueurId)).thenReturn(joueur2);
+        when(partieRepository.save(any(PartieEntity.class))).thenReturn(partieEntity);
+        when(partieMapper.toResponse(any(PartieEntity.class))).thenReturn(partieResponseDTO);
+
+        // Act
+        PartieResponseDTO result = partieService.rejoindrePartie(partieId, joueurId);
+
+        // Assert
+        assertNotNull(result);
+        verify(partieRepository).save(argThat(partie ->
+                partie.getJoueurs().size() == 2 &&
+                        partie.getJoueurs().contains(joueur1) &&
+                        partie.getJoueurs().contains(joueur2) &&
+                        "en_cours".equals(partie.getStatus())
+        ));
     }
 
     @Test

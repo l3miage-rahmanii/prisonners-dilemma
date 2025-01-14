@@ -3,6 +3,7 @@ package fr.uga.l3miage.pc.prisonersdilemma.Controllers;
 
 import fr.uga.l3miage.pc.controllers.JoueurController;
 import fr.uga.l3miage.pc.entities.JoueurEntity;
+import fr.uga.l3miage.pc.exceptions.rest.NotFoundEntityRestException;
 import fr.uga.l3miage.pc.exceptions.technical.NotFoundJoueurEntityException;
 import fr.uga.l3miage.pc.responses.JoueurResponseDTO;
 import fr.uga.l3miage.pc.services.JoueurService;
@@ -13,8 +14,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 class JoueurControllerTest {
@@ -75,10 +76,14 @@ class JoueurControllerTest {
     void testObtenirJoueurNotFound() {
         // Given
         Long id = 2L;
-        when(joueurService.getJoueurById(id)).thenThrow(new NotFoundJoueurEntityException("Joueur introuvable"));
+        when(joueurService.getJoueurById(id)).thenThrow(new NotFoundEntityRestException("Joueur introuvable"));
 
-        // When/Then
-        assertThrows(NotFoundJoueurEntityException.class, () -> joueurController.obtenirJoueur(id));
+        // When
+        ResponseEntity<JoueurResponseDTO> response = joueurController.obtenirJoueur(id);
+
+        // Then
+        assertEquals(404, response.getStatusCodeValue());
+        assertNull(response.getBody());
     }
 
     @Test
@@ -86,9 +91,14 @@ class JoueurControllerTest {
         // Given
         Long id = 2L;
         int nouveauScore = 200;
-        when(joueurService.updateScore(id, nouveauScore)).thenThrow(new NotFoundJoueurEntityException("Joueur introuvable"));
+        when(joueurService.updateScore(id, nouveauScore)).thenThrow(new NotFoundEntityRestException("Joueur introuvable"));
 
-        // When/Then
-        assertThrows(NotFoundJoueurEntityException.class, () -> joueurController.mettreAJourScore(id, nouveauScore));
+        // When
+        ResponseEntity<JoueurEntity> response = joueurController.mettreAJourScore(id, nouveauScore);
+
+        // Then
+        assertEquals(404, response.getStatusCodeValue());
+        assertNull(response.getBody());
     }
+
 }

@@ -13,7 +13,7 @@
         <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <sonar.host.url>http://im2ag-sonar.u-ga.fr:9000</sonar.host.url>
+        <sonar.host.url>https://im2ag-sonar.univ-grenoble-alpes.fr/</sonar.host.url>
         <sonar.projectKey>prisoner_dilema_1_5</sonar.projectKey>
     </properties>
 

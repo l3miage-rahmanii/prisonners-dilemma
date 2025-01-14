@@ -1,6 +1,7 @@
 package fr.uga.l3miage.pc.controllers;
 
 import fr.uga.l3miage.pc.entities.ServeurEntity;
+import fr.uga.l3miage.pc.exceptions.rest.BadRequestRestException;
 import fr.uga.l3miage.pc.requests.ServeurRequestDTO;
 import fr.uga.l3miage.pc.responses.ServeurResponseDTO;
 import fr.uga.l3miage.pc.services.ServeurService;
@@ -31,8 +32,12 @@ public class ServeurController {
 
     @PostMapping
     public ResponseEntity<ServeurResponseDTO> createServeur(@RequestBody ServeurRequestDTO request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(serveurService.createServeur(request));
+        try {
+            ServeurResponseDTO response = serveurService.createServeur(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (BadRequestRestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Return 400 if exception is thrown
+        }
     }
 
     @PutMapping("/{id}")

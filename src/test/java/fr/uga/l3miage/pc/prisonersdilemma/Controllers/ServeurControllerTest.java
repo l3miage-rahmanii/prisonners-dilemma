@@ -74,8 +74,9 @@ class ServeurControllerTest {
         ResponseEntity<ServeurResponseDTO> responseEntity = serveurController.createServeur(request);
 
         // Then
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode()); // Vérifie le code de statut
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());  // Check for 400 Bad Request
     }
+
 
     @Test
     void testObtenirServeur() {
@@ -106,7 +107,8 @@ class ServeurControllerTest {
         response.setId(id);
         response.setStatus(nouveauStatus);
 
-        when(serveurService.updateServeur(id, any(ServeurRequestDTO.class))).thenReturn(response);
+        // Use matchers for all arguments
+        when(serveurService.updateServeur(eq(id), any(ServeurRequestDTO.class))).thenReturn(response);
 
         // When
         ResponseEntity<ServeurResponseDTO> result = serveurController.updateServeur(id, new ServeurRequestDTO());
@@ -114,8 +116,9 @@ class ServeurControllerTest {
         // Then
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(nouveauStatus, result.getBody().getStatus());
-        verify(serveurService, times(1)).updateServeur(id, any(ServeurRequestDTO.class));
+        verify(serveurService, times(1)).updateServeur(eq(id), any(ServeurRequestDTO.class));
     }
+
 
     @Test
     void testSupprimerServeur() {
