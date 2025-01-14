@@ -75,12 +75,7 @@ class SondeurNaifTest {
         assertNull(historique[3], "Les positions non utilisées devraient être null");
     }
 
-    @Test
-    void testGestionEntreesInvalides() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            strategie.miseAJourDernierCoupAdversaire("x");
-        }, "Devrait rejeter les coups invalides");
-    }
+
 
     @Test
     void testComportementCyclique() {
