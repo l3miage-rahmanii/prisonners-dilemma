@@ -12,6 +12,7 @@
     import fr.uga.l3miage.pc.requests.PartieRequestDTO;
     import fr.uga.l3miage.pc.responses.PartieResponseDTO;
     import lombok.RequiredArgsConstructor;
+    import org.springframework.context.annotation.Lazy;
     import org.springframework.stereotype.Service;
 
     import java.util.List;
@@ -24,7 +25,6 @@
         private final PartieComponent partieComponent;
         private final PartieRepository partieRepository;
         private final JoueurService joueurService;
-        private final ServeurService serveurService;
         private final JoueurMapper joueurMapper;
 
         public PartieResponseDTO jouerCoup(Long partieId, Long joueurId, String coup) {
@@ -108,7 +108,7 @@
                 case TOUJOURS_COOPERER:
                     return "c";
 
-                // Ajouter les autres stratégies...
+
 
                 default:
                     return "c";

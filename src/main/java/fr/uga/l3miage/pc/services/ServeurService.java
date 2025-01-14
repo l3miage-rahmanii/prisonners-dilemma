@@ -11,6 +11,7 @@ import fr.uga.l3miage.pc.repositories.ServeurRepository;
 import fr.uga.l3miage.pc.requests.ServeurRequestDTO;
 import fr.uga.l3miage.pc.responses.ServeurResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 public class ServeurService {
     private final ServeurRepository serveurRepository;
     private final ServeurMapper serveurMapper;
-    private final PartieService partieService;
+
 
     public List<ServeurResponseDTO> getAllServeurs() {
         return serveurRepository.findAll().stream()

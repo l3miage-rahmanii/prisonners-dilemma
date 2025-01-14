@@ -7,7 +7,5 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 public interface JoueurRepository extends JpaRepository<JoueurEntity, Long> {
-    Optional<JoueurEntity> findByEmail(String email);
-    boolean existsByEmail(String email);
 
 }
