@@ -26,6 +26,7 @@ public class PartieResponseDTO {
     private StrategieEnum strategieJoueur1;
     private StrategieEnum strategieJoueur2;
 
+
     // État de la partie
     private int tourActuel;
     private boolean partieTerminee;

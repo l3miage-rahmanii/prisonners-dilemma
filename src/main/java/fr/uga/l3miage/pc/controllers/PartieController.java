@@ -12,32 +12,91 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/parties")
+@RequestMapping("/api")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class PartieController {
     private final PartieService partieService;
 
-    @PostMapping("/{partieId}/joueurs/{joueurId}/coup")
-    public ResponseEntity<PartieResponseDTO> jouerCoup(
+    @PostMapping("/parties/{partieId}/joueurs/{joueurId}/coup")
+    public ResponseEntity<String> jouerCoup(
             @PathVariable Long partieId,
             @PathVariable Long joueurId,
             @RequestParam String coup) {
-        return ResponseEntity.ok(partieService.jouerCoup(partieId, joueurId, coup));
-    }
-    @PostMapping("/creer")
-    public PartieResponseDTO creerPartie(@RequestBody PartieRequestDTO partieRequestDTO) {
-        return partieService.creerPartie(partieRequestDTO);
+        try {
+            String coupNormalise;
+            // Normalize the move
+            switch(coup.toLowerCase()) {
+                case "cooperer":
+                    coupNormalise = "c";
+                    break;
+                case "trahir":
+                    coupNormalise = "t";
+                    break;
+                case "abandonner":
+                    partieService.abandonnerPartie(partieId, joueurId, StrategieEnum.TOUJOURS_TRAHIR);
+                    return ResponseEntity.ok("Partie abandonnée");
+                case "reinitialiser":
+                    // Create new game
+                    PartieRequestDTO newGame = PartieRequestDTO.builder()
+                            .nom("Nouvelle Partie")
+                            .nbTours(10)
+                            .build();
+                    PartieResponseDTO newPartie = partieService.creerPartie(newGame);
+                    return ResponseEntity.ok("Nouvelle partie créée: " + newPartie.getId());
+                default:
+                    return ResponseEntity.badRequest().body("Coup invalide");
+            }
+
+            PartieResponseDTO response = partieService.jouerCoup(partieId, joueurId, coupNormalise);
+
+            // Build a detailed response message
+            StringBuilder message = new StringBuilder();
+            message.append("Coup joué. ");
+
+            // Check if it's player 1 or 2 based on their last moves
+            boolean isJoueur1 = response.getCoupsJoueur1() != null &&
+                    !response.getCoupsJoueur1().isEmpty() &&
+                    response.getCoupsJoueur1().get(response.getCoupsJoueur1().size() - 1).equals(coupNormalise);
+
+            int score = isJoueur1 ? response.getScoreJoueur1() : response.getScoreJoueur2();
+            message.append("Score: ").append(score);
+
+            // Add game status information
+            if (response.isPartieTerminee()) {
+                message.append(". ").append(response.getMessageResultat());
+            } else {
+                message.append(". Tour ").append(response.getTourActuel());
+            }
+
+            return ResponseEntity.ok(message.toString());
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    @PostMapping("/changerStrategie/{partieId}/{joueurId}")
-    public PartieResponseDTO changerStrategie(@PathVariable Long partieId, @PathVariable Long joueurId, @RequestParam StrategieEnum strategie) {
-        return partieService.changerStrategie(partieId, joueurId, strategie);
+    @PostMapping("/parties/creer")
+    public ResponseEntity<PartieResponseDTO> creerPartie(@RequestBody PartieRequestDTO partieRequestDTO) {
+        return ResponseEntity.ok(partieService.creerPartie(partieRequestDTO));
     }
 
-    @PostMapping("/rejoindre/{partieId}/{joueurId}")
-    public PartieResponseDTO rejoindrePartie(@PathVariable Long partieId, @PathVariable Long joueurId) {
-        return partieService.rejoindrePartie(partieId, joueurId);
+    @PostMapping("/parties/{partieId}/joueurs/{joueurId}/strategie")
+    public ResponseEntity<PartieResponseDTO> changerStrategie(
+            @PathVariable Long partieId,
+            @PathVariable Long joueurId,
+            @RequestParam StrategieEnum strategie) {
+        return ResponseEntity.ok(partieService.changerStrategie(partieId, joueurId, strategie));
     }
+
+    @PostMapping("/parties/{partieId}/rejoindre")
+    public ResponseEntity<PartieResponseDTO> rejoindrePartie(
+            @PathVariable Long partieId,
+            @PathVariable Long joueurId) {
+        return ResponseEntity.ok(partieService.rejoindrePartie(partieId, joueurId));
+    }
+
+
 }
 
 

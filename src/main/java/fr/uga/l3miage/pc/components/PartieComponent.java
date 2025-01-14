@@ -32,4 +32,27 @@ public class PartieComponent {
         PartieEntity partie = partieRepository.findById(id).orElseThrow(() -> new NotFoundPartieEntityException(partieNonTrouve));
         partieRepository.delete(partie);
     }
+
+    public boolean isPartieActive(Long id) throws NotFoundPartieEntityException {
+        PartieEntity partie = getPartieById(id);
+        return "en_cours".equals(partie.getStatus());
+    }
+
+    public PartieEntity reinitialiserPartie(Long id) throws NotFoundPartieEntityException {
+        PartieEntity partie = getPartieById(id);
+        partie.setStatus("en_attente");
+        partie.setScoreJoueur1(0);
+        partie.setScoreJoueur2(0);
+        partie.getCoupsJoueur1().clear();
+        partie.getCoupsJoueur2().clear();
+        return partieRepository.save(partie);
+    }
+
+    public boolean verifierCoupValide(String coup) {
+        return coup != null && (coup.equals("c") || coup.equals("t"));
+    }
+
+    public boolean jouerPeutRejoindre(Long partieId, Long joueurId) {
+        return !partieRepository.findByIdAndJoueursId(partieId, joueurId).isPresent();
+    }
 }
