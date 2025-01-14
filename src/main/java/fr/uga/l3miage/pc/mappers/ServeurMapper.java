@@ -12,6 +12,6 @@ public interface ServeurMapper {
 
     ServeurResponseDTO toResponse(ServeurEntity entity);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    //@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromRequest(ServeurRequestDTO request, @MappingTarget ServeurEntity entity);
 }

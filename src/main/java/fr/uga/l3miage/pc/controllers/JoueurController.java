@@ -3,7 +3,6 @@ package fr.uga.l3miage.pc.controllers;
 
 import fr.uga.l3miage.pc.entities.JoueurEntity;
 import fr.uga.l3miage.pc.exceptions.rest.NotFoundEntityRestException;
-import fr.uga.l3miage.pc.exceptions.technical.NotFoundJoueurEntityException;
 import fr.uga.l3miage.pc.requests.JoueurRequestDTO;
 import fr.uga.l3miage.pc.responses.JoueurResponseDTO;
 import fr.uga.l3miage.pc.services.JoueurService;

@@ -20,9 +20,10 @@ public class Main {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
-                        .allowedOrigins("*")
+                        .allowedOrigins("http://frontend-example.com") // Remplace par ton domaine de frontend
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
-                        .allowedHeaders("*");
+                        .allowedHeaders("*") // Restreindre les headers si nécessaire
+                        .allowCredentials(true); // Permettre l'envoi des cookies (si nécessaire)
             }
         };
     }
