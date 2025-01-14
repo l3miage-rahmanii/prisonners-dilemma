@@ -1,15 +1,13 @@
 package fr.uga.l3miage.pc.controllers;
 
-import fr.uga.l3miage.pc.entities.ServeurEntity;
+
 import fr.uga.l3miage.pc.exceptions.rest.BadRequestRestException;
 import fr.uga.l3miage.pc.requests.ServeurRequestDTO;
 import fr.uga.l3miage.pc.responses.ServeurResponseDTO;
 import fr.uga.l3miage.pc.services.ServeurService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,7 +34,7 @@ public class ServeurController {
             ServeurResponseDTO response = serveurService.createServeur(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (BadRequestRestException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Return 400 if exception is thrown
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
 

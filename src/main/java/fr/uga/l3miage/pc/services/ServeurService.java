@@ -1,17 +1,13 @@
 package fr.uga.l3miage.pc.services;
 
-import fr.uga.l3miage.pc.components.ServeurComponent;
 import fr.uga.l3miage.pc.entities.ServeurEntity;
 import fr.uga.l3miage.pc.exceptions.rest.BadRequestRestException;
 import fr.uga.l3miage.pc.exceptions.rest.NotFoundEntityRestException;
-import fr.uga.l3miage.pc.exceptions.technical.BadRequestException;
-import fr.uga.l3miage.pc.exceptions.technical.NotFoundServeurEntityException;
 import fr.uga.l3miage.pc.mappers.ServeurMapper;
 import fr.uga.l3miage.pc.repositories.ServeurRepository;
 import fr.uga.l3miage.pc.requests.ServeurRequestDTO;
 import fr.uga.l3miage.pc.responses.ServeurResponseDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
