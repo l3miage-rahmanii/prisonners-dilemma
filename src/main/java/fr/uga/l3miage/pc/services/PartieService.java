@@ -139,17 +139,6 @@
             return partieMapper.toResponse(partieRepository.save(partie));
         }
 
-        public void verifierStatutPartie(PartieEntity partie) {
-            if (partie.getStatus().equals("en_attente") && partie.getJoueurs().size() == 2) {
-                partie.setStatus(enCours);
-            }
-
-            if (partie.getStatus().equals(enCours) &&
-                    partie.getCoupsJoueur1().size() >= partie.getNbTours()) {
-                partie.setStatus("terminée");
-                // Mettre à jour les scores finaux
-            }
-        }
 
         private void calculerScores(PartieEntity partie) {
             int dernierIndex = partie.getCoupsJoueur1().size() - 1;

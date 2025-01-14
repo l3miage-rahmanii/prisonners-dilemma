@@ -8,10 +8,6 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface PartieMapper {
 
-    PartieEntity toEntity(PartieRequestDTO request);
-
     PartieResponseDTO toResponse(PartieEntity entity);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateEntityFromRequest(PartieRequestDTO request, @MappingTarget PartieEntity entity);
 }

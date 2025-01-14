@@ -35,7 +35,7 @@ public class PartieController {
                     break;
                 case "abandonner":
                     partieService.changerStrategie(partieId, joueurId, StrategieEnum.TOUJOURS_TRAHIR);
-                    return ResponseEntity.ok("Partie abandonnée");
+                    return ResponseEntity.ok("Partie abandonnee");
                 case "reinitialiser":
                     // Create new game
                     PartieRequestDTO newGame = PartieRequestDTO.builder()
@@ -43,7 +43,7 @@ public class PartieController {
                             .nbTours(10)
                             .build();
                     PartieResponseDTO newPartie = partieService.creerPartie(newGame);
-                    return ResponseEntity.ok("Nouvelle partie créée: " + newPartie.getId());
+                    return ResponseEntity.ok("Nouvelle partie creee: " + newPartie.getId());
                 default:
                     return ResponseEntity.badRequest().body("Coup invalide");
             }
@@ -52,7 +52,7 @@ public class PartieController {
 
             // Build a detailed response message
             StringBuilder message = new StringBuilder();
-            message.append("Coup joué. ");
+            message.append("Coup joue. ");
 
             // Check if it's player 1 or 2 based on their last moves
             boolean isJoueur1 = response.getCoupsJoueur1() != null &&

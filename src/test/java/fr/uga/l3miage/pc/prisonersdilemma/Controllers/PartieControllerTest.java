@@ -11,7 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,32 +32,45 @@ class PartieControllerTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
-/*
+
     @Test
-    void testJouerCoup() {
+    void testJouerCoupCooperer() {
         // Given
         Long partieId = 1L;
         Long joueurId = 1L;
         String coup = "cooperer";
-        String expectedMessage = "Coup joué. Score: 10. Tour 2";
 
-        PartieResponseDTO response = new PartieResponseDTO();
-        response.setScoreJoueur1(10);
-        response.setTourActuel(2);
-        response.setPartieTerminee(false);
-
-        when(partieService.jouerCoup(partieId, joueurId, "c")).thenReturn(response);
+        PartieResponseDTO mockResponse = createMockPartieResponse(true, "c");
+        when(partieService.jouerCoup(partieId, joueurId, "c")).thenReturn(mockResponse);
 
         // When
-        ResponseEntity<String> result = partieController.jouerCoup(partieId, joueurId, coup);
+        ResponseEntity<String> response = partieController.jouerCoup(partieId, joueurId, coup);
 
         // Then
-        assertEquals(200, result.getStatusCodeValue());
-        assertEquals(expectedMessage, result.getBody());
-        verify(partieService, times(1)).jouerCoup(partieId, joueurId, "c");
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody().contains("Coup joue"));
+        assertTrue(response.getBody().contains("Score: 10"));
+        verify(partieService).jouerCoup(partieId, joueurId, "c");
     }
 
+    @Test
+    void testJouerCoupTrahir() {
+        // Given
+        Long partieId = 1L;
+        Long joueurId = 1L;
+        String coup = "trahir";
 
+        PartieResponseDTO mockResponse = createMockPartieResponse(true, "t");
+        when(partieService.jouerCoup(partieId, joueurId, "t")).thenReturn(mockResponse);
+
+        // When
+        ResponseEntity<String> response = partieController.jouerCoup(partieId, joueurId, coup);
+
+        // Then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody().contains("Coup joue"));
+        verify(partieService).jouerCoup(partieId, joueurId, "t");
+    }
 
 
     @Test
@@ -61,25 +78,69 @@ class PartieControllerTest {
         // Given
         Long partieId = 1L;
         Long joueurId = 1L;
-        String coup = "invalid"; // Coup invalide
+        String coup = "invalid";
 
-        // Simuler que le service lève une exception lorsque le coup est invalide
-        doThrow(new BadRequestRestException("Coup invalide. Utilisez 'c' pour coopérer ou 't' pour trahir"))
-                .when(partieService).jouerCoup(partieId, joueurId, coup);
+        // When
+        ResponseEntity<String> response = partieController.jouerCoup(partieId, joueurId, coup);
 
-        // When & Then
-        BadRequestRestException thrown = assertThrows(BadRequestRestException.class, () -> {
-            partieController.jouerCoup(partieId, joueurId, coup);
-        });
-
-        // Vérification du message de l'exception
-        assertEquals("Coup invalide. Utilisez 'c' pour coopérer ou 't' pour trahir", thrown.getMessage());
-
-        // Vérification que le service a été appelé une fois avec les bons paramètres
-        verify(partieService, times(1)).jouerCoup(partieId, joueurId, coup);
+        // Then
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Coup invalide", response.getBody());
     }
 
- */
+    @Test
+    void testJouerCoupPartieTerminee() {
+        // Given
+        Long partieId = 1L;
+        Long joueurId = 1L;
+        String coup = "cooperer";
+
+        PartieResponseDTO mockResponse = PartieResponseDTO.builder()
+                .partieTerminee(true)
+                .messageResultat("Partie terminée ! Joueur 1 gagne")
+                .coupsJoueur1(Arrays.asList("c"))
+                .scoreJoueur1(10)
+                .build();
+
+        when(partieService.jouerCoup(partieId, joueurId, "c")).thenReturn(mockResponse);
+
+        // When
+        ResponseEntity<String> response = partieController.jouerCoup(partieId, joueurId, coup);
+
+        // Then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody().contains("Partie terminée ! Joueur 1 gagne"));
+    }
+
+    @Test
+    void testJouerCoupServiceException() {
+        // Given
+        Long partieId = 1L;
+        Long joueurId = 1L;
+        String coup = "cooperer";
+
+        when(partieService.jouerCoup(partieId, joueurId, "c"))
+                .thenThrow(new RuntimeException("Erreur service"));
+
+        // When
+        ResponseEntity<String> response = partieController.jouerCoup(partieId, joueurId, coup);
+
+        // Then
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Erreur service", response.getBody());
+    }
+
+    // Méthode utilitaire pour créer un mock de PartieResponseDTO
+    private PartieResponseDTO createMockPartieResponse(boolean isJoueur1, String coup) {
+        return PartieResponseDTO.builder()
+                .partieTerminee(false)
+                .tourActuel(5)
+                .coupsJoueur1(isJoueur1 ? Arrays.asList(coup) : new ArrayList<>())
+                .coupsJoueur2(!isJoueur1 ? Arrays.asList(coup) : new ArrayList<>())
+                .scoreJoueur1(10)
+                .scoreJoueur2(8)
+                .build();
+    }
 
     @Test
     void testCreerPartie() {
@@ -161,39 +222,16 @@ class PartieControllerTest {
         // Given
         Long partieId = 1L;
         Long joueurId = 1L;  // Joueur déjà dans la partie
-        when(partieService.rejoindrePartie(partieId, joueurId)).thenThrow(new BadRequestRestException("Le joueur est déjà dans la partie"));
+        when(partieService.rejoindrePartie(partieId, joueurId)).thenThrow(new BadRequestRestException("Le joueur est dejà dans la partie"));
 
         // When & Then
         BadRequestRestException thrown = assertThrows(BadRequestRestException.class, () -> {
             partieController.rejoindrePartie(partieId, joueurId);
         });
-        assertEquals("Le joueur est déjà dans la partie", thrown.getMessage());
+        assertEquals("Le joueur est dejà dans la partie", thrown.getMessage());
     }
-/*
-    @Test
-    void testJouerCoupPartieTerminee() {
-        // Given
-        Long partieId = 1L;
-        Long joueurId = 1L;
-        String coup = "cooperer";
 
-        PartieResponseDTO response = new PartieResponseDTO();
-        response.setScoreJoueur1(10);
-        response.setScoreJoueur2(5);
-        response.setPartieTerminee(true);  // Partie terminée
-        response.setMessageResultat("Le joueur 1 a gagné");
 
-        when(partieService.jouerCoup(partieId, joueurId, "c")).thenReturn(response);
-
-        // When
-        ResponseEntity<String> result = partieController.jouerCoup(partieId, joueurId, coup);
-
-        // Then
-        assertEquals(200, result.getStatusCodeValue());
-        assertEquals("Coup joué. Score: 5. Le joueur 1 a gagné", result.getBody());
-        verify(partieService, times(1)).jouerCoup(partieId, joueurId, "c");
-    }
-Affichage à améliorer
 
     @Test
     void testJouerCoupAbandonner() {
@@ -207,9 +245,9 @@ Affichage à améliorer
 
         // Then
         assertEquals(200, result.getStatusCodeValue());
-        assertEquals("Partie abandonnée", result.getBody());
+        assertEquals("Partie abandonnee", result.getBody());
 
-        verify(partieService, times(1)).abandonnerPartie(partieId, joueurId, StrategieEnum.TOUJOURS_TRAHIR);
+        verify(partieService, times(1)).changerStrategie(partieId, joueurId, StrategieEnum.TOUJOURS_TRAHIR);
     }
 
     @Test
@@ -235,10 +273,10 @@ Affichage à améliorer
 
         // Then
         assertEquals(200, result.getStatusCodeValue());
-        assertEquals("Nouvelle partie créée: 2", result.getBody());
+        assertEquals("Nouvelle partie creee: 2", result.getBody());
 
         verify(partieService, times(1)).creerPartie(any(PartieRequestDTO.class));
-    } */
+    }
 
 @Test
 void testCreerPartieInvalide() {
