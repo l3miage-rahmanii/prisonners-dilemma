@@ -230,5 +230,83 @@ class ServeurServiceTest {
         verify(serveurRepository, times(1)).deleteById(serveurId);
     }
 
+    @Test
+    void testGetServeurById_NotFound() {
+        // Given
+        Long id = 1L;
+        when(serveurRepository.findById(id)).thenReturn(Optional.empty());
+
+        // When / Then
+        assertThrows(NotFoundEntityRestException.class, () -> serveurService.getServeurById(id));
+        verify(serveurRepository).findById(id);
+    }
+
+    @Test
+    void testUpdateServeur_FailWhenNotFound() {
+        // Given
+        Long serveurId = 1L;
+        ServeurRequestDTO request = new ServeurRequestDTO();
+        request.setStatus("disponible");
+        when(serveurRepository.findById(serveurId)).thenReturn(Optional.empty());
+
+        // When / Then
+        assertThrows(NotFoundEntityRestException.class, () -> serveurService.updateServeur(serveurId, request));
+        verify(serveurRepository).findById(serveurId);
+    }
+
+    @Test
+    void testDeleteServeur_FailWhenServeurHasActivePartie() {
+        // Given
+        Long serveurId = 1L;
+        ServeurEntity serveurEntity = ServeurEntity.builder()
+                .id(serveurId)
+                .status("disponible")
+                .partie(PartieEntity.builder().status("en_cours").build()) // Partie active
+                .build();
+        when(serveurRepository.findById(serveurId)).thenReturn(Optional.of(serveurEntity));
+
+        // When / Then
+        assertThrows(BadRequestRestException.class, () -> serveurService.deleteServeur(serveurId),
+                "Impossible de supprimer un serveur avec une partie en cours");
+        verify(serveurRepository).findById(serveurId);
+        verify(serveurRepository, never()).deleteById(any());
+    }
+
+    @Test
+    void testDeleteServeur_FailWhenPartieIsNotTerminated() {
+        // Given
+        Long serveurId = 1L;
+        ServeurEntity serveurEntity = ServeurEntity.builder()
+                .id(serveurId)
+                .status("disponible")
+                .partie(PartieEntity.builder().status("en_attente").build()) // Partie en attente
+                .build();
+        when(serveurRepository.findById(serveurId)).thenReturn(Optional.of(serveurEntity));
+
+        // When / Then
+        assertThrows(BadRequestRestException.class, () -> serveurService.deleteServeur(serveurId),
+                "Impossible de supprimer un serveur avec une partie en cours");
+        verify(serveurRepository).findById(serveurId);
+        verify(serveurRepository, never()).deleteById(any());
+    }
+
+    @Test
+    void testDeleteServeur_Success() {
+        // Given
+        Long serveurId = 1L;
+        ServeurEntity serveurEntity = ServeurEntity.builder()
+                .id(serveurId)
+                .status("disponible")
+                .partie(null) // Partie terminée ou inexistante
+                .build();
+        when(serveurRepository.findById(serveurId)).thenReturn(Optional.of(serveurEntity));
+
+        // When
+        serveurService.deleteServeur(serveurId);
+
+        // Then
+        verify(serveurRepository).deleteById(serveurId);
+    }
+
 
 }
