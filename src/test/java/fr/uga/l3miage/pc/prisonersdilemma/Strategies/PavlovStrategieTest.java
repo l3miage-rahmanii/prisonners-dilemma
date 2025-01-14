@@ -5,75 +5,110 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PavlovStrategieTest {
 
+
+    private static final int TAILLE_HISTORIQUE = 10;
     private PavlovStrategie strategie;
     private String[] historique;
 
     @BeforeEach
     void setUp() {
-        // Historique initial vide, taille 10 pour simuler plusieurs coups
-        historique = new String[10];
+        historique = new String[TAILLE_HISTORIQUE];
         strategie = new PavlovStrategie(historique);
     }
 
     @Test
     void testPremierCoup() {
-        // Le premier coup doit toujours être "c" (coopérer)
-        assertEquals("c", strategie.prochainCoup());
+        // Le premier coup devrait être une coopération
+        assertEquals("c", strategie.prochainCoup(),
+                "Le premier coup devrait être une coopération ('c')");
     }
 
     @Test
-    void testRepeteCoupAvecScore5() {
-        // Si le score est 5, répète le dernier coup
+    void testRepeterCoupScore5() {
+        // Test avec un score de 5 (récompense maximale)
+        strategie.prochainCoup(); // Premier coup (c)
         strategie.miseAJourDernierCoupAdversaire("c", 5);
-        assertEquals("c", strategie.prochainCoup());
 
-        strategie.miseAJourDernierCoupAdversaire("t", 5);
-        assertEquals("t", strategie.prochainCoup());
+        // Devrait répéter le coup de l'adversaire (c)
+        assertEquals("c", strategie.prochainCoup(),
+                "Devrait répéter le coup de l'adversaire après un score de 5");
     }
 
     @Test
-    void testRepeteCoupAvecScore3() {
-        // Si le score est 3, répète le dernier coup
-        strategie.miseAJourDernierCoupAdversaire("c", 3);
-        assertEquals("c", strategie.prochainCoup());
-
+    void testRepeterCoupScore3() {
+        // Test avec un score de 3
+        strategie.prochainCoup(); // Premier coup (c)
         strategie.miseAJourDernierCoupAdversaire("t", 3);
-        assertEquals("t", strategie.prochainCoup());
+
+        // Devrait répéter le coup de l'adversaire (t)
+        assertEquals("t", strategie.prochainCoup(),
+                "Devrait répéter le coup de l'adversaire après un score de 3");
     }
 
     @Test
-    void testChangeCoupAvecScoreNon3Ou5() {
-        // Si le score n'est ni 3 ni 5, change de coup
-        strategie.miseAJourDernierCoupAdversaire("c", 1);
-        assertEquals("c", strategie.prochainCoup());
-
-        strategie.miseAJourDernierCoupAdversaire("t", 2);
-        assertEquals("t", strategie.prochainCoup());
-    }
-
-    @Test
-    void testHistoriqueApresPlusieursTours() {
-        // Simuler plusieurs mises à jour
-        strategie.miseAJourDernierCoupAdversaire("c", 5);
-        strategie.miseAJourDernierCoupAdversaire("t", 3);
-        strategie.miseAJourDernierCoupAdversaire("c", 1);
-
-        // Vérifier l'état de l'historique
-        assertEquals("c", historique[0]);
-        assertEquals("t", historique[1]);
-        assertEquals("c", historique[2]);
-    }
-
-    @Test
-    void testAlternanceEntreCooperationEtTrahison() {
-        // Simuler une alternance de coups
+    void testChangerCoupScore1() {
+        // Test avec un score de 1
+        strategie.prochainCoup(); // Premier coup (c)
         strategie.miseAJourDernierCoupAdversaire("t", 1);
-        assertEquals("t", strategie.prochainCoup()); // Change à "t"
 
-        strategie.miseAJourDernierCoupAdversaire("c", 1);
-        assertEquals("c", strategie.prochainCoup()); // Change à "c"
+        // Devrait changer de coup
+        assertEquals("t", strategie.prochainCoup(),
+                "Devrait changer de coup après un score de 1");
+    }
+
+    @Test
+    void testChangerCoupScore0() {
+        // Test avec un score de 0
+        strategie.prochainCoup(); // Premier coup (c)
+        strategie.miseAJourDernierCoupAdversaire("t", 0);
+
+        // Devrait changer de coup
+        assertEquals("t", strategie.prochainCoup(),
+                "Devrait changer de coup après un score de 0");
+    }
+
+    @Test
+    void testSequenceComplexe() {
+        String[] coupAdversaire = {"c", "t", "c", "t"};
+        int[] scores = {5, 1, 3, 0};
+        String[] reponseAttendue = {"c", "c", "t", "c"};
+
+        for (int i = 0; i < coupAdversaire.length; i++) {
+            String coupJoue = strategie.prochainCoup();
+            assertEquals(reponseAttendue[i], coupJoue,
+                    "Coup incorrect à l'itération " + i);
+            strategie.miseAJourDernierCoupAdversaire(coupAdversaire[i], scores[i]);
+        }
+    }
+
+    @Test
+    void testDepassementHistorique() {
+
+        for (int i = 0; i < TAILLE_HISTORIQUE; i++) {
+            strategie.prochainCoup();
+            strategie.miseAJourDernierCoupAdversaire("c", 5);
+        }
+
+        assertThrows(ArrayIndexOutOfBoundsException.class,
+                () -> strategie.miseAJourDernierCoupAdversaire("c", 5),
+                "Une exception devrait être levée lors du dépassement de l'historique");
+    }
+
+    @Test
+    void testConsistanceHistorique() {
+        // Vérifie que l'historique est correctement mis à jour
+        String[] coups = {"c", "t", "c"};
+        int[] scores = {5, 3, 1};
+
+        for (int i = 0; i < coups.length; i++) {
+            strategie.prochainCoup();
+            strategie.miseAJourDernierCoupAdversaire(coups[i], scores[i]);
+            assertEquals(coups[i], historique[i],
+                    "L'historique n'est pas correctement mis à jour à l'index " + i);
+        }
     }
 }
