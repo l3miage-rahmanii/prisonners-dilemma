@@ -4,6 +4,7 @@ import fr.uga.l3miage.pc.components.JoueurComponent;
 import fr.uga.l3miage.pc.entities.JoueurEntity;
 import fr.uga.l3miage.pc.exceptions.rest.BadRequestRestException;
 import fr.uga.l3miage.pc.exceptions.rest.NotFoundEntityRestException;
+import fr.uga.l3miage.pc.exceptions.technical.NotFoundJoueurEntityException;
 import fr.uga.l3miage.pc.mappers.JoueurMapper;
 import fr.uga.l3miage.pc.repositories.JoueurRepository;
 import fr.uga.l3miage.pc.requests.JoueurRequestDTO;
@@ -11,6 +12,7 @@ import fr.uga.l3miage.pc.responses.JoueurResponseDTO;
 import fr.uga.l3miage.pc.services.JoueurService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -311,6 +313,42 @@ class JoueurServiceTest {
         assertThrows(NotFoundEntityRestException.class, () -> joueurService.getStatistiques(joueurId));
         verify(joueurRepository, times(1)).findById(joueurId);
     }
+
+    @Test
+    void getStatistiques_WithParties_ShouldCalculateTauxVictoire() {
+        // Arrange
+        Long joueurId = 1L;
+        JoueurEntity joueur = JoueurEntity.builder()
+                .id(joueurId)
+                .nbParties(10)
+                .nbVictoires(4)
+                .build();
+
+        when(joueurRepository.findById(joueurId)).thenReturn(Optional.of(joueur));
+        when(joueurRepository.save(any(JoueurEntity.class))).thenReturn(joueur);
+        when(joueurMapper.toResponse(any(JoueurEntity.class))).thenReturn(new JoueurResponseDTO());
+
+        // Act
+        joueurService.getStatistiques(joueurId);
+
+        // Assert
+        ArgumentCaptor<JoueurEntity> joueurCaptor = ArgumentCaptor.forClass(JoueurEntity.class);
+        verify(joueurRepository).save(joueurCaptor.capture());
+        assertEquals(40.0, joueurCaptor.getValue().getTauxVictoire()); // 4/10 * 100 = 40%
+    }
+
+    @Test
+    void getJoueurById_WhenNotFoundJoueurEntityException_ShouldThrowNotFoundEntityRestException() throws NotFoundJoueurEntityException {
+        // Arrange
+        Long joueurId = 1L;
+        when(joueurComponent.getJoueurById(joueurId))
+                .thenThrow(NotFoundJoueurEntityException.class);
+
+        // Act & Assert
+        assertThrows(NotFoundEntityRestException.class, () -> joueurService.getJoueurById(joueurId));
+        verify(joueurMapper, never()).toResponse(any());
+    }
+
 
     @Test
     void testUpdateDernierCoupSuccess() {
