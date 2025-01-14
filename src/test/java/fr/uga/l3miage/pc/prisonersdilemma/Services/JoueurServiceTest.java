@@ -6,6 +6,7 @@ import fr.uga.l3miage.pc.exceptions.rest.BadRequestRestException;
 import fr.uga.l3miage.pc.exceptions.rest.NotFoundEntityRestException;
 import fr.uga.l3miage.pc.mappers.JoueurMapper;
 import fr.uga.l3miage.pc.repositories.JoueurRepository;
+import fr.uga.l3miage.pc.requests.JoueurRequestDTO;
 import fr.uga.l3miage.pc.responses.JoueurResponseDTO;
 import fr.uga.l3miage.pc.services.JoueurService;
 import org.junit.jupiter.api.BeforeEach;
@@ -236,4 +237,7 @@ class JoueurServiceTest {
         assertThrows(NotFoundEntityRestException.class, () -> joueurService.getJoueursByIds(ids));
         verify(joueurRepository, times(1)).findAllById(ids);
     }
+
+
+
 }

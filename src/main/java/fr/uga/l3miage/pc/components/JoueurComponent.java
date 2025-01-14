@@ -33,4 +33,5 @@ public class JoueurComponent {
         JoueurEntity joueur = joueurRepository.findById(id).orElseThrow(() -> new NotFoundJoueurEntityException(joueurNonTrouve));
         joueurRepository.delete(joueur);
     }
+
 }

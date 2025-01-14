@@ -181,4 +181,99 @@ class PartieComponentTest {
         verify(partieRepository, times(1)).findById(id);
         verify(partieRepository, times(0)).delete(any(PartieEntity.class));
     }
+
+    @Test
+    void testIsPartieActiveWhenActive() throws NotFoundPartieEntityException {
+        // Given
+        Long id = 1L;
+        PartieEntity partie = new PartieEntity();
+        partie.setId(id);
+        partie.setStatus("en_cours");
+        when(partieRepository.findById(id)).thenReturn(Optional.of(partie));
+
+        // When
+        boolean isActive = partieComponent.isPartieActive(id);
+
+        // Then
+        assertTrue(isActive);
+        verify(partieRepository, times(1)).findById(id);
+    }
+
+    @Test
+    void testIsPartieActiveWhenNotActive() throws NotFoundPartieEntityException {
+        // Given
+        Long id = 1L;
+        PartieEntity partie = new PartieEntity();
+        partie.setId(id);
+        partie.setStatus("termine");
+        when(partieRepository.findById(id)).thenReturn(Optional.of(partie));
+
+        // When
+        boolean isActive = partieComponent.isPartieActive(id);
+
+        // Then
+        assertFalse(isActive);
+        verify(partieRepository, times(1)).findById(id);
+    }
+
+    @Test
+    void testReinitialiserPartie() throws NotFoundPartieEntityException {
+        // Given
+        Long id = 1L;
+        PartieEntity partie = new PartieEntity();
+        partie.setId(id);
+        partie.setStatus("en_cours");
+        partie.setScoreJoueur1(5);
+        partie.setScoreJoueur2(3);
+        when(partieRepository.findById(id)).thenReturn(Optional.of(partie));
+        when(partieRepository.save(any(PartieEntity.class))).thenReturn(partie);
+
+        // When
+        PartieEntity result = partieComponent.reinitialiserPartie(id);
+
+        // Then
+        assertNotNull(result);
+        assertEquals("en_attente", result.getStatus());
+        assertEquals(0, result.getScoreJoueur1());
+        assertEquals(0, result.getScoreJoueur2());
+        verify(partieRepository, times(1)).findById(id);
+        verify(partieRepository, times(1)).save(partie);
+    }
+
+    @Test
+    void testVerifierCoupValideWithValidCoup() {
+        assertTrue(partieComponent.verifierCoupValide("c"));
+        assertTrue(partieComponent.verifierCoupValide("t"));
+    }
+
+    @Test
+    void testVerifierCoupValideWithInvalidCoup() {
+        assertFalse(partieComponent.verifierCoupValide("x"));
+        assertFalse(partieComponent.verifierCoupValide(null));
+        assertFalse(partieComponent.verifierCoupValide(""));
+    }
+
+    @Test
+    void testJouerPeutRejoindreWhenPlayerCanJoin() {
+        Long partieId = 1L;
+        Long joueurId = 2L;
+        when(partieRepository.findByIdAndJoueursId(partieId, joueurId)).thenReturn(Optional.empty());
+
+        assertTrue(partieComponent.jouerPeutRejoindre(partieId, joueurId));
+        verify(partieRepository, times(1)).findByIdAndJoueursId(partieId, joueurId);
+    }
+
+    @Test
+    void testJouerPeutRejoindreWhenPlayerCannotJoin() {
+        Long partieId = 1L;
+        Long joueurId = 2L;
+        PartieEntity partie = new PartieEntity();
+        when(partieRepository.findByIdAndJoueursId(partieId, joueurId)).thenReturn(Optional.of(partie));
+
+        assertFalse(partieComponent.jouerPeutRejoindre(partieId, joueurId));
+        verify(partieRepository, times(1)).findByIdAndJoueursId(partieId, joueurId);
+    }
+
+
+
 }

@@ -134,4 +134,50 @@ class ServeurComponentTest {
         verify(serveurRepository, times(1)).findById(id);
         verify(serveurRepository, times(1)).delete(serveur);
     }
+    @Test
+    void testUpdateStatusWithSameStatus() throws NotFoundServeurEntityException, BadRequestException {
+        Long id = 1L;
+        String currentStatus = "En ligne";
+        ServeurEntity serveur = new ServeurEntity();
+        serveur.setId(id);
+        serveur.setStatus(currentStatus);
+        when(serveurRepository.findById(id)).thenReturn(Optional.of(serveur));
+        when(serveurRepository.save(serveur)).thenReturn(serveur);
+
+        ServeurEntity result = serveurComponent.updateStatus(id, currentStatus);
+
+        assertNotNull(result);
+        assertEquals(currentStatus, result.getStatus());
+        verify(serveurRepository, times(1)).findById(id);
+        verify(serveurRepository, times(1)).save(serveur);
+    }
+
+    @Test
+    void testDeleteAlreadyDeletedServeur() {
+        Long id = 1L;
+        when(serveurRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundServeurEntityException.class, () -> serveurComponent.deleteServeur(id));
+        verify(serveurRepository, times(1)).findById(id);
+        verify(serveurRepository, times(0)).delete(any(ServeurEntity.class));
+    }
+
+    @Test
+    void testUpdateStatusWithVeryLongStatus() throws NotFoundServeurEntityException, BadRequestException {
+        Long id = 1L;
+        String longStatus = "A".repeat(1000);
+        ServeurEntity serveur = new ServeurEntity();
+        serveur.setId(id);
+        serveur.setStatus("En ligne");
+        when(serveurRepository.findById(id)).thenReturn(Optional.of(serveur));
+        when(serveurRepository.save(serveur)).thenReturn(serveur);
+
+        ServeurEntity result = serveurComponent.updateStatus(id, longStatus);
+
+        assertNotNull(result);
+        assertEquals(longStatus, result.getStatus());
+        verify(serveurRepository, times(1)).findById(id);
+        verify(serveurRepository, times(1)).save(serveur);
+    }
+
 }

@@ -148,4 +148,78 @@ class ServeurControllerTest {
         // Then
         assertEquals("Impossible de supprimer un serveur avec une partie en cours", exception.getMessage());
     }
+
+    @Test
+    void testMettreAJourServeurAvecMauvaisId() {
+        // Given
+        Long idInexistant = 999L;
+        ServeurRequestDTO request = new ServeurRequestDTO();
+        request.setStatus("Inactif");
+
+        when(serveurService.updateServeur(eq(idInexistant), any(ServeurRequestDTO.class)))
+                .thenThrow(new BadRequestRestException("Serveur non trouvé"));
+
+        // When
+        BadRequestRestException exception = assertThrows(BadRequestRestException.class,
+                () -> serveurController.updateServeur(idInexistant, request));
+
+        // Then
+        assertEquals("Serveur non trouvé", exception.getMessage());
+    }
+
+    @Test
+    void testCreerServeurAvecRequestValide() {
+        // Given
+        ServeurRequestDTO request = new ServeurRequestDTO();
+        request.setStatus("Actif");
+
+        ServeurResponseDTO response = new ServeurResponseDTO();
+        response.setId(1L);
+        response.setStatus("Actif");
+
+        when(serveurService.createServeur(any(ServeurRequestDTO.class))).thenReturn(response);
+
+        // When
+        ResponseEntity<ServeurResponseDTO> result = serveurController.createServeur(request);
+
+        // Then
+        assertEquals(HttpStatus.CREATED, result.getStatusCode());
+        assertEquals("Actif", result.getBody().getStatus());
+        verify(serveurService, times(1)).createServeur(any(ServeurRequestDTO.class));
+    }
+
+    @Test
+    void testSupprimerServeurInexistant() {
+        // Given
+        Long idInexistant = 999L;
+        doThrow(new BadRequestRestException("Serveur non trouvé")).when(serveurService).deleteServeur(idInexistant);
+
+        // When
+        BadRequestRestException exception = assertThrows(BadRequestRestException.class,
+                () -> serveurController.deleteServeur(idInexistant));
+
+        // Then
+        assertEquals("Serveur non trouvé", exception.getMessage());
+        verify(serveurService, times(1)).deleteServeur(idInexistant);
+    }
+
+    @Test
+    void testMettreAJourServeurSansStatus() {
+        // Given
+        Long id = 1L;
+        ServeurRequestDTO request = new ServeurRequestDTO();  // status null
+
+        when(serveurService.updateServeur(eq(id), any(ServeurRequestDTO.class)))
+                .thenThrow(new BadRequestRestException("Le statut ne peut pas être vide"));
+
+        // When
+        BadRequestRestException exception = assertThrows(BadRequestRestException.class,
+                () -> serveurController.updateServeur(id, request));
+
+        // Then
+        assertEquals("Le statut ne peut pas être vide", exception.getMessage());
+    }
+
+
+
 }

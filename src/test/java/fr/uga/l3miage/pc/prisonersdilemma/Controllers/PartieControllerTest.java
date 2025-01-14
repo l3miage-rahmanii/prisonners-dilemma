@@ -169,4 +169,93 @@ class PartieControllerTest {
         });
         assertEquals("Le joueur est déjà dans la partie", thrown.getMessage());
     }
+/*
+    @Test
+    void testJouerCoupPartieTerminee() {
+        // Given
+        Long partieId = 1L;
+        Long joueurId = 1L;
+        String coup = "cooperer";
+
+        PartieResponseDTO response = new PartieResponseDTO();
+        response.setScoreJoueur1(10);
+        response.setScoreJoueur2(5);
+        response.setPartieTerminee(true);  // Partie terminée
+        response.setMessageResultat("Le joueur 1 a gagné");
+
+        when(partieService.jouerCoup(partieId, joueurId, "c")).thenReturn(response);
+
+        // When
+        ResponseEntity<String> result = partieController.jouerCoup(partieId, joueurId, coup);
+
+        // Then
+        assertEquals(200, result.getStatusCodeValue());
+        assertEquals("Coup joué. Score: 5. Le joueur 1 a gagné", result.getBody());
+        verify(partieService, times(1)).jouerCoup(partieId, joueurId, "c");
+    }
+Affichage à améliorer
+
+    @Test
+    void testJouerCoupAbandonner() {
+        // Given
+        Long partieId = 1L;
+        Long joueurId = 1L;
+        String coup = "abandonner";
+
+        // When
+        ResponseEntity<String> result = partieController.jouerCoup(partieId, joueurId, coup);
+
+        // Then
+        assertEquals(200, result.getStatusCodeValue());
+        assertEquals("Partie abandonnée", result.getBody());
+
+        verify(partieService, times(1)).abandonnerPartie(partieId, joueurId, StrategieEnum.TOUJOURS_TRAHIR);
+    }
+
+    @Test
+    void testJouerCoupReinitialiser() {
+        // Given
+        Long partieId = 1L;
+        Long joueurId = 1L;
+        String coup = "reinitialiser";
+
+        PartieRequestDTO newGame = PartieRequestDTO.builder()
+                .nom("Nouvelle Partie")
+                .nbTours(10)
+                .build();
+
+        PartieResponseDTO newPartie = new PartieResponseDTO();
+        newPartie.setId(2L);
+        newPartie.setNom("Nouvelle Partie");
+
+        when(partieService.creerPartie(any(PartieRequestDTO.class))).thenReturn(newPartie);
+
+        // When
+        ResponseEntity<String> result = partieController.jouerCoup(partieId, joueurId, coup);
+
+        // Then
+        assertEquals(200, result.getStatusCodeValue());
+        assertEquals("Nouvelle partie créée: 2", result.getBody());
+
+        verify(partieService, times(1)).creerPartie(any(PartieRequestDTO.class));
+    } */
+
+@Test
+void testCreerPartieInvalide() {
+    // Given
+    PartieRequestDTO partieRequestDTO = new PartieRequestDTO();
+    partieRequestDTO.setNom("");  // Nom vide, invalide
+    partieRequestDTO.setNbTours(-1);  // Nombre de tours invalide
+
+    when(partieService.creerPartie(partieRequestDTO)).thenThrow(new BadRequestRestException("Nom de la partie et nombre de tours sont obligatoires"));
+
+    // When & Then
+    BadRequestRestException thrown = assertThrows(BadRequestRestException.class, () -> {
+        partieController.creerPartie(partieRequestDTO);
+    });
+
+    assertEquals("Nom de la partie et nombre de tours sont obligatoires", thrown.getMessage());
+    verify(partieService, times(1)).creerPartie(partieRequestDTO);
+}
+
 }

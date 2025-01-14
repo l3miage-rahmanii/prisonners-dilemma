@@ -101,4 +101,51 @@ class JoueurControllerTest {
         assertNull(response.getBody());
     }
 
+    @Test
+    void testMettreAJourScoreInvalidScore() {
+        // Given
+        Long id = 1L;
+        int nouveauScore = -10; // Invalid score
+        JoueurEntity joueur = new JoueurEntity();
+        joueur.setId(id);
+        joueur.setNom("Test Joueur");
+        joueur.setScore(nouveauScore);
+
+        // When
+        ResponseEntity<JoueurEntity> result = joueurController.mettreAJourScore(id, nouveauScore);
+
+        // Then
+        assertEquals(200, result.getStatusCodeValue());
+    }
+
+    @Test
+    void testObtenirJoueurWithNullId() {
+        // When
+        ResponseEntity<JoueurResponseDTO> response = joueurController.obtenirJoueur(null);
+
+        // Then
+        assertEquals(200, response.getStatusCodeValue());
+        assertNull(response.getBody());
+    }
+
+    @Test
+    void testMettreAJourScoreWithMaxScore() {
+        // Given
+        Long id = 1L;
+        int nouveauScore = Integer.MAX_VALUE;
+        JoueurEntity joueur = new JoueurEntity();
+        joueur.setId(id);
+        joueur.setNom("Test Joueur");
+        joueur.setScore(nouveauScore);
+        when(joueurService.updateScore(id, nouveauScore)).thenReturn(joueur);
+
+        // When
+        ResponseEntity<JoueurEntity> result = joueurController.mettreAJourScore(id, nouveauScore);
+
+        // Then
+        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(id, result.getBody().getId());
+        assertEquals("Test Joueur", result.getBody().getNom());
+        assertEquals(nouveauScore, result.getBody().getScore());
+    }
 }
