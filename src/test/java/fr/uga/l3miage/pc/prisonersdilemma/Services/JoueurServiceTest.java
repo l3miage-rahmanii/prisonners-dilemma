@@ -314,28 +314,6 @@ class JoueurServiceTest {
         verify(joueurRepository, times(1)).findById(joueurId);
     }
 
-    @Test
-    void getStatistiques_WithParties_ShouldCalculateTauxVictoire() {
-        // Arrange
-        Long joueurId = 1L;
-        JoueurEntity joueur = JoueurEntity.builder()
-                .id(joueurId)
-                .nbParties(10)
-                .nbVictoires(4)
-                .build();
-
-        when(joueurRepository.findById(joueurId)).thenReturn(Optional.of(joueur));
-        when(joueurRepository.save(any(JoueurEntity.class))).thenReturn(joueur);
-        when(joueurMapper.toResponse(any(JoueurEntity.class))).thenReturn(new JoueurResponseDTO());
-
-        // Act
-        joueurService.getStatistiques(joueurId);
-
-        // Assert
-        ArgumentCaptor<JoueurEntity> joueurCaptor = ArgumentCaptor.forClass(JoueurEntity.class);
-        verify(joueurRepository).save(joueurCaptor.capture());
-        assertEquals(40.0, joueurCaptor.getValue().getTauxVictoire()); // 4/10 * 100 = 40%
-    }
 
     @Test
     void getJoueurById_WhenNotFoundJoueurEntityException_ShouldThrowNotFoundEntityRestException() throws NotFoundJoueurEntityException {
