@@ -12,21 +12,31 @@ class ToujoursTrahirStrategieTest {
 
     @BeforeEach
     void setUp() {
-        // Initialisation de la stratégie
         strategie = new ToujoursTrahirStrategie();
     }
 
     @Test
-    void testPremierCoup() {
-        // Vérifie que le premier coup est toujours "t"
-        assertEquals("t", strategie.prochainCoup());
+    void testProchainCoupRetourneToujoursTrahir() {
+        // Arrange & Act & Assert
+        assertEquals("t", strategie.prochainCoup(), "La stratégie doit toujours retourner 't'");
+
+        // Vérifier la consistance sur plusieurs appels
+        for (int i = 0; i < 5; i++) {
+            assertEquals("t", strategie.prochainCoup(),
+                    "La stratégie doit continuer à retourner 't' même après plusieurs appels");
+        }
     }
 
     @Test
-    void testToujoursTrahison() {
-        // Vérifie que la stratégie trahit toujours
-        for (int i = 0; i < 10; i++) {
-            assertEquals("t", strategie.prochainCoup());
-        }
+    void testStrategyImmutability() {
+        // Arrange & Act
+        String premierCoup = strategie.prochainCoup();
+        String deuxiemeCoup = strategie.prochainCoup();
+        String troisiemeCoup = strategie.prochainCoup();
+
+        // Assert
+        assertEquals(premierCoup, deuxiemeCoup, "Les coups successifs doivent être identiques");
+        assertEquals(deuxiemeCoup, troisiemeCoup, "Les coups successifs doivent être identiques");
+        assertEquals("t", premierCoup, "Tous les coups doivent être 't'");
     }
 }

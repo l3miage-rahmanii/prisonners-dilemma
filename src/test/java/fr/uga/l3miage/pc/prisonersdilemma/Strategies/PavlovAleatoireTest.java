@@ -23,5 +23,5 @@ class PavlovAleatoireTest {
         // Le premier coup devrait être "c", car il n'y a pas d'historique
         assertEquals("c", strategie.prochainCoup());
     }
-
+    
 }
