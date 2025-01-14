@@ -21,11 +21,11 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
@@ -335,6 +335,101 @@ class PartieServiceTest {
 
         // When / Then
         assertThrows(BadRequestRestException.class, () -> partieService.jouerCoup(partieId, joueurId, coup));
+    }
+
+
+    @Test
+    void jouerCoup_whenJoueur1HasStrategy_shouldUseStrategyToPlay() {
+        // Given
+        Long partieId = 1L;
+        Long joueurId = 10L;
+        String coup = "c";  // This will be ignored as strategy is used
+
+        JoueurEntity joueur1 = JoueurEntity.builder().id(10L).build();
+        JoueurEntity joueur2 = JoueurEntity.builder().id(20L).build();
+
+        PartieEntity partie = PartieEntity.builder()
+                .id(partieId)
+                .joueurs(List.of(joueur1, joueur2))
+                .strategieJoueur1(StrategieEnum.TOUJOURS_COOPERER)
+                .coupsJoueur1(new ArrayList<>())
+                .coupsJoueur2(new ArrayList<>())
+                .build();
+
+        PartieResponseDTO expectedResponse = new PartieResponseDTO();
+
+        when(partieRepository.findById(partieId)).thenReturn(Optional.of(partie));
+        when(partieRepository.save(any())).thenReturn(partie);
+        when(partieMapper.toResponse(partie)).thenReturn(expectedResponse);
+
+        // When
+        PartieResponseDTO result = partieService.jouerCoup(partieId, joueurId, coup);
+
+        // Then
+        verify(partieRepository).findById(partieId);
+        verify(partieRepository).save(partie);
+        assertEquals("c", partie.getCoupsJoueur1().get(0)); // Strategy TOUJOURS_COOPERER should play "c"
+        assertEquals(expectedResponse, result);
+    }
+
+    @Test
+    void jouerCoup_whenInvalidCoup_shouldThrowBadRequestException() {
+        // Given
+        Long partieId = 1L;
+        Long joueurId = 10L;
+        String invalidCoup = "x"; // Invalid move - neither "c" nor "t"
+
+        JoueurEntity joueur1 = JoueurEntity.builder().id(10L).build();
+        JoueurEntity joueur2 = JoueurEntity.builder().id(20L).build();
+
+        PartieEntity partie = PartieEntity.builder()
+                .id(partieId)
+                .joueurs(List.of(joueur1, joueur2))
+                .coupsJoueur1(new ArrayList<>())
+                .coupsJoueur2(new ArrayList<>())
+                .build();
+
+        when(partieRepository.findById(partieId)).thenReturn(Optional.of(partie));
+
+        // When & Then
+        assertThrows(
+                BadRequestRestException.class,
+                () -> partieService.jouerCoup(partieId, joueurId, invalidCoup)
+        );
+    }
+
+    @Test
+    void jouerCoup_whenJoueur2HasStrategy_shouldUseStrategyToPlay() {
+        // Given
+        Long partieId = 1L;
+        Long joueurId = 20L;
+        String coup = "c";  // This will be ignored as strategy is used
+
+        JoueurEntity joueur1 = JoueurEntity.builder().id(10L).build();
+        JoueurEntity joueur2 = JoueurEntity.builder().id(20L).build();
+
+        PartieEntity partie = PartieEntity.builder()
+                .id(partieId)
+                .joueurs(List.of(joueur1, joueur2))
+                .strategieJoueur2(StrategieEnum.TOUJOURS_TRAHIR)
+                .coupsJoueur1(new ArrayList<>())
+                .coupsJoueur2(new ArrayList<>())
+                .build();
+
+        PartieResponseDTO expectedResponse = new PartieResponseDTO();
+
+        when(partieRepository.findById(partieId)).thenReturn(Optional.of(partie));
+        when(partieRepository.save(any())).thenReturn(partie);
+        when(partieMapper.toResponse(partie)).thenReturn(expectedResponse);
+
+        // When
+        PartieResponseDTO result = partieService.jouerCoup(partieId, joueurId, coup);
+
+        // Then
+        verify(partieRepository).findById(partieId);
+        verify(partieRepository).save(partie);
+        assertEquals("t", partie.getCoupsJoueur2().get(0)); // Strategy TOUJOURS_TRAHIR should play "t"
+        assertEquals(expectedResponse, result);
     }
 
 }
