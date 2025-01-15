@@ -1,122 +1,147 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Strategies;
 
 
+import fr.uga.l3miage.pc.enums.CoupEnum;
 import fr.uga.l3miage.pc.strategies.Graduel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GraduelTest {
-    /*
     private Graduel strategie;
+    private List<CoupEnum> historiqueAdversaire;
 
     @BeforeEach
     void setUp() {
         strategie = new Graduel();
-    }
-
-    @Test
-    void testPremierCoup() {
-        // Le premier coup devrait être une coopération
-        assertEquals("c", strategie.prochainCoup(),
-                "Le premier coup devrait être une coopération ('c')");
+        historiqueAdversaire = new ArrayList<>();
     }
 
     @Test
     void testCooperationInitiale() {
-        // Test de plusieurs coups sans trahison
+        // Given an initial betrayal
+        historiqueAdversaire.add(CoupEnum.TRAHIR);
+
+        // When we get next move
+        CoupEnum result = strategie.prochainCoup(historiqueAdversaire);
+
+        // Then it should betray once
+        assertEquals(CoupEnum.TRAHIR, result);
+
+        // Add a cooperation move to history
+        historiqueAdversaire.add(CoupEnum.COOPERER);
+
+        // And then cooperate twice
+        result = strategie.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.COOPERER, result);
+
+        historiqueAdversaire.add(CoupEnum.COOPERER);
+        result = strategie.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.COOPERER, result);
+
+        // And then continue cooperating
+        historiqueAdversaire.add(CoupEnum.COOPERER);
+        result = strategie.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.COOPERER, result);
+    }
+
+    @Test
+    void testMultipleBetrayals() {
+        // Given three consecutive betrayals
+        historiqueAdversaire.add(CoupEnum.TRAHIR);
+        CoupEnum result = strategie.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.TRAHIR, result);
+
+        historiqueAdversaire.add(CoupEnum.TRAHIR);
+        result = strategie.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.TRAHIR, result);
+
+        historiqueAdversaire.add(CoupEnum.TRAHIR);
+        result = strategie.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.TRAHIR, result);
+
+        // Then it should betray two more times and then cooperate
+        // First betrayal
+        historiqueAdversaire.add(CoupEnum.COOPERER);
+        result = strategie.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.TRAHIR, result, "Should betray on first cooperation");
+
+        // Second betrayal
+        historiqueAdversaire.add(CoupEnum.COOPERER);
+        result = strategie.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.TRAHIR, result, "Should betray on second cooperation");
+
+        // Should start cooperating
+        historiqueAdversaire.add(CoupEnum.COOPERER);
+        result = strategie.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.COOPERER, result, "Should start cooperating after represailles");
+
+        // Followed by two cooperations
+        historiqueAdversaire.add(CoupEnum.COOPERER);
+        result = strategie.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.COOPERER, result, "Should cooperate first time after betrayals");
+
+        historiqueAdversaire.add(CoupEnum.COOPERER);
+        result = strategie.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.COOPERER, result, "Should cooperate second time after betrayals");
+
+        // And then return to normal cooperation
+        historiqueAdversaire.add(CoupEnum.COOPERER);
+        result = strategie.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.COOPERER, result, "Should continue cooperating");
+    }
+
+    @Test
+    void testMixedBehavior() {
+        // Test alternating betrayal and cooperation
+        historiqueAdversaire.add(CoupEnum.TRAHIR);
+        CoupEnum result = strategie.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.TRAHIR, result);
+
+        historiqueAdversaire.add(CoupEnum.COOPERER);
+        result = strategie.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.COOPERER, result);
+
+        historiqueAdversaire.add(CoupEnum.TRAHIR);
+        result = strategie.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.TRAHIR, result);
+
+        // Should first complete the remaining betrayal
+        historiqueAdversaire.add(CoupEnum.COOPERER);
+        result = strategie.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.TRAHIR, result);
+
+        // Then follow with two cooperations
+        historiqueAdversaire.add(CoupEnum.COOPERER);
+        result = strategie.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.COOPERER, result);
+
+        historiqueAdversaire.add(CoupEnum.COOPERER);
+        result = strategie.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.COOPERER, result);
+    }
+
+    @Test
+    void testLongTermCooperation() {
+        // Test that after initial betrayal and response cycle, it maintains cooperation
+        historiqueAdversaire.add(CoupEnum.TRAHIR);
+        strategie.prochainCoup(historiqueAdversaire); // Initial betrayal response
+
+        // Add several cooperative moves
         for (int i = 0; i < 5; i++) {
-            assertEquals("c", strategie.prochainCoup(),
-                    "Devrait toujours coopérer sans trahison de l'adversaire");
-            strategie.miseAJourDernierCoupAdversaire("c");
+            historiqueAdversaire.add(CoupEnum.COOPERER);
+            CoupEnum result = strategie.prochainCoup(historiqueAdversaire);
+            if (i < 2) {
+                assertEquals(CoupEnum.COOPERER, result,
+                        "Should cooperate during mandatory cooperation phase");
+            } else {
+                assertEquals(CoupEnum.COOPERER, result,
+                        "Should maintain cooperation after mandatory phase");
+            }
         }
     }
-
-    @Test
-    void testPremiereRepresaille() {
-        // L'adversaire trahit une fois
-        strategie.prochainCoup(); // Coup initial
-        strategie.miseAJourDernierCoupAdversaire("t");
-
-        // Vérifie qu'il y a une seule trahison en représailles
-        assertEquals("t", strategie.prochainCoup(),
-                "Devrait trahir une fois après la première trahison");
-        assertEquals("c", strategie.prochainCoup(),
-                "Devrait revenir à la coopération après une représaille");
-    }
-
-    @Test
-    void testDeuxiemeRepresaille() {
-        // Première séquence de trahison/représaille
-        strategie.prochainCoup();
-        strategie.miseAJourDernierCoupAdversaire("t");
-        strategie.prochainCoup(); // Première trahison en représailles
-        strategie.prochainCoup(); // Retour à la coopération
-
-        // Deuxième trahison de l'adversaire
-        strategie.miseAJourDernierCoupAdversaire("t");
-
-        // Vérifie qu'il y a deux trahisons en représailles
-        assertEquals("t", strategie.prochainCoup(), "Première trahison des représailles");
-        assertEquals("t", strategie.prochainCoup(), "Deuxième trahison des représailles");
-        assertEquals("c", strategie.prochainCoup(), "Retour à la coopération");
-    }
-
-    @Test
-    void testSequenceComplexe() {
-        String[] sequenceAdversaire = {"c", "t", "c", "t", "c", "c"};
-        String[] reponseAttendue = {
-                "c", // Coopération initiale
-                "c", // Avant première représaille
-                "t", // Première représaille
-                "c", // Retour à coopération
-                "t", // Première représaille de la deuxième séquence
-                "t"  // Deuxième représaille de la deuxième séquence
-        };
-
-        for (int i = 0; i < sequenceAdversaire.length; i++) {
-            String coupJoue = strategie.prochainCoup();
-            assertEquals(reponseAttendue[i], coupJoue,
-                    "Coup incorrect à l'itération " + i);
-            strategie.miseAJourDernierCoupAdversaire(sequenceAdversaire[i]);
-        }
-    }
-
-    @Test
-    void testRepresaillesMultiples() {
-        // Simule trois trahisons de l'adversaire
-        for (int i = 0; i < 3; i++) {
-            strategie.prochainCoup();
-            strategie.miseAJourDernierCoupAdversaire("t");
-        }
-
-        // Vérifie que le nombre de représailles est de 3
-        for (int i = 0; i < 3; i++) {
-            assertEquals("t", strategie.prochainCoup(),
-                    "Devrait trahir 3 fois en représailles");
-        }
-        assertEquals("c", strategie.prochainCoup(),
-                "Devrait revenir à la coopération après les représailles");
-    }
-
-    @Test
-    void testRetourCooperation() {
-        // Vérifie le retour à la coopération après différentes séquences de représailles
-        strategie.prochainCoup();
-        strategie.miseAJourDernierCoupAdversaire("t");
-        strategie.prochainCoup(); // Une trahison en représailles
-
-        assertEquals("c", strategie.prochainCoup(),
-                "Devrait revenir à la coopération après les représailles");
-
-        // Maintient la coopération
-        for (int i = 0; i < 3; i++) {
-            assertEquals("c", strategie.prochainCoup(),
-                    "Devrait maintenir la coopération");
-            strategie.miseAJourDernierCoupAdversaire("c");
-        }
-    }
-
-     */
 }
