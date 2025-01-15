@@ -51,7 +51,6 @@
 
 <script>
     let joueurId = null;
-    let score = 0;
 
     document.body.addEventListener('htmx:afterOnLoad', function(event) {
         try {
@@ -110,14 +109,19 @@
 
     function startGamePolling(joueurId) {
         setInterval(() => {
-                fetch(`/api/parties/status`).then(response => response.text())
-                .then(statusText => {
+            Promise.all([
+                fetch(`/api/parties/status`).then(response => response.text()),
+                fetch(`/api/parties/joueurs/${joueurId}/score`).then(response => response.json())
+            ])
+                .then(([statusText, currentScore]) => {
+                    globalScore = currentScore;  // Update global score
                     const gameContent = document.getElementById("game-content");
                     if (gameContent) {
                         gameContent.innerHTML = `
                     <h2>Informations de la Partie</h2>
                     <div id="player-info">
                         <p>${statusText}</p>
+                        <p id="please-score">Score actuel: ${globalScore}</p>
                     </div>
                     <div id="actions">
                         <button class="game-action" data-coup="cooperer">Coopérer</button>
@@ -152,14 +156,6 @@
     function setupGameActions(joueurId) {
         const actionButtons = document.querySelectorAll('.game-action');
 
-        let scoreDisplay = document.getElementById('score-display');
-        if (!scoreDisplay) {
-            scoreDisplay = document.createElement('div');
-            scoreDisplay.id = 'score-display';
-            // Vous pouvez modifier l'emplacement où vous voulez insérer le score
-            document.body.appendChild(scoreDisplay);
-        }
-
         actionButtons.forEach(button => {
             button.addEventListener('click', async () => {
                 const coup = button.dataset.coup;
@@ -171,8 +167,6 @@
 
                     if (response.ok) {
                         const newScore = await updateScore(joueurId);
-                        score += newScore;
-                        scoreDisplay.textContent = `Score: ${score}`;
                         console.log(`Coup ${coup} joué. New score: ${newScore}`);
                     }
                 } catch (error) {
