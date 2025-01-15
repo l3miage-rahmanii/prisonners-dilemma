@@ -93,7 +93,7 @@ class RancunierStrategieTest {
     @Test
     void testEtatInitial() {
         // Vérifie que l'état initial est correct
-        assertFalse(strategie.aTrahi,
+        assertFalse(strategie.getAtrahi(),
             "La variable aTrahi devrait être false au début");
     }
 
@@ -104,7 +104,7 @@ class RancunierStrategieTest {
         historique.add(CoupEnum.TRAHIR);
         strategie.prochainCoup(historique);
 
-        assertTrue(strategie.aTrahi,
+        assertTrue(strategie.getAtrahi(),
             "La variable aTrahi devrait être true après une trahison");
     }
 }

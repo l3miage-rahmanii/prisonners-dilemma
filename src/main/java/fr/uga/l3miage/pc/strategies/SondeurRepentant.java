@@ -17,7 +17,7 @@ public class SondeurRepentant extends Strategie {
 
     @Override
     public CoupEnum prochainCoup(List<CoupEnum> historique) {
-        if (historique.size() > 0) {
+        if (!historique.isEmpty()) {
             CoupEnum dernierCoupAdversaire = historique.get(historique.size() - 1);
 
             if (dernierCoupTest && dernierCoupAdversaire == CoupEnum.TRAHIR) {
@@ -32,6 +32,6 @@ public class SondeurRepentant extends Strategie {
         }
 
         dernierCoupTest = false;
-        return historique.size() > 0 ? historique.get(historique.size() - 1) : CoupEnum.COOPERER;
+        return historique.isEmpty() ? historique.get(historique.size() - 1) : CoupEnum.COOPERER;
     }
 }

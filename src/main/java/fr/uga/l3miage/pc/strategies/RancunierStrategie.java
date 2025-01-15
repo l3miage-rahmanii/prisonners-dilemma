@@ -28,4 +28,3 @@ public class RancunierStrategie extends Strategie {
 
 }
 
-
