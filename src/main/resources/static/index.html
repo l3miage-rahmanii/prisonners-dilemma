@@ -109,11 +109,8 @@
 
     function startGamePolling(joueurId) {
         setInterval(() => {
-            Promise.all([
-                fetch(`/api/parties/status`).then(response => response.text()),
-                fetch(`/api/parties/joueurs/${joueurId}/score`).then(response => response.json())
-            ])
-                .then(([statusText, currentScore]) => {
+                fetch(`/api/parties/status`).then(response => response.text())
+                .then(statusText => {
                     globalScore = currentScore;  // Update global score
                     const gameContent = document.getElementById("game-content");
                     if (gameContent) {
@@ -121,7 +118,6 @@
                     <h2>Informations de la Partie</h2>
                     <div id="player-info">
                         <p>${statusText}</p>
-                        <p id="please-score">Score actuel: ${globalScore}</p>
                     </div>
                     <div id="actions">
                         <button class="game-action" data-coup="cooperer">Coopérer</button>
