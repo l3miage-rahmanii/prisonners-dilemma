@@ -31,11 +31,9 @@
                 }
 
                 if (coup == CoupEnum.ABANDONNER) {
-                    //if ()
-                   // choisirStrategieAutomatique(partie, estJoueur1);
+                    return null;
                 } else {
                     if (estJoueur1) {
-                        //if(partie.getStrategieJoueur1() != null) {jouerCoupStrate}
                         partie.getCoupsJoueur1().add(coup);
                     } else {
                         partie.getCoupsJoueur2().add(coup);
@@ -121,9 +119,6 @@
                             .coupsJoueur1(new ArrayList<>())
                             .coupsJoueur2(new ArrayList<>())
                             .build();
-                    System.out.println(partie.getNbTours());
-                    System.out.println(partie.getIdJoueur1());
-                    System.out.println(partie.getIdJoueur2());
                 }
 
                 return  partie;
@@ -174,7 +169,7 @@
 
             private void terminerPartie(PartieEntity partie) {
                 partie.setStatus(TERMINEE);
-                // Determine the winner and update their scores
+
             }
 
         }

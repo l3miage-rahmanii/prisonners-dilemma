@@ -9,7 +9,6 @@ import java.util.List;
 
 public class Aleatoire extends Strategie {
     private final SecureRandom secureRandom;
-    private CoupEnum coup;
 
     public Aleatoire() {
         this.secureRandom = new SecureRandom();
@@ -17,7 +16,7 @@ public class Aleatoire extends Strategie {
 
     @Override
     public CoupEnum prochainCoup(List<CoupEnum> historiqueAdversaire) {
-        return secureRandom.nextBoolean() ? coup.COOPERER: coup.TRAHIR;
+        return secureRandom.nextBoolean() ? CoupEnum.COOPERER: CoupEnum.TRAHIR;
     }
 }
 

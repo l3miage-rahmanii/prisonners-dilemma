@@ -6,7 +6,6 @@ import java.util.List;
 
 public class DonnantDonnantSoupconneux extends Strategie {
     private boolean premierCoup;
-    private CoupEnum coup;
 
     public DonnantDonnantSoupconneux() {
         this.premierCoup = true;
@@ -16,7 +15,7 @@ public class DonnantDonnantSoupconneux extends Strategie {
     public CoupEnum prochainCoup(List<CoupEnum> historiqueAdversaire) {
         if (premierCoup) {
             premierCoup = false;
-            return coup.TRAHIR;
+            return CoupEnum.TRAHIR;
         }
         return historiqueAdversaire.get(historiqueAdversaire.size() - 1); // Donnant donnant après le premier coup
     }

@@ -8,7 +8,6 @@
         private int countTrahisonAdversaire;
         private int countTrahirEnRepresailles;
         private int countCooperationsApresRepresailles;
-        private CoupEnum coup;
 
         public Graduel() {
             this.countTrahisonAdversaire = 0;

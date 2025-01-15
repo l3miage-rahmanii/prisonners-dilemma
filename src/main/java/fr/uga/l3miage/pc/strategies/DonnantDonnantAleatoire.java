@@ -9,7 +9,6 @@ import java.util.Random;
 
 public class DonnantDonnantAleatoire extends DonnantDonnantStrategie {
     private Random random;
-    private CoupEnum coup;
 
     public DonnantDonnantAleatoire() {
         this.random = new SecureRandom();
@@ -18,7 +17,7 @@ public class DonnantDonnantAleatoire extends DonnantDonnantStrategie {
     @Override
     public CoupEnum prochainCoup(List<CoupEnum> historiqueAdversaire) {
         if (random.nextBoolean()) {
-            return random.nextBoolean() ? coup.COOPERER : coup.TRAHIR; // Randomly choose "c" or "t"
+            return random.nextBoolean() ? CoupEnum.COOPERER : CoupEnum.TRAHIR; // Randomly choose "c" or "t"
         }
         return super.prochainCoup(historiqueAdversaire); // Default to Donnant-Donnant behavior
     }
