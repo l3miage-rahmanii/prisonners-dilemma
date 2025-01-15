@@ -5,7 +5,7 @@ import fr.uga.l3miage.pc.enums.CoupEnum;
 import java.util.List;
 
 public class RancunierStrategie extends Strategie {
-    public boolean aTrahi = false;
+    private boolean aTrahi = false;
 
 
     public CoupEnum prochainCoup(List<CoupEnum> historiqueAdversaire) {
@@ -19,6 +19,12 @@ public class RancunierStrategie extends Strategie {
        else return CoupEnum.COOPERER;
 
     }
+
+    public boolean getAtrahi()
+          {
+              return aTrahi;
+    }
+
 
 }
 

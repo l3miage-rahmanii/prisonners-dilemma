@@ -5,7 +5,6 @@ import fr.uga.l3miage.pc.enums.CoupEnum;
 import java.util.List;
 
 public class PavlovStrategie extends Strategie {
-   private CoupEnum coup;
    private int scorePrecedent;// Devrait être un String pour le dernier coup, pas un score
 
 
