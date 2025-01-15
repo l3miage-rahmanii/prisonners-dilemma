@@ -664,6 +664,62 @@ class PartieServiceTest {
         assertEquals(3, partieEntity.getScoreJoueur2()); // 3 + 0
     }
 
+    @Test
+    void getScore_WhenPartieIsNull_ShouldReturnZero() {
+        // Arrange
+        partieService.partie = null;
 
+        // Act
+        int score = partieService.getScore(1);
+
+        // Assert
+        assertEquals(0, score);
+    }
+
+    @Test
+    void getScore_ForJoueur1_ShouldReturnJoueur1Score() {
+        // Arrange
+        partieService.partie = PartieEntity.builder()
+                .idJoueur1(1)
+                .idJoueur2(2)
+                .scoreJoueur1(10)
+                .scoreJoueur2(5)
+                .build();
+
+        // Act
+        int score = partieService.getScore(1);
+
+        // Assert
+        assertEquals(10, score);
+    }
+
+    @Test
+    void getScore_ForJoueur2_ShouldReturnJoueur2Score() {
+        // Arrange
+        partieService.partie = PartieEntity.builder()
+                .idJoueur1(1)
+                .idJoueur2(2)
+                .scoreJoueur1(10)
+                .scoreJoueur2(5)
+                .build();
+
+        // Act
+        int score = partieService.getScore(2);
+
+        // Assert
+        assertEquals(5, score);
+    }
+
+    @Test
+    void getScore_WithInvalidJoueurId_ShouldThrowIllegalArgumentException() {
+        // Arrange
+        partieService.partie = PartieEntity.builder()
+                .idJoueur1(1)
+                .idJoueur2(2)
+                .build();
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> partieService.getScore(3));
+    }
 
 }
