@@ -6,8 +6,6 @@ import java.util.List;
 
 
 public class DonnantDonnantStrategie extends Strategie {
-    private int index;
-    private CoupEnum coup;
 
     public CoupEnum prochainCoup(List<CoupEnum> historiqueAdversaire) {
         return historiqueAdversaire.get(historiqueAdversaire.size() - 1);
