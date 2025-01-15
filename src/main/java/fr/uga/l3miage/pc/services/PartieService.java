@@ -159,8 +159,10 @@
                     }
 
                     if (joueurId == partie.getIdJoueur1()) {
+                        System.out.println(partie.getScoreJoueur1());
                         return partie.getScoreJoueur1();
                     } else {
+                        System.out.println(partie.getScoreJoueur2());
                         return partie.getScoreJoueur2();
                     }
 

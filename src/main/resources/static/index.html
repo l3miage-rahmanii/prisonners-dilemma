@@ -51,6 +51,7 @@
 
 <script>
     let joueurId = null;
+    let score = 0;
 
     document.body.addEventListener('htmx:afterOnLoad', function(event) {
         try {
@@ -151,6 +152,14 @@
     function setupGameActions(joueurId) {
         const actionButtons = document.querySelectorAll('.game-action');
 
+        let scoreDisplay = document.getElementById('score-display');
+        if (!scoreDisplay) {
+            scoreDisplay = document.createElement('div');
+            scoreDisplay.id = 'score-display';
+            // Vous pouvez modifier l'emplacement où vous voulez insérer le score
+            document.body.appendChild(scoreDisplay);
+        }
+
         actionButtons.forEach(button => {
             button.addEventListener('click', async () => {
                 const coup = button.dataset.coup;
@@ -162,6 +171,8 @@
 
                     if (response.ok) {
                         const newScore = await updateScore(joueurId);
+                        score += newScore;
+                        scoreDisplay.textContent = `Score: ${score}`;
                         console.log(`Coup ${coup} joué. New score: ${newScore}`);
                     }
                 } catch (error) {
