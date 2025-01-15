@@ -105,7 +105,7 @@
         }
     }
 
-    // Move score to global scope
+    let globalScore = 0;  // Move score to global scope
 
     function startGamePolling(joueurId) {
         setInterval(() => {
@@ -114,18 +114,43 @@
                 fetch(`/api/parties/joueurs/${joueurId}/score`).then(response => response.json())
             ])
                 .then(([statusText, currentScore]) => {
-                    const statusElement = document.querySelector('#player-info p:first-child');
-                    const scoreElement = document.getElementById('please-score');
-
-                    if (statusElement) {
-                        statusElement.textContent = statusText;
-                    }
-                    if (scoreElement) {
-                        scoreElement.textContent = `Score actuel: ${currentScore}`;
+                    globalScore = currentScore;  // Update global score
+                    const gameContent = document.getElementById("game-content");
+                    if (gameContent) {
+                        gameContent.innerHTML = `
+                    <h2>Informations de la Partie</h2>
+                    <div id="player-info">
+                        <p>${statusText}</p>
+                        <p id="please-score">Score actuel: ${globalScore}</p>
+                    </div>
+                    <div id="actions">
+                        <button class="game-action" data-coup="cooperer">Coopérer</button>
+                        <button class="game-action" data-coup="trahir">Trahir</button>
+                        <button class="game-action" data-coup="abandonner">Abandonner</button>
+                    </div>
+                `;
+                        setupGameActions(joueurId);
                     }
                 })
                 .catch(error => console.error('Polling error:', error));
         }, 2000);
+    }
+
+    function updateScore(joueurId) {
+        return fetch(`/api/parties/joueurs/${joueurId}/score`)
+            .then(response => response.json())
+            .then(newScore => {
+                globalScore = newScore;
+                const scoreElement = document.getElementById('please-score');
+                if (scoreElement) {
+                    scoreElement.textContent = `Score actuel: ${globalScore}`;
+                }
+                return globalScore;
+            })
+            .catch(error => {
+                console.error('Error updating score:', error);
+                return globalScore;
+            });
     }
 
     function setupGameActions(joueurId) {
@@ -142,10 +167,6 @@
 
                     if (response.ok) {
                         const newScore = await updateScore(joueurId);
-                        const scoreElement = document.getElementById('please-score');
-                        if (scoreElement) {
-                            scoreElement.textContent = `Score actuel: ${newScore}`;
-                        }
                         console.log(`Coup ${coup} joué. New score: ${newScore}`);
                     }
                 } catch (error) {
@@ -153,15 +174,6 @@
                 }
             });
         });
-    }
-
-    function updateScore(joueurId) {
-        return fetch(`/api/parties/joueurs/${joueurId}/score`)
-            .then(response => response.json())
-            .catch(error => {
-                console.error('Error updating score:', error);
-                return null;
-            });
     }
     function createGame(){
         setMyVariable(true);
