@@ -4,15 +4,12 @@ package fr.uga.l3miage.pc.controllers;
 
 import fr.uga.l3miage.pc.entities.PartieEntity;
 import fr.uga.l3miage.pc.enums.CoupEnum;
-import fr.uga.l3miage.pc.enums.StrategieEnum;
-import fr.uga.l3miage.pc.requests.PartieRequestDTO;
 import fr.uga.l3miage.pc.responses.PartieResponseDTO;
 import fr.uga.l3miage.pc.services.PartieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.rmi.server.UID;
 
 
 @RestController
@@ -30,15 +27,14 @@ public class PartieController {
         CoupEnum coupEnum = CoupEnum.COOPERER;
         // Normalize the move
         switch(coup.toLowerCase()) {
-            case "cooperer":
-                coupEnum = CoupEnum.COOPERER;
-                break;
             case "trahir":
                 coupEnum = CoupEnum.TRAHIR;
                 break;
             case "abandonner":
                 coupEnum = CoupEnum.ABANDONNER;
                 break;
+                default:
+                    break;
         }
 
         return ResponseEntity.ok(partieService.jouerCoup(joueurId, coupEnum));

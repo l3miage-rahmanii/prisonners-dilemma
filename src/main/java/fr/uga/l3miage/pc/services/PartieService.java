@@ -4,10 +4,7 @@
         import fr.uga.l3miage.pc.enums.CoupEnum;
         import fr.uga.l3miage.pc.exceptions.rest.BadRequestRestException;
         import fr.uga.l3miage.pc.mappers.PartieMapper;
-
-        import fr.uga.l3miage.pc.requests.PartieRequestDTO;
         import fr.uga.l3miage.pc.responses.PartieResponseDTO;
-        import jakarta.servlet.http.Part;
         import lombok.RequiredArgsConstructor;
         import org.springframework.stereotype.Service;
 

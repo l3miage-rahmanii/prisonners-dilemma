@@ -1,7 +1,6 @@
 package fr.uga.l3miage.pc.mappers;
 
 import fr.uga.l3miage.pc.entities.PartieEntity;
-import fr.uga.l3miage.pc.requests.PartieRequestDTO;
 import fr.uga.l3miage.pc.responses.PartieResponseDTO;
 import org.mapstruct.*;
 

@@ -3,7 +3,6 @@ package fr.uga.l3miage.pc.entities;
 
 import fr.uga.l3miage.pc.enums.CoupEnum;
 import fr.uga.l3miage.pc.enums.StrategieEnum;
-import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
 
