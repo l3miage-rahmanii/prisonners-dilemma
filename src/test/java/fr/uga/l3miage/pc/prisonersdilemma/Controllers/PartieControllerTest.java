@@ -174,4 +174,95 @@ class PartieControllerTest {
         // Par défaut, un coup inconnu est traité comme COOPERER
         verify(partieService).jouerCoup(1, CoupEnum.COOPERER);
     }
+
+    @Test
+    void jouerCoup_EmptyCoup() {
+        // Given
+        when(partieService.jouerCoup(1, CoupEnum.COOPERER)).thenReturn(partieResponseDTO);
+
+        // When
+        ResponseEntity<PartieResponseDTO> response = partieController.jouerCoup(1, "");
+
+        // Then
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        verify(partieService).jouerCoup(1, CoupEnum.COOPERER);
+    }
+
+    @Test
+    void jouerCoup_CaseSensitivity() {
+        // Given
+        when(partieService.jouerCoup(1, CoupEnum.TRAHIR)).thenReturn(partieResponseDTO);
+
+        // When
+        ResponseEntity<PartieResponseDTO> response = partieController.jouerCoup(1, "TRAHIR");
+
+        // Then
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        verify(partieService).jouerCoup(1, CoupEnum.TRAHIR);
+    }
+
+    @Test
+    void getScores_ValidateHtmlFormat() {
+        // Given
+        when(partieService.getScore(1)).thenReturn(10);
+        when(partieService.getScore(2)).thenReturn(20);
+
+        // When
+        String response = partieController.getScores();
+
+        // Then
+        assertTrue(response.contains("<p class=\"text-lg font-semibold text-gray-800\">"));
+        assertTrue(response.contains("<span id=\"score-player1\">10</span>"));
+        assertTrue(response.contains("<span id=\"score-player2\">20</span>"));
+        assertTrue(response.contains("Joueur 1:"));
+        assertTrue(response.contains("Joueur 2:"));
+    }
+
+    @Test
+    void getScore_NegativeJoueurId() {
+        // Given
+        int expectedScore = 0;
+        when(partieService.getScore(-1)).thenReturn(expectedScore);
+
+        // When
+        ResponseEntity<Integer> response = partieController.getScore(-1);
+
+        // Then
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(expectedScore, response.getBody());
+        verify(partieService).getScore(-1);
+    }
+
+    @Test
+    void getScore_LargeJoueurId() {
+        // Given
+        int expectedScore = 0;
+        when(partieService.getScore(Integer.MAX_VALUE)).thenReturn(expectedScore);
+
+        // When
+        ResponseEntity<Integer> response = partieController.getScore(Integer.MAX_VALUE);
+
+        // Then
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(expectedScore, response.getBody());
+        verify(partieService).getScore(Integer.MAX_VALUE);
+    }
+
+    @Test
+    void jouerCoup_MixedCaseInput() {
+        // Given
+        when(partieService.jouerCoup(1, CoupEnum.TRAHIR)).thenReturn(partieResponseDTO);
+
+        // When
+        ResponseEntity<PartieResponseDTO> response = partieController.jouerCoup(1, "TrAhIr");
+
+        // Then
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        verify(partieService).jouerCoup(1, CoupEnum.TRAHIR);
+    }
 }
