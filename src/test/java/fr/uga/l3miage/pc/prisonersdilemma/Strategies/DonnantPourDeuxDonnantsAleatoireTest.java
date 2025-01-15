@@ -1,141 +1,111 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Strategies;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 
-import java.util.Random;
-
+import fr.uga.l3miage.pc.enums.CoupEnum;
 import fr.uga.l3miage.pc.strategies.DonnantPourDeuxDonnantsAleatoire;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.DisplayName;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 
 class DonnantPourDeuxDonnantsAleatoireTest {
-    /*
-    private static final int HISTORY_SIZE = 100;
-    private String[] historique;
     private DonnantPourDeuxDonnantsAleatoire strategie;
-    private Random mockRandom;
+    private List<CoupEnum> historique;
 
     @BeforeEach
     void setUp() {
-        historique = new String[HISTORY_SIZE];
-        mockRandom = mock(Random.class);
-
-        try {
-            strategie = new DonnantPourDeuxDonnantsAleatoire(historique);
-            java.lang.reflect.Field randomField = strategie.getClass().getDeclaredField("random");
-            randomField.setAccessible(true);
-            randomField.set(strategie, mockRandom);
-        } catch (Exception e) {
-            fail("Test setup failed: " + e.getMessage());
-        }
+        strategie = new DonnantPourDeuxDonnantsAleatoire();
+        historique = new ArrayList<>();
+        historique.add(CoupEnum.COOPERER);
     }
 
     @Test
-    @DisplayName("Test random behavior with cooperation")
-    void testRandomBehaviorCooperation() {
-        // Mock 10% chance of random behavior (nextDouble < 0.1) and choose cooperation
-        when(mockRandom.nextDouble()).thenReturn(0.05);
-        when(mockRandom.nextBoolean()).thenReturn(true);
+    void testComportementPrincipal() {
+        historique.clear();
+        historique.add(CoupEnum.TRAHIR);
 
-        assertEquals("c", strategie.prochainCoup(),
-                "Should return 'c' when random is triggered and true is returned");
-    }
+        int nbTrahir = 0;
+        int iterations = 1000;
 
-    @Test
-    @DisplayName("Test random behavior with betrayal")
-    void testRandomBehaviorBetrayal() {
-        // Mock 10% chance of random behavior (nextDouble < 0.1) and choose betrayal
-        when(mockRandom.nextDouble()).thenReturn(0.05);
-        when(mockRandom.nextBoolean()).thenReturn(false);
-
-        assertEquals("t", strategie.prochainCoup(),
-                "Should return 't' when random is triggered and false is returned");
-    }
-
-    @Test
-    @DisplayName("Test inherited behavior (90% case)")
-    void testInheritedBehavior() {
-        // Mock 90% chance of inherited behavior (nextDouble >= 0.1)
-        when(mockRandom.nextDouble()).thenReturn(0.2);
-
-        // First move should be "c" (inherited behavior)
-        assertEquals("c", strategie.prochainCoup());
-
-        // Simulate two cooperative moves from opponent
-        strategie.miseAJourDernierCoupAdversaire("c");
-        strategie.miseAJourDernierCoupAdversaire("c");
-
-        // Should still use inherited behavior
-        when(mockRandom.nextDouble()).thenReturn(0.5);
-        assertEquals("c", strategie.prochainCoup(),
-                "Should use inherited behavior when random is not triggered");
-    }
-
-    @Test
-    @DisplayName("Test mixed sequence of moves")
-    void testMixedSequence() {
-        // First move: use inherited (90%)
-        when(mockRandom.nextDouble()).thenReturn(0.5);
-        assertEquals("c", strategie.prochainCoup());
-
-        // Update opponent's move
-        strategie.miseAJourDernierCoupAdversaire("t");
-
-        // Second move: use random (10%) - choose cooperation
-        when(mockRandom.nextDouble()).thenReturn(0.05);
-        when(mockRandom.nextBoolean()).thenReturn(true);
-        assertEquals("c", strategie.prochainCoup());
-
-        // Update opponent's move
-        strategie.miseAJourDernierCoupAdversaire("t");
-
-        // Third move: use inherited (90%)
-        when(mockRandom.nextDouble()).thenReturn(0.5);
-        assertEquals("t", strategie.prochainCoup());
-    }
-
-    @Test
-    @DisplayName("Test boundary conditions for random threshold")
-    void testRandomThresholdBoundaries() {
-        // Test exactly at 0.1 (should use inherited behavior)
-        when(mockRandom.nextDouble()).thenReturn(0.1);
-        assertEquals("c", strategie.prochainCoup());
-
-        // Test just below 0.1 (should use random behavior)
-        when(mockRandom.nextDouble()).thenReturn(0.099);
-        when(mockRandom.nextBoolean()).thenReturn(true);
-        assertEquals("c", strategie.prochainCoup());
-
-        // Test just above 0.1 (should use inherited behavior)
-        when(mockRandom.nextDouble()).thenReturn(0.101);
-        assertEquals("c", strategie.prochainCoup());
-    }
-
-    @Test
-    @DisplayName("Test long sequence with mixed behavior")
-    void testLongSequence() {
-        String[] opponentMoves = {"c", "c", "t", "t", "c"};
-
-        for (String opponentMove : opponentMoves) {
-            // Alternate between random and inherited behavior
-            when(mockRandom.nextDouble())
-                    .thenReturn(Math.random() < 0.1 ? 0.05 : 0.5);
-
-            if (mockRandom.nextDouble() < 0.1) {
-                when(mockRandom.nextBoolean()).thenReturn(true);
+        for (int i = 0; i < iterations; i++) {
+            if (strategie.prochainCoup(historique) == CoupEnum.TRAHIR) {
+                nbTrahir++;
             }
-
-            strategie.prochainCoup();
-            strategie.miseAJourDernierCoupAdversaire(opponentMove);
         }
 
-        // Verify final state is consistent
-        assertNotNull(strategie.getHistorique());
-        assertTrue(strategie.getIndex() > 0);
+        // Avec 10% de chance aléatoire et 90% de copier TRAHIR
+        // On s'attend à environ 90% + (10% * 0.5) = 95% de TRAHIR
+        double pourcentageTrahir = (double) nbTrahir / iterations;
+        assertTrue(pourcentageTrahir > 0.80,
+                "Devrait avoir une proportion significative de TRAHIR (>80%)");
+        assertTrue(pourcentageTrahir < 0.99,
+                "Ne devrait pas avoir 100% de TRAHIR à cause du comportement aléatoire");
     }
 
-     */
+    @Test
+    void testComportementAleatoire() {
+        // Sur un grand nombre d'itérations, on devrait voir les deux types de coups
+        Set<CoupEnum> coupsObserves = new HashSet<>();
+        int iterations = 1000;
+
+        for (int i = 0; i < iterations; i++) {
+            coupsObserves.add(strategie.prochainCoup(historique));
+        }
+
+        assertEquals(2, coupsObserves.size(),
+                "Devrait observer à la fois COOPERER et TRAHIR sur un grand nombre d'itérations");
+    }
+
+    @Test
+    void testSequenceDeCoups() {
+        historique.clear();
+        historique.add(CoupEnum.COOPERER);
+
+        int nbCooperer = 0;
+        int iterations = 1000;
+
+        for (int i = 0; i < iterations; i++) {
+            if (strategie.prochainCoup(historique) == CoupEnum.COOPERER) {
+                nbCooperer++;
+            }
+        }
+
+        double pourcentageCooperer = (double) nbCooperer / iterations;
+        assertTrue(pourcentageCooperer > 0.80,
+                "Devrait avoir une proportion significative de COOPERER (>80%)");
+        assertTrue(pourcentageCooperer < 0.99,
+                "Ne devrait pas avoir 100% de COOPERER à cause du comportement aléatoire");
+    }
+
+    @Test
+    void testHistoriqueChangeant() {
+        // Test avec différents historiques
+        historique.clear();
+        historique.add(CoupEnum.COOPERER);
+        CoupEnum coupApresCooperer = strategie.prochainCoup(historique);
+
+        historique.clear();
+        historique.add(CoupEnum.TRAHIR);
+        CoupEnum coupApresTrahir = strategie.prochainCoup(historique);
+
+        // Sur plusieurs itérations, il devrait y avoir des différences
+        int nbDifferences = 0;
+        int iterations = 100;
+
+        for (int i = 0; i < iterations; i++) {
+            if (strategie.prochainCoup(new ArrayList<>(List.of(CoupEnum.COOPERER))) !=
+                    strategie.prochainCoup(new ArrayList<>(List.of(CoupEnum.TRAHIR)))) {
+                nbDifferences++;
+            }
+        }
+
+        assertTrue(nbDifferences > 0,
+                "Les coups devraient parfois différer selon l'historique");
+    }
 }

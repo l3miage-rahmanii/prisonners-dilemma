@@ -1,154 +1,128 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Strategies;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
-
-import java.util.Random;
-
+import fr.uga.l3miage.pc.enums.CoupEnum;
 import fr.uga.l3miage.pc.strategies.PacificateurNaif;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.DisplayName;
+
+import java.util.ArrayList;
+import java.util.List;
+
 
 class PacificateurNaifTest {
-    /*
-    private static final int HISTORY_SIZE = 100;
-    private String[] historique;
     private PacificateurNaif strategie;
-    private Random mockRandom;
+    private List<CoupEnum> historique;
 
     @BeforeEach
     void setUp() {
-        historique = new String[HISTORY_SIZE];
-        mockRandom = mock(Random.class);
-
-        try {
-            strategie = new PacificateurNaif(historique);
-            java.lang.reflect.Field randomField = strategie.getClass().getDeclaredField("random");
-            randomField.setAccessible(true);
-            randomField.set(strategie, mockRandom);
-        } catch (Exception e) {
-            fail("Test setup failed: " + e.getMessage());
-        }
+        strategie = new PacificateurNaif();
+        historique = new ArrayList<>();
+        historique.add(CoupEnum.COOPERER);  // Initialisation pour éviter IndexOutOfBoundsException
     }
 
     @Test
-    @DisplayName("Test premier coup sans historique")
-    void testPremierCoup() {
-        // Premier coup devrait être "c" quand nextDouble >= 0.1
-        when(mockRandom.nextDouble()).thenReturn(0.5);
-        assertEquals("c", strategie.prochainCoup(),
-                "Le premier coup devrait être 'c' sans historique");
-    }
+    void testComportementApresCooperation() {
+        historique.clear();
+        historique.add(CoupEnum.COOPERER);
 
-    @Test
-    @DisplayName("Test comportement pacificateur (10% de chance)")
-    void testComportementPacificateur() {
-        // Simuler l'adversaire qui trahit
-        strategie.miseAJourDernierCoupAdversaire("t");
+        int nbCooperer = 0;
+        int iterations = 1000;
 
-        // Simuler le comportement pacificateur (nextDouble < 0.1)
-        when(mockRandom.nextDouble()).thenReturn(0.05);
-
-        assertEquals("c", strategie.prochainCoup(),
-                "Devrait coopérer quand le comportement pacificateur est déclenché");
-    }
-
-    @Test
-    @DisplayName("Test réponse à la trahison (90% de chance)")
-    void testReponseATrahison() {
-        // Simuler l'adversaire qui trahit
-        strategie.miseAJourDernierCoupAdversaire("t");
-
-        // Simuler le comportement normal (nextDouble >= 0.1)
-        when(mockRandom.nextDouble()).thenReturn(0.5);
-
-        assertEquals("t", strategie.prochainCoup(),
-                "Devrait trahir en réponse à une trahison (hors comportement pacificateur)");
-    }
-
-    @Test
-    @DisplayName("Test réponse à la coopération")
-    void testReponseACooperation() {
-        // Simuler l'adversaire qui coopère
-        strategie.miseAJourDernierCoupAdversaire("c");
-
-        // Simuler le comportement normal (nextDouble >= 0.1)
-        when(mockRandom.nextDouble()).thenReturn(0.5);
-
-        assertEquals("c", strategie.prochainCoup(),
-                "Devrait coopérer en réponse à une coopération");
-    }
-
-    @Test
-    @DisplayName("Test séquence de coups")
-    void testSequenceDeCoups() {
-        // Séquence de comportements: normal, pacificateur, normal
-        when(mockRandom.nextDouble())
-                .thenReturn(0.5)   // Normal - suivre l'historique
-                .thenReturn(0.05)  // Pacificateur - coopérer
-                .thenReturn(0.5);  // Normal - suivre l'historique
-
-        // Premier coup (sans historique)
-        assertEquals("c", strategie.prochainCoup());
-
-        // Adversaire trahit
-        strategie.miseAJourDernierCoupAdversaire("t");
-
-        // Deuxième coup (pacificateur)
-        assertEquals("c", strategie.prochainCoup());
-
-        // Adversaire trahit encore
-        strategie.miseAJourDernierCoupAdversaire("t");
-
-        // Troisième coup (normal)
-        assertEquals("t", strategie.prochainCoup());
-    }
-
-    @Test
-    @DisplayName("Test limites du seuil aléatoire")
-    void testLimitesSeuilAleatoire() {
-        strategie.miseAJourDernierCoupAdversaire("t");
-
-        // Test exactement à 0.1 (devrait suivre le comportement normal)
-        when(mockRandom.nextDouble()).thenReturn(0.1);
-        assertEquals("t", strategie.prochainCoup());
-
-        // Test juste en-dessous de 0.1 (devrait être pacificateur)
-        when(mockRandom.nextDouble()).thenReturn(0.099);
-        assertEquals("c", strategie.prochainCoup());
-
-        // Test juste au-dessus de 0.1 (devrait suivre le comportement normal)
-        when(mockRandom.nextDouble()).thenReturn(0.101);
-        assertEquals("t", strategie.prochainCoup());
-    }
-
-    @Test
-    @DisplayName("Test mise à jour de l'historique")
-    void testMiseAJourHistorique() {
-        String[] sequence = {"c", "t", "c", "t", "c"};
-
-        for (int i = 0; i < sequence.length; i++) {
-            strategie.miseAJourDernierCoupAdversaire(sequence[i]);
-            assertEquals(sequence[i], historique[i],
-                    "L'historique devrait être correctement mis à jour");
-        }
-    }
-
-    @Test
-    @DisplayName("Test comportement avec historique plein")
-    void testHistoriquePlein() {
-        // Remplir l'historique
-        for (int i = 0; i < HISTORY_SIZE; i++) {
-            strategie.miseAJourDernierCoupAdversaire("c");
+        for (int i = 0; i < iterations; i++) {
+            if (strategie.prochainCoup(historique) == CoupEnum.COOPERER) {
+                nbCooperer++;
+            }
         }
 
-        // Vérifier que la tentative d'ajout suivante lève une exception
-        assertThrows(ArrayIndexOutOfBoundsException.class,
-                () -> strategie.miseAJourDernierCoupAdversaire("c"),
-                "Devrait lever une exception quand l'historique est plein");
+        double pourcentageCooperer = (double) nbCooperer / iterations;
+        // Devrait être environ 90% (copie) + 10% (apaisement) = 100% de COOPERER
+        assertTrue(pourcentageCooperer > 0.90,
+                "Devrait avoir une très forte proportion de COOPERER après COOPERER");
     }
 
-     */
+    @Test
+    void testComportementApresTrahison() {
+        historique.clear();
+        historique.add(CoupEnum.TRAHIR);
+
+        int nbTrahir = 0;
+        int iterations = 1000;
+
+        for (int i = 0; i < iterations; i++) {
+            if (strategie.prochainCoup(historique) == CoupEnum.TRAHIR) {
+                nbTrahir++;
+            }
+        }
+
+        double pourcentageTrahir = (double) nbTrahir / iterations;
+        // Devrait être environ 90% de TRAHIR (copie) car 10% sera forcé en COOPERER
+        assertTrue(pourcentageTrahir > 0.80 && pourcentageTrahir < 0.95,
+                "Devrait avoir environ 90% de TRAHIR après TRAHIR (avec 10% de COOPERER forcé)");
+    }
+
+    @Test
+    void testPresenceComportementApaisement() {
+        // Même après une trahison, on devrait observer des coups COOPERER
+        historique.clear();
+        historique.add(CoupEnum.TRAHIR);
+
+        int nbCooperer = 0;
+        int iterations = 1000;
+
+        for (int i = 0; i < iterations; i++) {
+            if (strategie.prochainCoup(historique) == CoupEnum.COOPERER) {
+                nbCooperer++;
+            }
+        }
+
+        double pourcentageCooperer = (double) nbCooperer / iterations;
+        // Devrait être environ 10% de COOPERER (comportement d'apaisement)
+        assertTrue(pourcentageCooperer > 0.05 && pourcentageCooperer < 0.15,
+                "Devrait avoir environ 10% de COOPERER même après TRAHIR");
+    }
+
+    @Test
+    void testSequenceAlternee() {
+        historique.clear();
+        historique.add(CoupEnum.TRAHIR);
+        historique.add(CoupEnum.COOPERER);
+        historique.add(CoupEnum.TRAHIR);
+
+        int nbCoupsIdentiques = 0;
+        CoupEnum dernierCoup = historique.get(historique.size() - 1);
+        int iterations = 1000;
+
+        for (int i = 0; i < iterations; i++) {
+            if (strategie.prochainCoup(historique) == dernierCoup) {
+                nbCoupsIdentiques++;
+            }
+        }
+
+        double pourcentageIdentique = (double) nbCoupsIdentiques / iterations;
+        // Devrait être environ 90% identique au dernier coup
+        assertTrue(pourcentageIdentique > 0.85 && pourcentageIdentique < 0.95,
+                "Devrait copier le dernier coup environ 90% du temps");
+    }
+
+    @Test
+    void testHistoriqueDifferent() {
+        List<CoupEnum> historique1 = new ArrayList<>(List.of(CoupEnum.TRAHIR));
+        List<CoupEnum> historique2 = new ArrayList<>(List.of(CoupEnum.COOPERER));
+
+        int nbDifferences = 0;
+        int iterations = 100;
+
+        for (int i = 0; i < iterations; i++) {
+            CoupEnum coup1 = strategie.prochainCoup(historique1);
+            CoupEnum coup2 = strategie.prochainCoup(historique2);
+            if (coup1 != coup2) {
+                nbDifferences++;
+            }
+        }
+
+        assertTrue(nbDifferences > 0,
+                "Les réponses devraient différer selon l'historique");
+    }
 }
