@@ -2,12 +2,11 @@ package fr.uga.l3miage.pc.strategies;
 
 import java.security.SecureRandom;
 import java.util.Random;
-
+/*
 public class PavlovAleatoire extends PavlovStrategie {
     private Random random;
 
-    public PavlovAleatoire(String[] historique) {
-        super(historique);
+    public PavlovAleatoire() {
         this.random = new SecureRandom();
     }
 
@@ -19,3 +18,5 @@ public class PavlovAleatoire extends PavlovStrategie {
         return super.prochainCoup();
     }
 }
+
+ */

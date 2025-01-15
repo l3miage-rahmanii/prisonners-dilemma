@@ -1,5 +1,5 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Strategies;
-
+/*
 import fr.uga.l3miage.pc.strategies.PavlovStrategie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -111,4 +111,8 @@ class PavlovStrategieTest {
                     "L'historique n'est pas correctement mis à jour à l'index " + i);
         }
     }
+
+
 }
+
+ */

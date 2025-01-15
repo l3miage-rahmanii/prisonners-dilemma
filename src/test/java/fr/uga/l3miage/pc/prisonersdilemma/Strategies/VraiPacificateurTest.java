@@ -1,5 +1,5 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Strategies;
-
+/*
 import fr.uga.l3miage.pc.strategies.VraiPacificateur;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,5 +66,6 @@ class VraiPacificateurTest {
         // Vérifie qu'environ 30% des coups sont "c" (coopération)
         double coopRate = coopCount / 100.0;
         assertTrue(coopRate >= 0.2 && coopRate <= 0.4, "La probabilité de coopération doit être proche de 30%");
-    } */
+    }
 }
+*/

@@ -16,16 +16,5 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PartieRequestDTO {
-    @NotBlank(message = "Le nom de la partie est obligatoire")
-    private String nom;
-
-    @NotNull(message = "L'ID du serveur est obligatoire")
-    private Long serveurId;
-
-    @NotEmpty(message = "Au moins un joueur est requis")
-    private List<Long> joueurIds;
-
-    private StrategieEnum strategieJoueur1;
-    private StrategieEnum strategieJoueur2;
     private Integer nbTours;
 }

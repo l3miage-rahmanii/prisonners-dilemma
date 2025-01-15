@@ -1,6 +1,6 @@
 package fr.uga.l3miage.pc.strategies;
-
-public class ToujoursTrahirStrategie implements Strategie {
+/*
+public class ToujoursTrahirStrategie extends Strategie {
 
 
     @Override
@@ -8,3 +8,6 @@ public class ToujoursTrahirStrategie implements Strategie {
         return "t";
     }
 }
+
+
+ */

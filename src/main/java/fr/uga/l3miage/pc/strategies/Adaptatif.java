@@ -1,5 +1,5 @@
     package fr.uga.l3miage.pc.strategies;
-
+/*
     public class Adaptatif implements Strategie {
         private String[] historique;
         private int index;
@@ -38,3 +38,5 @@
             historique[index++] = coupAdversaire;
         }
     }
+    s
+ */

@@ -14,27 +14,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PartieResponseDTO {
-    private Long id;
-    private String nom;
-    private String status;
-
-    // Informations du jeu
-    private List<String> coupsJoueur1;
-    private List<String> coupsJoueur2;
     private int scoreJoueur1;
     private int scoreJoueur2;
-    private StrategieEnum strategieJoueur1;
-    private StrategieEnum strategieJoueur2;
-
-
-    // État de la partie
     private int tourActuel;
     private boolean partieTerminee;
-    private Long joueurGagnantId;
+    private int joueurGagnantId;
     private String messageResultat;
 
-    // Timestamps
-    private LocalDateTime dateCreation;
-    private LocalDateTime dateDernierCoup;
-    private LocalDateTime dateFinPartie;
 }

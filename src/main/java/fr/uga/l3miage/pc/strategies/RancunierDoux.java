@@ -1,6 +1,6 @@
 package fr.uga.l3miage.pc.strategies;
-
-public class RancunierDoux implements Strategie {
+/*
+public class RancunierDoux extends Strategie {
     private String[] historique;
     private int index;
     private boolean estRancunier;
@@ -34,3 +34,6 @@ public class RancunierDoux implements Strategie {
         historique[index++] = coupAdversaire;
     }
 }
+
+
+ */

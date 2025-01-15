@@ -1,5 +1,5 @@
 package fr.uga.l3miage.pc.strategies;
-
+/*
 import java.security.SecureRandom;
 import java.util.Random;
 
@@ -23,3 +23,5 @@ public class VraiPacificateur implements Strategie {
         historique[index++] = coupAdversaire;
     }
 }
+
+ */

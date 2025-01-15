@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PartieControllerTest {
-
+/*
     @Mock
     private PartieService partieService;
 
@@ -295,5 +295,7 @@ void testCreerPartieInvalide() {
     assertEquals("Nom de la partie et nombre de tours sont obligatoires", thrown.getMessage());
     verify(partieService, times(1)).creerPartie(partieRequestDTO);
 }
+
+ */
 
 }

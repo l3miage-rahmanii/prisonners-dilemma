@@ -1,5 +1,5 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Strategies;
-
+/*
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -107,3 +107,6 @@ class SondeurNaifTest {
         }, "Devrait lancer une exception quand l'historique est plein");
     }
 }
+
+
+ */

@@ -1,34 +1,41 @@
     package fr.uga.l3miage.pc.strategies;
 
-    public class Graduel implements Strategie {
+    import fr.uga.l3miage.pc.enums.CoupEnum;
+
+    import java.util.List;
+
+    public class Graduel extends Strategie {
         private int countTrahisonAdversaire;
         private int countTrahirEnRepresailles;
-        private boolean enRepresailles;
+        private int countCooperationsApresRepresailles;
+        private CoupEnum coup;
 
         public Graduel() {
             this.countTrahisonAdversaire = 0;
             this.countTrahirEnRepresailles = 0;
-            this.enRepresailles = false;
+            this.countCooperationsApresRepresailles = 0;
         }
 
         @Override
-        public String prochainCoup() {
-            if (enRepresailles) {
-                if (countTrahirEnRepresailles > 0) {
-                    countTrahirEnRepresailles--;
-                    return "t";
-                }
-                enRepresailles = false;
-                return "c"; // Coopère après représailles
-            }
-            return "c"; // Coopération par défaut
-        }
+        public CoupEnum prochainCoup(List<CoupEnum> historiqueAdversaire) {
+            CoupEnum dernierCoupAdversaire = historiqueAdversaire.get(historiqueAdversaire.size() - 1);
 
-        public void miseAJourDernierCoupAdversaire(String coupAdversaire) {
-            if (coupAdversaire.equals("t")) {
+            if (dernierCoupAdversaire == CoupEnum.TRAHIR) {
                 countTrahisonAdversaire++;
-                enRepresailles = true;
                 countTrahirEnRepresailles = countTrahisonAdversaire;
             }
+
+            if (countTrahirEnRepresailles > 0) {
+                countTrahirEnRepresailles--;
+                return CoupEnum.TRAHIR;
+            }
+
+            if (countCooperationsApresRepresailles < 2) {
+                countCooperationsApresRepresailles++;
+                return CoupEnum.COOPERER;
+            }
+
+            countCooperationsApresRepresailles = 0;
+            return CoupEnum.COOPERER;
         }
     }

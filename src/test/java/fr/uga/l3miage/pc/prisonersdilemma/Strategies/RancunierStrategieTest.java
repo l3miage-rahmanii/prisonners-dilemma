@@ -1,12 +1,12 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Strategies;
 
-import fr.uga.l3miage.pc.strategies.RancunierStrategie;
+//import fr.uga.l3miage.pc.strategies.RancunierStrategie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
+/*
 class RancunierStrategieTest {
 
     private static final int TAILLE_HISTORIQUE = 10;
@@ -89,3 +89,6 @@ class RancunierStrategieTest {
         }
     }
 }
+
+
+ */

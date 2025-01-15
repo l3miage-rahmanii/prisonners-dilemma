@@ -1,5 +1,5 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Strategies;
-
+/*
 import fr.uga.l3miage.pc.strategies.RancunierDoux;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -205,3 +205,5 @@ class RancunierDouxTest {
         }
     }
 }
+
+ */

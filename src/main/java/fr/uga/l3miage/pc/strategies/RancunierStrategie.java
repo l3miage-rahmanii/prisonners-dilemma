@@ -1,5 +1,5 @@
 package fr.uga.l3miage.pc.strategies;
-
+/*
 public class RancunierStrategie implements Strategie {
     private int index;
     private String[] historique;
@@ -17,3 +17,6 @@ public class RancunierStrategie implements Strategie {
         historique[index++] = coupAdversaire;
     }
 }
+
+
+ */

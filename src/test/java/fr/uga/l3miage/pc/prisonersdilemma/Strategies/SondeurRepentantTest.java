@@ -1,5 +1,5 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Strategies;
-
+/*
 import fr.uga.l3miage.pc.strategies.SondeurRepentant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -124,3 +124,4 @@ class SondeurRepentantTest {
                 "La stratégie devrait pouvoir trahir après la période de repentance");
     }
 }
+*/

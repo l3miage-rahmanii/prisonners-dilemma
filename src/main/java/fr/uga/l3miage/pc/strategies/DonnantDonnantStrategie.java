@@ -1,28 +1,17 @@
 package fr.uga.l3miage.pc.strategies;
 
-public class DonnantDonnantStrategie implements Strategie {
+import fr.uga.l3miage.pc.enums.CoupEnum;
+
+import java.util.List;
+
+
+public class DonnantDonnantStrategie extends Strategie {
     private int index;
-    private String[] historique;
+    private CoupEnum coup;
 
-    public DonnantDonnantStrategie(String[] historique) {
-        this.historique = historique;
-        this.index = 0;
+    public CoupEnum prochainCoup(List<CoupEnum> historiqueAdversaire) {
+        return historiqueAdversaire.get(historiqueAdversaire.size() - 1);
     }
 
-    public String prochainCoup() {
-        return index == 0 ? "c" : historique[index - 1];
-    }
-
-    public void miseAJourDernierCoupAdversaire(String coupAdversaire) {
-        historique[index++] = coupAdversaire;
-    }
-
-    public int getIndex() {
-        return index;
-    }
-
-    public String[] getHistorique() {
-        return historique;
-    }
 
 }

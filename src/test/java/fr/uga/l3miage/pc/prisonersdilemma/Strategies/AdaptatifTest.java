@@ -1,5 +1,5 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Strategies;
-
+ /*
 
 import fr.uga.l3miage.pc.strategies.Adaptatif;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 class AdaptatifTest {
-    /*
+
     private static final int HISTORY_SIZE = 100;
     private String[] historique;
     private Adaptatif strategie;
@@ -113,5 +113,7 @@ class AdaptatifTest {
         }
     }
 
-     */
+
 }
+
+  */

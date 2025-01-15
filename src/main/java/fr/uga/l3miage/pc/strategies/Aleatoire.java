@@ -2,18 +2,22 @@ package fr.uga.l3miage.pc.strategies;
 
 
 
-import java.security.SecureRandom;
+import fr.uga.l3miage.pc.enums.CoupEnum;
 
-public class Aleatoire implements Strategie {
+import java.security.SecureRandom;
+import java.util.List;
+
+public class Aleatoire extends Strategie {
     private final SecureRandom secureRandom;
+    private CoupEnum coup;
 
     public Aleatoire() {
         this.secureRandom = new SecureRandom();
     }
 
     @Override
-    public String prochainCoup() {
-        return secureRandom.nextBoolean() ? "c" : "t";
+    public CoupEnum prochainCoup(List<CoupEnum> historiqueAdversaire) {
+        return secureRandom.nextBoolean() ? coup.COOPERER: coup.TRAHIR;
     }
 }
 

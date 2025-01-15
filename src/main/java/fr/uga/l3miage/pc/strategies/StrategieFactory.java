@@ -1,5 +1,5 @@
 package fr.uga.l3miage.pc.strategies;
-
+/*
 import fr.uga.l3miage.pc.enums.StrategieEnum;
 
 public class StrategieFactory {
@@ -50,3 +50,6 @@ public class StrategieFactory {
         }
     }
 }
+
+
+ */

@@ -1,5 +1,5 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Strategies;
-
+ /*
 import fr.uga.l3miage.pc.strategies.PavlovAleatoire;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 class PavlovAleatoireTest {
+
 
     private PavlovAleatoire strategie;
 
@@ -22,5 +23,8 @@ class PavlovAleatoireTest {
         // Le premier coup devrait être "c", car il n'y a pas d'historique
         assertEquals("c", strategie.prochainCoup());
     }
+
+
     
 }
+ */

@@ -1,28 +1,24 @@
 package fr.uga.l3miage.pc.strategies;
 
+import fr.uga.l3miage.pc.enums.CoupEnum;
+
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.Random;
 
-public class PacificateurNaif implements Strategie {
-    private String[] historique;
-    private int index;
+public class PacificateurNaif extends Strategie {
     private Random random;
+    private CoupEnum coup;
 
-    public PacificateurNaif(String[] historique) {
-        this.historique = historique;
-        this.index = 0;
+    public PacificateurNaif() {
         this.random = new SecureRandom();
     }
 
     @Override
-    public String prochainCoup() {
+    public CoupEnum prochainCoup(List<CoupEnum> historiqueAdversaire) {
         if (random.nextDouble() < 0.1) { // 10% de chance de coopérer pour apaiser
-            return "c";
+            return coup.COOPERER;
         }
-        return index > 0 && historique[index - 1].equals("t") ? "t" : "c";
-    }
-
-    public void miseAJourDernierCoupAdversaire(String coupAdversaire) {
-        historique[index++] = coupAdversaire;
+        return  historiqueAdversaire.get(historiqueAdversaire.size() - 1);
     }
 }

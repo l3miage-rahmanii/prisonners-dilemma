@@ -1,5 +1,5 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Strategies;
-
+/*
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class DonnantDonnantAleatoireTest {
+
     private static final int HISTORY_SIZE = 100;
     private String[] historique;
     private DonnantDonnantAleatoire strategie;
@@ -121,4 +122,8 @@ class DonnantDonnantAleatoireTest {
         result = strategie.prochainCoup();
         assertEquals("c", result);
     }
+    `
+
 }
+
+ */

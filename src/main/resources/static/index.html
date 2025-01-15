@@ -80,42 +80,105 @@
 <body>
 <h1>Dilemme du Prisonnier</h1>
 
-<!-- Score Section -->
-<div id="score-container">
-    <h2>Score</h2>
-    <div id="score" hx-get="/api/joueurs/1" hx-trigger="load" hx-target="#score" hx-swap="innerHTML">
-        0 <!-- Score initial -->
+<!-- Connexion Section -->
+<div id="connection-container" class="container">
+    <h2>Connexion</h2>
+    <div id="game-options">
+        <button hx-post="/api/parties/creer"
+                hx-target="#game-container"
+                hx-swap="innerHTML">
+            Créer une partie
+        </button>
+        <div>
+            <button hx-post="/api/parties/rejoindre"
+                    hx-target="#game-container"
+                    hx-swap="innerHTML"
+                    hx-include="[name='partieId']">
+                Rejoindre une partie
+            </button>
+        </div>
     </div>
 </div>
 
-<!-- Message Section -->
-<div id="message-container">
-    <h2>Message</h2>
-    <div id="message">Bienvenue au jeu !</div>
+<!-- Game Section -->
+<div id="game-container" class="container" style="display: none;">
+    <div id="status-container">
+        <h2>Statut de la partie</h2>
+        <div id="status"
+             hx-get="/api/parties/status"
+             hx-trigger="load, every 2s"
+             hx-target="#status">
+            En attente...
+        </div>
+    </div>
+
+    <div id="score-container">
+        <h2>Score</h2>
+        <div id="score"
+             hx-get="/api/parties/{partieId}/joueurs/{joueurId}/score"
+             hx-trigger="load, every 2s"
+             hx-target="#score">
+            0
+        </div>
+    </div>
+
+    <div id="message-container">
+        <h2>Message</h2>
+        <div id="message"
+             hx-get="/api/parties/{partieId}/messages"
+             hx-trigger="load, every 2s"
+             hx-target="#message">
+            En attente du début de la partie...
+        </div>
+    </div>
+
+    <div id="actions" style="display: none;">
+        <button hx-post="/api/parties/{partieId}/joueurs/{joueurId}/coup?coup=cooperer"
+                hx-target="#message">
+            Coopérer
+        </button>
+        <button hx-post="/api/parties/{partieId}/joueurs/{joueurId}/coup?coup=trahir"
+                hx-target="#message">
+            Trahir
+        </button>
+        <button hx-post="/api/parties/{partieId}/joueurs/{joueurId}/coup?coup=abandonner"
+                hx-target="#message">
+            Abandonner
+        </button>
+    </div>
 </div>
 
-<!-- Action Buttons -->
-<div id="actions">
-    <button hx-post="/api/parties/1/joueurs/1/coup?coup=cooperer"
-            hx-target="#message"
-            hx-swap="innerHTML">
-        Coopérer
-    </button>
-    <button hx-post="/api/parties/1/joueurs/1/coup?coup=trahir"
-            hx-target="#message"
-            hx-swap="innerHTML">
-        Trahir
-    </button>
-    <button hx-post="/api/parties/1/joueurs/1/coup?coup=abandonner"
-            hx-target="#message"
-            hx-swap="innerHTML">
-        Abandonner
-    </button>
-    <button hx-post="/api/parties/1/joueurs/1/coup?coup=reinitialiser"
-            hx-target="#message"
-            hx-swap="innerHTML">
-        Réinitialiser
-    </button>
-</div>
+<script>
+    document.body.addEventListener('htmx:afterSettle', function(evt) {
+        // Stockage des IDs dans le localStorage
+        if (evt.detail.path && evt.detail.path.includes('/parties/creer')) {
+            const response = JSON.parse(evt.detail.xhr.response);
+            localStorage.setItem('partieId', response.id);
+            localStorage.setItem('joueurId', response.idJoueur1);
+        }
+        if (evt.detail.path && evt.detail.path.includes('/parties/rejoindre')) {
+            const response = JSON.parse(evt.detail.xhr.response);
+            localStorage.setItem('partieId', response.id);
+            localStorage.setItem('joueurId', response.idJoueur2);
+        }
+
+        // Mise à jour des URLs avec les IDs corrects
+        updateUrls();
+    });
+
+    function updateUrls() {
+        const partieId = localStorage.getItem('partieId');
+        const joueurId = localStorage.getItem('joueurId');
+
+        if (partieId && joueurId) {
+            document.querySelectorAll('[hx-get], [hx-post]').forEach(el => {
+                el.setAttribute('hx-get', el.getAttribute('hx-get')?.replace('{partieId}', partieId));
+                el.setAttribute('hx-post', el.getAttribute('hx-post')?.replace('{partieId}', partieId));
+                el.setAttribute('hx-get', el.getAttribute('hx-get')?.replace('{joueurId}', joueurId));
+                el.setAttribute('hx-post', el.getAttribute('hx-post')?.replace('{joueurId}', joueurId));
+            });
+        }
+    }
+</script>
 </body>
 </html>

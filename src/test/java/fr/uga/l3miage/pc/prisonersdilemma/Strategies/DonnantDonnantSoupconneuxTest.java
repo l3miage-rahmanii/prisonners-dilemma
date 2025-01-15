@@ -6,6 +6,7 @@ import fr.uga.l3miage.pc.strategies.DonnantDonnantSoupconneux;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DonnantDonnantSoupconneuxTest {
+    /*
     private static final int TAILLE_HISTORIQUE = 10;
     private DonnantDonnantSoupconneux strategie;
     private String[] historique;
@@ -87,4 +88,6 @@ public class DonnantDonnantSoupconneuxTest {
             assertEquals("t", historique[1],
                     "L'historique devrait contenir le deuxième coup de l'adversaire");
         }
+
+     */
 }

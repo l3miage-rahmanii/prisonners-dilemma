@@ -1,20 +1,15 @@
 package fr.uga.l3miage.pc.strategies;
 
+import fr.uga.l3miage.pc.enums.CoupEnum;
+
+import java.util.List;
+
 public class DonnantPourDeuxDonnants extends DonnantDonnantStrategie {
-
-    public DonnantPourDeuxDonnants(String[] historique) {
-        super(historique);
-    }
-
     @Override
-    public String prochainCoup() {
-        int index = getIndex();
-        String[] historique = getHistorique();
-
-
-        if (index >= 2 && historique[index - 1].equals("t") && historique[index - 2].equals("t")) {
-            return "t";
+    public CoupEnum prochainCoup(List<CoupEnum> historiqueAdversaire) {
+        if (historiqueAdversaire.get(historiqueAdversaire.size() - 1)== historiqueAdversaire.get(historiqueAdversaire.size() - 2)) {
+            return historiqueAdversaire.get(historiqueAdversaire.size() - 1);
         }
-        return "c";
+        return historiqueAdversaire.get(historiqueAdversaire.size() - 2);
     }
 }

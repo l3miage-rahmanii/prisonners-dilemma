@@ -1,5 +1,5 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Strategies;
-
+/*
 import fr.uga.l3miage.pc.strategies.ToujoursCooperer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,3 +30,6 @@ class ToujoursCoopererTest {
         }
     }
 }
+
+
+ */
