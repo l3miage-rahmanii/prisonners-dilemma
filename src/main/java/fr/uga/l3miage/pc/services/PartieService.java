@@ -21,6 +21,7 @@
     @RequiredArgsConstructor
     public class PartieService {
         private final PartieMapper partieMapper;
+        private final PartieComponent partieComponent;
         private final PartieRepository partieRepository;
         private final JoueurService joueurService;
         private String partieNonTrouve = "Partie non trouvée";

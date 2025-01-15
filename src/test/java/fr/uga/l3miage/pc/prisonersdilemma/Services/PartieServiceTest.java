@@ -42,8 +42,7 @@ class PartieServiceTest {
     @Mock
     private PartieMapper partieMapper;
 
-    @Mock
-    private PartieComponent partieComponent;
+    PartieEntity partie;
 
     @Mock
     private PartieRepository partieRepository;
