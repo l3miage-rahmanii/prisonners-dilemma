@@ -105,7 +105,32 @@
         }
     }
 
-    let globalScore = 0;  // Move score to global scope
+    // Move score to global scope
+
+    function setupGameActions(joueurId) {
+        const actionButtons = document.querySelectorAll('.game-action');
+
+        actionButtons.forEach(button => {
+            button.removeEventListener('click', () => {});  // Enlever les anciens listeners
+            button.addEventListener('click', async () => {
+                const coup = button.dataset.coup;
+
+                try {
+                    const response = await fetch(`/api/parties/joueurs/${joueurId}/coup?coup=${coup}`, {
+                        method: 'POST'
+                    });
+
+                    if (response.ok) {
+                        // Attendre la mise à jour du score
+                        await updateScore(joueurId);
+                        console.log(`Coup ${coup} joué`);
+                    }
+                } catch (error) {
+                    console.error(`Error playing coup ${coup}:`, error);
+                }
+            });
+        });
+    }
 
     function startGamePolling(joueurId) {
         setInterval(() => {
@@ -114,14 +139,13 @@
                 fetch(`/api/parties/joueurs/${joueurId}/score`).then(response => response.json())
             ])
                 .then(([statusText, currentScore]) => {
-                    globalScore = currentScore;  // Update global score
                     const gameContent = document.getElementById("game-content");
                     if (gameContent) {
                         gameContent.innerHTML = `
                     <h2>Informations de la Partie</h2>
                     <div id="player-info">
                         <p>${statusText}</p>
-                        <p id="please-score">Score actuel: ${globalScore}</p>
+                        <p id="please-score">Score actuel: ${currentScore}</p>
                     </div>
                     <div id="actions">
                         <button class="game-action" data-coup="cooperer">Coopérer</button>
@@ -140,40 +164,16 @@
         return fetch(`/api/parties/joueurs/${joueurId}/score`)
             .then(response => response.json())
             .then(newScore => {
-                globalScore = newScore;
                 const scoreElement = document.getElementById('please-score');
                 if (scoreElement) {
-                    scoreElement.textContent = `Score actuel: ${globalScore}`;
+                    scoreElement.textContent = `Score actuel: ${newScore}`;
                 }
-                return globalScore;
+                return newScore;
             })
             .catch(error => {
                 console.error('Error updating score:', error);
-                return globalScore;
+                return null;
             });
-    }
-
-    function setupGameActions(joueurId) {
-        const actionButtons = document.querySelectorAll('.game-action');
-
-        actionButtons.forEach(button => {
-            button.addEventListener('click', async () => {
-                const coup = button.dataset.coup;
-
-                try {
-                    const response = await fetch(`/api/parties/joueurs/${joueurId}/coup?coup=${coup}`, {
-                        method: 'POST'
-                    });
-
-                    if (response.ok) {
-                        const newScore = await updateScore(joueurId);
-                        console.log(`Coup ${coup} joué. New score: ${newScore}`);
-                    }
-                } catch (error) {
-                    console.error(`Error playing coup ${coup}:`, error);
-                }
-            });
-        });
     }
     function createGame(){
         setMyVariable(true);
