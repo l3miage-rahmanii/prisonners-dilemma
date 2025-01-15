@@ -6,46 +6,85 @@
     <title>Dilemme du Prisonnier</title>
     <script src="https://unpkg.com/htmx.org"></script>
     <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <style>
         .hidden {
             display: none;
         }
-        .container {
-            margin: 20px;
+
+        .game-container {
+            background: linear-gradient(135deg, #f6f8fc 0%, #e9edf5 100%);
+            min-height: 100vh;
+        }
+
+        .button-primary {
+            background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .button-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+        }
+
+        .button-secondary {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .button-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
+        }
+
+        .button-neutral {
+            background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .button-neutral:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(107, 114, 128, 0.2);
+        }
+
+        .game-info-card {
+            backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
     </style>
 </head>
-<body>
-<h1>Dilemme du Prisonnier</h1>
+<body class="game-container">
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold text-center mb-12 text-gray-800">Dilemme du Prisonnier</h1>
 
-<!-- Connexion Section -->
-<div id="connection-container" class="container">
-    <h2>Connexion</h2>
-    <div id="game-options">
-        <button id="create-game-btn"
-                hx-post="/api/parties/creer"
-                hx-target="#game-content"
-                hx-swap="innerHTML"
-                hx-ext="json-enc"
-                hx-on:click="createGame()"
-        >
-            Créer une partie
-        </button>
-        <button id="join-game-btn"
-                hx-post="/api/parties/rejoindre"
-                hx-target="#game-content"
-                hx-swap="innerHTML"
-                hx-on:click="joinGame()"
-        >
-            Rejoindre une partie
-        </button>
+    <!-- Connection Section -->
+    <div id="connection-container" class="max-w-md mx-auto">
+        <h2 class="text-2xl font-semibold mb-8 text-center text-gray-700">Connexion</h2>
+        <div id="game-options" class="space-y-4">
+            <button id="create-game-btn"
+                    class="button-primary w-full py-3 px-6 rounded-lg text-white font-medium shadow-lg"
+                    hx-post="/api/parties/creer"
+                    hx-target="#game-content"
+                    hx-swap="innerHTML"
+                    hx-ext="json-enc"
+                    hx-on:click="createGame()">
+                Créer une partie
+            </button>
+            <button id="join-game-btn"
+                    class="button-secondary w-full py-3 px-6 rounded-lg text-white font-medium shadow-lg"
+                    hx-post="/api/parties/rejoindre"
+                    hx-target="#game-content"
+                    hx-swap="innerHTML"
+                    hx-on:click="joinGame()">
+                Rejoindre une partie
+            </button>
+        </div>
     </div>
-</div>
 
-<!-- Game Section -->
-<div id="game-container" class="container">
-    <div id="game-content">
-        <!-- This div will be populated by HTMX -->
+    <!-- Game Section -->
+    <div id="game-container" class="max-w-xl mx-auto mt-8">
+        <div id="game-content" class="game-info-card rounded-xl p-8 shadow-xl"></div>
     </div>
 </div>
 
@@ -56,7 +95,6 @@
         try {
             const response = JSON.parse(event.detail.xhr.responseText);
 
-            // Set player ID based on which button was clicked
             if (event.detail.requestConfig.elt.id === "create-game-btn") {
                 joueurId = response.idJoueur1;
             } else if (event.detail.requestConfig.elt.id === "join-game-btn") {
@@ -64,27 +102,25 @@
             }
 
             if (joueurId) {
-                // Hide connection container
                 document.getElementById("connection-container").classList.add("hidden");
 
-                // Update game content
                 const gameContent = `
-                        <h2>Informations de la Partie</h2>
-                        <div id="player-info">
-                            <p>Pipi Popo</p>
-                            <p>Score : <span id="player-score">0</span></p>
-                            <p>Tours Restants : <span id="remaining-turns">10</span></p>
+                    <div class="space-y-6">
+                        <h2 class="text-2xl font-semibold text-gray-800 mb-6">Informations de la Partie</h2>
+                        <div id="player-info" class="space-y-3">
+                            <p class="text-lg text-gray-700">Joueur ${joueurId}</p>
+                            <p class="text-lg text-gray-700">Tours Restants : <span id="remaining-turns" class="font-semibold">10</span></p>
                         </div>
-                        <div id="actions">
-                            <button class="game-action" data-action="cooperer">Coopérer</button>
-                            <button class="game-action" data-action="trahir">Trahir</button>
-                            <button class="game-action" data-action="abandonner">Abandonner</button>
+                        <div id="actions" class="grid grid-cols-2 gap-4 mt-8">
+                            <button class="game-action button-primary py-3 px-6 rounded-lg text-white font-medium" data-action="cooperer">Coopérer</button>
+                            <button class="game-action button-secondary py-3 px-6 rounded-lg text-white font-medium" data-action="trahir">Trahir</button>
+                            <button class="game-action button-neutral py-3 px-6 rounded-lg text-white font-medium col-span-2" data-action="abandonner">Abandonner</button>
                         </div>
-                    `;
+                    </div>
+                `;
 
                 document.getElementById("game-content").innerHTML = gameContent;
 
-                // Setup game actions and start polling
                 setupGameActions(joueurId);
                 startGamePolling(joueurId);
                 updatePlayerInfo(response);
@@ -105,7 +141,7 @@
         }
     }
 
-    let globalScore = 0;  // Move score to global scope
+    let globalScore = 0;
 
     function startGamePolling(joueurId) {
         setInterval(() => {
@@ -114,21 +150,23 @@
                 fetch(`/api/parties/joueurs/${joueurId}/score`).then(response => response.json())
             ])
                 .then(([statusText, currentScore]) => {
-                    globalScore = currentScore;  // Update global score
+                    globalScore = currentScore;
                     const gameContent = document.getElementById("game-content");
                     if (gameContent) {
                         gameContent.innerHTML = `
-                    <h2>Informations de la Partie</h2>
-                    <div id="player-info">
-                        <p>${statusText}</p>
-                        <p id="please-score">Score actuel: ${globalScore}</p>
-                    </div>
-                    <div id="actions">
-                        <button class="game-action" data-coup="cooperer">Coopérer</button>
-                        <button class="game-action" data-coup="trahir">Trahir</button>
-                        <button class="game-action" data-coup="abandonner">Abandonner</button>
-                    </div>
-                `;
+                            <div class="space-y-6">
+                                <h2 class="text-2xl font-semibold text-gray-800 mb-6">Informations de la Partie</h2>
+                                <div id="player-info" class="space-y-3">
+                                    <p class="text-lg text-gray-700">${statusText}</p>
+                                    <p id="please-score" class="text-lg font-semibold text-gray-800">Score actuel: ${globalScore}</p>
+                                </div>
+                                <div id="actions" class="grid grid-cols-2 gap-4 mt-8">
+                                    <button class="game-action button-primary py-3 px-6 rounded-lg text-white font-medium" data-coup="cooperer">Coopérer</button>
+                                    <button class="game-action button-secondary py-3 px-6 rounded-lg text-white font-medium" data-coup="trahir">Trahir</button>
+                                    <button class="game-action button-neutral py-3 px-6 rounded-lg text-white font-medium col-span-2" data-coup="abandonner">Abandonner</button>
+                                </div>
+                            </div>
+                        `;
                         setupGameActions(joueurId);
                     }
                 })
@@ -175,22 +213,22 @@
             });
         });
     }
-    function createGame(){
+
+    function createGame() {
         setMyVariable(true);
     }
-    function joinGame(){
+
+    function joinGame() {
         setMyVariable(false);
     }
-    // Store a value
+
     function setMyVariable(value) {
         localStorage.setItem('isPlayer1', value);
     }
 
-    // Get the value
     function getMyVariable() {
         return localStorage.getItem('isPlayer1');
     }
-
 </script>
 </body>
 </html>

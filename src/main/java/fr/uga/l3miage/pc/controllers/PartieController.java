@@ -27,21 +27,21 @@ public class PartieController {
             @PathVariable int joueurId,
             @RequestParam String coup) {
 
-            CoupEnum coupEnum = CoupEnum.COOPERER;
-            // Normalize the move
-            switch(coup.toLowerCase()) {
-                case "cooperer":
-                    coupEnum = CoupEnum.COOPERER;
-                    break;
-                case "trahir":
-                    coupEnum = CoupEnum.TRAHIR;
-                    break;
-                case "abandonner":
-                    coupEnum = CoupEnum.ABANDONNER;
-            }
+        CoupEnum coupEnum = CoupEnum.COOPERER;
+        // Normalize the move
+        switch(coup.toLowerCase()) {
+            case "cooperer":
+                coupEnum = CoupEnum.COOPERER;
+                break;
+            case "trahir":
+                coupEnum = CoupEnum.TRAHIR;
+                break;
+            case "abandonner":
+                coupEnum = CoupEnum.ABANDONNER;
+                break;
+        }
 
-        return ResponseEntity.ok(partieService.jouerCoup(joueurId,coupEnum));
-
+        return ResponseEntity.ok(partieService.jouerCoup(joueurId, coupEnum));
     }
 
     @PostMapping("/parties/creer")
@@ -49,20 +49,9 @@ public class PartieController {
         return ResponseEntity.ok(partieService.creerPartie());
     }
 
-    /*
-    @PostMapping("/parties/{partieId}/joueurs/{joueurId}/strategie")
-    public ResponseEntity<PartieResponseDTO> changerStrategie(
-            @PathVariable Long partieId,
-            @PathVariable Long joueurId,
-            @RequestParam StrategieEnum strategie) {
-        return ResponseEntity.ok(partieService.changerStrategie(partieId, joueurId, strategie));
-    }
-
-     */
-
     @PostMapping("/parties/rejoindre")
     public ResponseEntity<PartieEntity> rejoindrePartie() {
-                    return ResponseEntity.ok(partieService.rejoindrePartie());
+        return ResponseEntity.ok(partieService.rejoindrePartie());
     }
 
     @GetMapping("/parties/status")
@@ -73,18 +62,16 @@ public class PartieController {
     @GetMapping("/parties/joueurs/{joueurId}/score")
     public ResponseEntity<Integer> getScore(
             @PathVariable int joueurId) {
-        return ResponseEntity.ok(partieService.calculerScores(joueurId));
-    }
-/*
-    @GetMapping("/parties/{partieId}/messages")
-    public ResponseEntity<String> getMessage(
-            @PathVariable Long partieId) {
-        return ResponseEntity.ok(partieService.getMessage(partieId));
+        return ResponseEntity.ok(partieService.getScore(joueurId));  // Changé de calculerScores à getScore
     }
 
-
- */
-
+    @GetMapping("/parties/joueurs/scores")
+    public String getScores() {
+        int score1 = partieService.getScore(1);  // Changé de calculerScores à getScore
+        int score2 = partieService.getScore(2);  // Changé de calculerScores à getScore
+        return String.format("""
+        <p class="text-lg font-semibold text-gray-800">Joueur 1: <span id="score-player1">%d</span></p>
+        <p class="text-lg font-semibold text-gray-800">Joueur 2: <span id="score-player2">%d</span></p>
+        """, score1, score2);
+    }
 }
-
-

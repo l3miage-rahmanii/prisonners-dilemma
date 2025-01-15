@@ -43,12 +43,48 @@
                     } else {
                         partie.getCoupsJoueur2().add(coup);
                     }
+                    // Si les deux joueurs ont joué, calculer les points pour ce tour
+                    if (partie.getCoupsJoueur1().size() == partie.getCoupsJoueur2().size()) {
+                        calculerScoresDuTour();
+                    }
                 }
 
                     if (partie.getCoupsJoueur2().size() >= partie.getNbTours()) {
                         terminerPartie(partie);
                     }
                 return partieMapper.toResponse(partie);
+            }
+
+            private void calculerScoresDuTour() {
+                int dernierIndex = partie.getCoupsJoueur1().size() - 1;
+                CoupEnum coupJ1 = partie.getCoupsJoueur1().get(dernierIndex);
+                CoupEnum coupJ2 = partie.getCoupsJoueur2().get(dernierIndex);
+
+                // Points constants
+                final int COOPERATION_MUTUELLE = 3;
+                final int TRAHISON_MUTUELLE = 1;
+                final int TRAHISON_REUSSIE = 5;
+                final int COOPERATION_TRAHIE = 0;
+
+                // Calcul des points pour ce tour
+                int pointsJ1;
+                int pointsJ2;
+
+                if (coupJ1.equals(CoupEnum.COOPERER) && coupJ2.equals(CoupEnum.COOPERER)) {
+                    pointsJ1 = pointsJ2 = COOPERATION_MUTUELLE;
+                } else if (coupJ1.equals(CoupEnum.TRAHIR) && coupJ2.equals(CoupEnum.TRAHIR)) {
+                    pointsJ1 = pointsJ2 = TRAHISON_MUTUELLE;
+                } else if (coupJ1.equals(CoupEnum.TRAHIR) && coupJ2.equals(CoupEnum.COOPERER)) {
+                    pointsJ1 = TRAHISON_REUSSIE;
+                    pointsJ2 = COOPERATION_TRAHIE;
+                } else {
+                    pointsJ1 = COOPERATION_TRAHIE;
+                    pointsJ2 = TRAHISON_REUSSIE;
+                }
+
+                // Mise à jour des scores
+                partie.setScoreJoueur1(partie.getScoreJoueur1() + pointsJ1);
+                partie.setScoreJoueur2(partie.getScoreJoueur2() + pointsJ2);
             }
 
     /*
@@ -127,45 +163,16 @@
                 return status.toString();
             }
 
-            public int calculerScores(int joueurId) {
+            public int getScore(int joueurId) {
                 if (partie == null) {
                     return 0;
                 }
 
-                if (partie.getCoupsJoueur1().isEmpty() || partie.getCoupsJoueur2().isEmpty()) {
-                    return 0;
+                if (joueurId != partie.getIdJoueur1() && joueurId != partie.getIdJoueur2()) {
+                    throw new IllegalArgumentException("ID de joueur invalide");
                 }
-                    int dernierIndex = partie.getCoupsJoueur1().size() - 1;
-                    CoupEnum coupJ1 = partie.getCoupsJoueur1().get(dernierIndex);
-                    CoupEnum coupJ2 = partie.getCoupsJoueur2().get(dernierIndex);
 
-                    // Dilemme du prisonnier classique
-                    if (coupJ1.equals(CoupEnum.COOPERER) && coupJ2.equals(CoupEnum.COOPERER)) {
-                        // Coopération mutuelle
-                        partie.setScoreJoueur1(partie.getScoreJoueur1() + 3);
-                        partie.setScoreJoueur2(partie.getScoreJoueur2() + 3);
-                    } else if (coupJ1.equals(CoupEnum.TRAHIR) && coupJ2.equals(CoupEnum.TRAHIR)) {
-                        // Trahison mutuelle
-                        partie.setScoreJoueur1(partie.getScoreJoueur1() + 1);
-                        partie.setScoreJoueur2(partie.getScoreJoueur2() + 1);
-                    } else if (coupJ1.equals(CoupEnum.TRAHIR) && coupJ2.equals(CoupEnum.COOPERER)) {
-                        // J1 trahit, J2 coopère
-                        partie.setScoreJoueur1(partie.getScoreJoueur1() + 5);
-                        partie.setScoreJoueur2(partie.getScoreJoueur2() + 0);
-                    } else {
-                        // J1 coopère, J2 trahit
-                        partie.setScoreJoueur1(partie.getScoreJoueur1() + 0);
-                        partie.setScoreJoueur2(partie.getScoreJoueur2() + 5);
-                    }
-
-                    if (joueurId == partie.getIdJoueur1()) {
-                        System.out.println(partie.getScoreJoueur1());
-                        return partie.getScoreJoueur1();
-                    } else {
-                        System.out.println(partie.getScoreJoueur2());
-                        return partie.getScoreJoueur2();
-                    }
-
+                return joueurId == partie.getIdJoueur1() ? partie.getScoreJoueur1() : partie.getScoreJoueur2();
             }
 
             private void terminerPartie(PartieEntity partie) {
