@@ -111,7 +111,6 @@
         setInterval(() => {
                 fetch(`/api/parties/status`).then(response => response.text())
                 .then(statusText => {
-                    globalScore = currentScore;  // Update global score
                     const gameContent = document.getElementById("game-content");
                     if (gameContent) {
                         gameContent.innerHTML = `
