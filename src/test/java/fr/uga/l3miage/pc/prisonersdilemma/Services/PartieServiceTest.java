@@ -722,4 +722,79 @@ class PartieServiceTest {
         assertThrows(IllegalArgumentException.class, () -> partieService.getScore(3));
     }
 
+    @Test
+    void testAbandonner() {
+        // Given
+        partieService.partie = partieEntity;
+        partieEntity.setStatus("en_cours");
+
+        // When
+        PartieResponseDTO result = partieService.jouerCoup(JOUEUR1_ID, CoupEnum.ABANDONNER);
+
+        // Then
+        assertNull(result);
+    }
+
+    @Test
+    void testTerminerPartie() {
+        // Given
+        partieService.partie = partieEntity;
+        partieEntity.setStatus("en_cours");
+
+        // When
+        partieService.terminerPartie(partieEntity);
+
+        // Then
+        assertEquals("terminee", partieEntity.getStatus());
+    }
+
+    @Test
+    void testJouerCoupFinDePartie() {
+        // Given
+        partieService.partie = partieEntity;
+        partieEntity.setStatus("en_cours");
+        partieEntity.setNbTours(2);
+        when(partieMapper.toResponse(any())).thenReturn(new PartieResponseDTO());
+
+        // Premier tour
+        partieService.jouerCoup(JOUEUR1_ID, CoupEnum.COOPERER);
+        partieService.jouerCoup(JOUEUR2_ID, CoupEnum.COOPERER);
+
+        // Deuxième tour (dernier)
+        partieService.jouerCoup(JOUEUR1_ID, CoupEnum.COOPERER);
+
+        // When
+        PartieResponseDTO result = partieService.jouerCoup(JOUEUR2_ID, CoupEnum.COOPERER);
+
+        // Then
+        assertNotNull(result);
+        assertEquals("terminee", partieEntity.getStatus());
+    }
+
+    @Test
+    void testGetStatusEnAttente() {
+        // Given
+        partieService.partie = partieEntity;
+        partieEntity.setStatus("en_attente");
+
+        // When
+        String result = partieService.getStatus();
+
+        // Then
+        assertEquals("Statut: en_attente", result);
+    }
+
+    @Test
+    void testGetStatusTerminee() {
+        // Given
+        partieService.partie = partieEntity;
+        partieEntity.setStatus("terminee");
+
+        // When
+        String result = partieService.getStatus();
+
+        // Then
+        assertEquals("Statut: terminee", result);
+    }
+
 }
