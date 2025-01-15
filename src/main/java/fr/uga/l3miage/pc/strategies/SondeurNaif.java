@@ -6,8 +6,17 @@ import java.security.SecureRandom;
 import java.util.List;
 import java.util.Random;
 
+
 public class SondeurNaif extends Strategie {
+
     private Random random;
+    public Random getRandom() {
+        return random;
+    }
+
+    public void setRandom(Random random) {
+        this.random = random;
+    }
 
     public SondeurNaif() {
         this.random = new SecureRandom();

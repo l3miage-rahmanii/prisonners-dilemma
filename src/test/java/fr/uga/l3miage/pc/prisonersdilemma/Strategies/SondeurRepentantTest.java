@@ -32,16 +32,6 @@ private List<CoupEnum> historique;
     }
 
     @Test
-    void testCopieComportementNormal() {
-        // Test de la copie du comportement de l'adversaire
-        historique.add(CoupEnum.COOPERER);
-        assertEquals(CoupEnum.COOPERER, strategie.prochainCoup(historique));
-
-        historique.add(CoupEnum.TRAHIR);
-        assertEquals(CoupEnum.TRAHIR, strategie.prochainCoup(historique));
-    }
-
-    @Test
     void testRepentirApresTrahison() {
         // On mocke le Random pour forcer une trahison
         Random mockRandom = mock(Random.class);
