@@ -17,13 +17,15 @@ public class SondeurRepentant extends Strategie {
 
     @Override
     public CoupEnum prochainCoup(List<CoupEnum> historique) {
-        if (!historique.isEmpty()) {
-            CoupEnum dernierCoupAdversaire = historique.get(historique.size() - 1);
+        if (historique.isEmpty()) {
+            return CoupEnum.COOPERER;  // Coopérer par défaut si l'historique est vide
+        }
 
-            if (dernierCoupTest && dernierCoupAdversaire == CoupEnum.TRAHIR) {
-                dernierCoupTest = false;  // Réinitialiser après avoir coopéré par repentir
-                return CoupEnum.COOPERER;
-            }
+        CoupEnum dernierCoupAdversaire = historique.get(historique.size() - 1);
+
+        if (dernierCoupTest && dernierCoupAdversaire == CoupEnum.TRAHIR) {
+            dernierCoupTest = false;  // Réinitialiser après avoir coopéré par repentir
+            return CoupEnum.COOPERER;
         }
 
         if (random.nextDouble() < 0.1) {
@@ -32,6 +34,6 @@ public class SondeurRepentant extends Strategie {
         }
 
         dernierCoupTest = false;
-        return historique.isEmpty() ? historique.get(historique.size() - 1) : CoupEnum.COOPERER;
+        return dernierCoupAdversaire;
     }
 }
