@@ -65,4 +65,19 @@ class VraiPacificateurTest {
         CoupEnum resultat = vraiPacificateur.prochainCoup(historiqueAdversaire);
         assertEquals(CoupEnum.TRAHIR, resultat, "Should betray 80% of the time when the last two moves are TRAHIR.");
     }
+
+    @Test
+    void testProchainCoup_AllCooperate() {
+        List<CoupEnum> historiqueAdversaire = List.of(CoupEnum.COOPERER, CoupEnum.COOPERER, CoupEnum.COOPERER);
+        CoupEnum resultat = vraiPacificateur.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.COOPERER, resultat, "Should always cooperate if the adversary has always cooperated.");
+    }
+
+    @Test
+    void testProchainCoup_MixedButNoConsecutiveTrahir() {
+        List<CoupEnum> historiqueAdversaire = List.of(CoupEnum.COOPERER, CoupEnum.TRAHIR, CoupEnum.COOPERER, CoupEnum.TRAHIR);
+        CoupEnum resultat = vraiPacificateur.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.COOPERER, resultat, "Should cooperate if there are no two consecutive TRAHIR moves.");
+    }
+
 }
