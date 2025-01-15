@@ -1,94 +1,110 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Strategies;
 
-//import fr.uga.l3miage.pc.strategies.RancunierStrategie;
+import fr.uga.l3miage.pc.enums.CoupEnum;
+import fr.uga.l3miage.pc.strategies.RancunierStrategie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-/*
-class RancunierStrategieTest {
+import java.util.ArrayList;
+import java.util.List;
 
-    private static final int TAILLE_HISTORIQUE = 10;
+import static org.junit.jupiter.api.Assertions.*;
+
+class RancunierStrategieTest {
     private RancunierStrategie strategie;
-    private String[] historique;
+    private List<CoupEnum> historique;
 
     @BeforeEach
     void setUp() {
-        historique = new String[TAILLE_HISTORIQUE];
-        strategie = new RancunierStrategie(historique);
+        strategie = new RancunierStrategie();
+        historique = new ArrayList<>();
+        historique.add(CoupEnum.COOPERER);  // Initialisation pour éviter IndexOutOfBoundsException
     }
 
     @Test
-    void testPremierCoup() {
-        // Le premier coup devrait être une coopération
-        assertEquals("c", strategie.prochainCoup(),
-                "Le premier coup devrait être une coopération ('c')");
+    void testPremiereCooperation() {
+        // Vérifie que la stratégie commence par COOPERER si l'adversaire coopère
+        assertEquals(CoupEnum.COOPERER, strategie.prochainCoup(historique),
+            "Devrait COOPERER au début si l'adversaire coopère");
     }
 
     @Test
-    void testCooperationInitiale() {
-        // Test de plusieurs coups de coopération
-        for (int i = 0; i < 5; i++) {
-            assertEquals("c", strategie.prochainCoup(),
-                    "Devrait coopérer tant qu'il n'y a pas eu de trahison");
-            strategie.miseAJourDernierCoupAdversaire("c");
-        }
+    void testCooperationContinue() {
+        // Vérifie que la coopération continue tant que l'adversaire coopère
+        historique.add(CoupEnum.COOPERER);
+        historique.add(CoupEnum.COOPERER);
+        historique.add(CoupEnum.COOPERER);
+
+        assertEquals(CoupEnum.COOPERER, strategie.prochainCoup(historique),
+            "Devrait continuer à COOPERER tant que l'adversaire coopère");
     }
 
     @Test
     void testReactionTrahison() {
-        // Coopération initiale
-        strategie.prochainCoup();
-        // L'adversaire trahit
-        strategie.miseAJourDernierCoupAdversaire("t");
+        // Vérifie que la stratégie passe à TRAHIR après une trahison
+        historique.clear();
+        historique.add(CoupEnum.TRAHIR);
 
-        // Vérifie que la stratégie trahit en retour
-        assertEquals("t", strategie.prochainCoup(),
-                "Devrait trahir après une trahison de l'adversaire");
+        assertEquals(CoupEnum.TRAHIR, strategie.prochainCoup(historique),
+            "Devrait TRAHIR après une trahison de l'adversaire");
     }
 
     @Test
     void testRancunePermanente() {
-        // Coopération initiale suivie d'une trahison
-        strategie.prochainCoup();
-        strategie.miseAJourDernierCoupAdversaire("t");
+        // Vérifie que la stratégie continue de TRAHIR même si l'adversaire revient à COOPERER
+        historique.clear();
+        historique.add(CoupEnum.TRAHIR);  // Première trahison
+        strategie.prochainCoup(historique);  // Pour marquer la trahison
 
-        // Vérifie que la stratégie continue de trahir même si l'adversaire revient à la coopération
-        for (int i = 0; i < 5; i++) {
-            assertEquals("t", strategie.prochainCoup(),
-                    "Devrait continuer à trahir même après un retour à la coopération de l'adversaire");
-            strategie.miseAJourDernierCoupAdversaire("t");
-        }
-    }
+        historique.clear();
+        historique.add(CoupEnum.COOPERER);  // L'adversaire revient à COOPERER
 
+        assertEquals(CoupEnum.TRAHIR, strategie.prochainCoup(historique),
+            "Devrait continuer à TRAHIR même après un retour à la coopération");
 
-    @Test
-    void testDepassementHistorique() {
-        // Remplit l'historique jusqu'à sa limite
-        for (int i = 0; i < TAILLE_HISTORIQUE; i++) {
-            strategie.prochainCoup();
-            strategie.miseAJourDernierCoupAdversaire("c");
-        }
-
-        assertThrows(ArrayIndexOutOfBoundsException.class,
-                () -> strategie.miseAJourDernierCoupAdversaire("c"),
-                "Une exception devrait être levée lors du dépassement de l'historique");
+        // Vérifie sur plusieurs coups
+        historique.add(CoupEnum.COOPERER);
+        assertEquals(CoupEnum.TRAHIR, strategie.prochainCoup(historique),
+            "Devrait maintenir TRAHIR sur le long terme");
     }
 
     @Test
-    void testConsistanceHistorique() {
-        // Vérifie que l'historique est correctement mis à jour
-        String[] coups = {"c", "t", "c"};
+    void testSequenceComplexe() {
+        // Test d'une séquence complexe de coups
+        assertEquals(CoupEnum.COOPERER, strategie.prochainCoup(historique),
+            "Premier coup devrait être COOPERER");
 
-        for (int i = 0; i < coups.length; i++) {
-            strategie.prochainCoup();
-            strategie.miseAJourDernierCoupAdversaire(coups[i]);
-            assertEquals(coups[i], historique[i],
-                    "L'historique n'est pas correctement mis à jour à l'index " + i);
-        }
+        historique.clear();
+        historique.add(CoupEnum.COOPERER);
+        assertEquals(CoupEnum.COOPERER, strategie.prochainCoup(historique),
+            "Devrait continuer à COOPERER");
+
+        historique.clear();
+        historique.add(CoupEnum.TRAHIR);
+        assertEquals(CoupEnum.TRAHIR, strategie.prochainCoup(historique),
+            "Devrait passer à TRAHIR après trahison");
+
+        historique.clear();
+        historique.add(CoupEnum.COOPERER);
+        assertEquals(CoupEnum.TRAHIR, strategie.prochainCoup(historique),
+            "Devrait maintenir TRAHIR malgré la coopération");
+    }
+
+    @Test
+    void testEtatInitial() {
+        // Vérifie que l'état initial est correct
+        assertFalse(strategie.aTrahi,
+            "La variable aTrahi devrait être false au début");
+    }
+
+    @Test
+    void testChangementEtat() {
+        // Vérifie que l'état change correctement après une trahison
+        historique.clear();
+        historique.add(CoupEnum.TRAHIR);
+        strategie.prochainCoup(historique);
+
+        assertTrue(strategie.aTrahi,
+            "La variable aTrahi devrait être true après une trahison");
     }
 }
-
-
- */
