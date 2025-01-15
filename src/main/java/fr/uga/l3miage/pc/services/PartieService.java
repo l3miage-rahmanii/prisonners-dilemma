@@ -20,7 +20,7 @@
             private final PartieMapper partieMapper;
             private static final String EN_ATTENTE = "en_attente";
             private static final String EN_COURS = "en_cours";
-            private static final String TERMINEE = "terminée";
+            private static final String TERMINEE = "terminee";
             public PartieEntity partie;
 
             public PartieResponseDTO jouerCoup(int joueurId, CoupEnum coup) {
@@ -55,7 +55,7 @@
                 return partieMapper.toResponse(partie);
             }
 
-            private void calculerScoresDuTour() {
+            public void calculerScoresDuTour() {
                 int dernierIndex = partie.getCoupsJoueur1().size() - 1;
                 CoupEnum coupJ1 = partie.getCoupsJoueur1().get(dernierIndex);
                 CoupEnum coupJ2 = partie.getCoupsJoueur2().get(dernierIndex);
@@ -111,7 +111,7 @@
 
             public PartieEntity creerPartie() {
                 if(partie != null) {
-                        throw new BadRequestRestException("Une partie est déjà en cours.");
+                        throw new BadRequestRestException("Une partie est deja en cours.");
                 }
                 else {
                     partie = PartieEntity.builder()
@@ -136,7 +136,7 @@
             public PartieEntity rejoindrePartie() {
 
                 if (partie.getStatus().equals(EN_COURS)) {
-                    throw new BadRequestRestException("Une partie est déjà en cours");
+                    throw new BadRequestRestException("Une partie est deja en cours");
                 }
 
                 partie.setStatus(EN_COURS);
@@ -147,7 +147,7 @@
 
             public String getStatus() {
                 if (partie == null) {
-                    return "Aucune partie n'a été créée";
+                    return "Aucune partie n'a ete creee";
                 }
 
                 StringBuilder status = new StringBuilder();

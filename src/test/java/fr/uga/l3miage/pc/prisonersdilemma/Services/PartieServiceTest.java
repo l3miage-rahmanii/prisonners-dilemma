@@ -565,7 +565,7 @@ class PartieServiceTest {
         String result = partieService.getStatus();
 
         // Then
-        assertEquals("Aucune partie n'a été creee", result);
+        assertEquals("Aucune partie n'a ete creee", result);
     }
 
     @Test
@@ -584,14 +584,14 @@ class PartieServiceTest {
     }
 
     @Test
-    void calculerScores_DoubleCooperation() {
+    void calculerScoresDuTour_DoubleCooperation() {
         // Given
         partieService.partie = partieEntity;
         partieEntity.getCoupsJoueur1().add(CoupEnum.COOPERER);
         partieEntity.getCoupsJoueur2().add(CoupEnum.COOPERER);
 
         // When
-        int score = partieService.calculerScores(JOUEUR1_ID);
+        partieService.calculerScoresDuTour();
 
         // Then
         assertEquals(3, partieEntity.getScoreJoueur1());
@@ -599,14 +599,14 @@ class PartieServiceTest {
     }
 
     @Test
-    void calculerScores_DoubleTrahison() {
+    void calculerScoresDuTour_DoubleTrahison() {
         // Given
         partieService.partie = partieEntity;
         partieEntity.getCoupsJoueur1().add(CoupEnum.TRAHIR);
         partieEntity.getCoupsJoueur2().add(CoupEnum.TRAHIR);
 
         // When
-        int score = partieService.calculerScores(JOUEUR1_ID);
+        partieService.calculerScoresDuTour();
 
         // Then
         assertEquals(1, partieEntity.getScoreJoueur1());
@@ -614,14 +614,14 @@ class PartieServiceTest {
     }
 
     @Test
-    void calculerScores_J1TrahitJ2Coopere() {
+    void calculerScoresDuTour_J1TrahitJ2Coopere() {
         // Given
         partieService.partie = partieEntity;
         partieEntity.getCoupsJoueur1().add(CoupEnum.TRAHIR);
         partieEntity.getCoupsJoueur2().add(CoupEnum.COOPERER);
 
         // When
-        int scoreJ1 = partieService.calculerScores(JOUEUR1_ID);
+        partieService.calculerScoresDuTour();
 
         // Then
         assertEquals(5, partieEntity.getScoreJoueur1());
@@ -629,14 +629,14 @@ class PartieServiceTest {
     }
 
     @Test
-    void calculerScores_J1CoopereJ2Trahit() {
+    void calculerScoresDuTour_J1CoopereJ2Trahit() {
         // Given
         partieService.partie = partieEntity;
         partieEntity.getCoupsJoueur1().add(CoupEnum.COOPERER);
         partieEntity.getCoupsJoueur2().add(CoupEnum.TRAHIR);
 
         // When
-        int scoreJ1 = partieService.calculerScores(JOUEUR1_ID);
+        partieService.calculerScoresDuTour();
 
         // Then
         assertEquals(0, partieEntity.getScoreJoueur1());
@@ -644,26 +644,23 @@ class PartieServiceTest {
     }
 
     @Test
-    void calculerScores_PartieNull() {
-        // Given
-        partieService.partie = null;
-
-        // When
-        int score = partieService.calculerScores(JOUEUR1_ID);
-
-        // Then
-        assertEquals(0, score);
-    }
-
-    @Test
-    void calculerScores_AucunCoup() {
+    void calculerScoresDuTour_MultipleTours() {
         // Given
         partieService.partie = partieEntity;
+        // Premier tour: coopération mutuelle
+        partieEntity.getCoupsJoueur1().add(CoupEnum.COOPERER);
+        partieEntity.getCoupsJoueur2().add(CoupEnum.COOPERER);
+        partieService.calculerScoresDuTour();
+
+        // Deuxième tour: J1 trahit, J2 coopère
+        partieEntity.getCoupsJoueur1().add(CoupEnum.TRAHIR);
+        partieEntity.getCoupsJoueur2().add(CoupEnum.COOPERER);
 
         // When
-        int score = partieService.calculerScores(JOUEUR1_ID);
+        partieService.calculerScoresDuTour();
 
         // Then
-        assertEquals(0, score);
+        assertEquals(8, partieEntity.getScoreJoueur1()); // 3 + 5
+        assertEquals(3, partieEntity.getScoreJoueur2()); // 3 + 0
     }
 }
