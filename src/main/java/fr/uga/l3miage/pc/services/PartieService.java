@@ -6,7 +6,6 @@
     import fr.uga.l3miage.pc.enums.StrategieEnum;
     import fr.uga.l3miage.pc.exceptions.rest.BadRequestRestException;
     import fr.uga.l3miage.pc.exceptions.rest.NotFoundEntityRestException;
-    import fr.uga.l3miage.pc.mappers.JoueurMapper;
     import fr.uga.l3miage.pc.mappers.PartieMapper;
     import fr.uga.l3miage.pc.repositories.PartieRepository;
     import fr.uga.l3miage.pc.requests.PartieRequestDTO;
