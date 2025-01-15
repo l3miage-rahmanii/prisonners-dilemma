@@ -1,6 +1,11 @@
     package fr.uga.l3miage.pc.strategies;
 /*
-    public class Adaptatif implements Strategie {
+    import fr.uga.l3miage.pc.enums.CoupEnum;
+    import jdk.dynalink.linker.LinkerServices;
+
+    import java.util.List;
+
+    public class Adaptatif extends Strategie {
         private String[] historique;
         private int index;
         private int totalCoopScore;
@@ -19,8 +24,7 @@
             this.initialSequence = "cccccccttttt";
         }
 
-        @Override
-        public String prochainCoup() {
+        public CoupEnum prochainCoup(List<CoupEnum> historiqueAdversaire) {
             if (index < initialSequence.length()) {
                 return String.valueOf(initialSequence.charAt(index));
             }
@@ -38,5 +42,5 @@
             historique[index++] = coupAdversaire;
         }
     }
-    s
- */
+
+    */

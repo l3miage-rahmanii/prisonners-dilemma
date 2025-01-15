@@ -1,39 +1,37 @@
 package fr.uga.l3miage.pc.strategies;
-/*
+
+import fr.uga.l3miage.pc.enums.CoupEnum;
+
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.Random;
 
-public class SondeurRepentant implements Strategie {
-    private String[] historique;
-    private int index;
+public class SondeurRepentant extends Strategie {
     private Random random;
-    private boolean enRepentance;
+    private boolean dernierCoupTest;
 
-    public SondeurRepentant(String[] historique) {
-        this.historique = historique;
-        this.index = 0;
+    public SondeurRepentant() {
         this.random = new SecureRandom();
-        this.enRepentance = false;
+        this.dernierCoupTest = false;
     }
 
     @Override
-    public String prochainCoup() {
-        if (enRepentance) {
-            enRepentance = false;
-            return "c"; // Coopérer si en repentance
-        }
-        if (random.nextDouble() < 0.1) { // 10% chance de trahir pour tester
-            return "t";
-        }
-        return index > 0 && historique[index - 1].equals("t") ? "t" : "c";
-    }
+    public CoupEnum prochainCoup(List<CoupEnum> historique) {
+        if (historique.size() > 0) {
+            CoupEnum dernierCoupAdversaire = historique.get(historique.size() - 1);
 
-    public void miseAJourDernierCoupAdversaire(String coupAdversaire) {
-        if (coupAdversaire.equals("t")) {
-            enRepentance = true; // Si l'adversaire trahit, revenir à la coopération
+            if (dernierCoupTest && dernierCoupAdversaire == CoupEnum.TRAHIR) {
+                dernierCoupTest = false;  // Réinitialiser après avoir coopéré par repentir
+                return CoupEnum.COOPERER;
+            }
         }
-        historique[index++] = coupAdversaire;
+
+        if (random.nextDouble() < 0.1) {
+            dernierCoupTest = true;
+            return CoupEnum.TRAHIR;
+        }
+
+        dernierCoupTest = false;
+        return historique.size() > 0 ? historique.get(historique.size() - 1) : CoupEnum.COOPERER;
     }
 }
-
- */

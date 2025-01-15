@@ -1,12 +1,14 @@
 package fr.uga.l3miage.pc.strategies;
-/*
-public class ToujoursCooperer implements Strategie{
 
+import fr.uga.l3miage.pc.enums.CoupEnum;
 
-    public String prochainCoup() {
-        return "c";
+import java.util.List;
+
+public class ToujoursCooperer extends Strategie{
+
+    public CoupEnum prochainCoup(List<CoupEnum> coups) {
+        return CoupEnum.COOPERER;
     }
 }
 
 
- */
