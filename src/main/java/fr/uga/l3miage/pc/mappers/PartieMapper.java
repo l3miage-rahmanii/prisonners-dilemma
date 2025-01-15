@@ -7,7 +7,5 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface PartieMapper {
-
     PartieResponseDTO toResponse(PartieEntity entity);
-
 }

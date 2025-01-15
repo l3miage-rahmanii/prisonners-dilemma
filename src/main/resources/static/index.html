@@ -1,79 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:hx-on="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dilemme du Prisonnier</title>
     <script src="https://unpkg.com/htmx.org"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .hidden {
+            display: none;
         }
-
-        h1 {
-            margin-top: 20px;
-            color: #444;
-        }
-
-        #score-container, #message-container {
-            margin: 20px 0;
-            text-align: center;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            max-width: 600px;
-        }
-
-        #score {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #0078d4;
-        }
-
-        #message {
-            font-size: 1.2rem;
-            color: #444;
-        }
-
-        #actions {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        button {
-            background-color: #0078d4;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 20px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #005ea6;
-        }
-
-        button:active {
-            background-color: #003e70;
-        }
-
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
+        .container {
+            margin: 20px;
         }
     </style>
 </head>
@@ -84,101 +22,175 @@
 <div id="connection-container" class="container">
     <h2>Connexion</h2>
     <div id="game-options">
-        <button hx-post="/api/parties/creer"
-                hx-target="#game-container"
-                hx-swap="innerHTML">
+        <button id="create-game-btn"
+                hx-post="/api/parties/creer"
+                hx-target="#game-content"
+                hx-swap="innerHTML"
+                hx-ext="json-enc"
+                hx-on:click="createGame()"
+        >
             Créer une partie
         </button>
-        <div>
-            <button hx-post="/api/parties/rejoindre"
-                    hx-target="#game-container"
-                    hx-swap="innerHTML"
-                    hx-include="[name='partieId']">
-                Rejoindre une partie
-            </button>
-        </div>
+        <button id="join-game-btn"
+                hx-post="/api/parties/rejoindre"
+                hx-target="#game-content"
+                hx-swap="innerHTML"
+                hx-on:click="joinGame()"
+        >
+            Rejoindre une partie
+        </button>
     </div>
 </div>
 
 <!-- Game Section -->
-<div id="game-container" class="container" style="display: none;">
-    <div id="status-container">
-        <h2>Statut de la partie</h2>
-        <div id="status"
-             hx-get="/api/parties/status"
-             hx-trigger="load, every 2s"
-             hx-target="#status">
-            En attente...
-        </div>
-    </div>
-
-    <div id="score-container">
-        <h2>Score</h2>
-        <div id="score"
-             hx-get="/api/parties/{partieId}/joueurs/{joueurId}/score"
-             hx-trigger="load, every 2s"
-             hx-target="#score">
-            0
-        </div>
-    </div>
-
-    <div id="message-container">
-        <h2>Message</h2>
-        <div id="message"
-             hx-get="/api/parties/{partieId}/messages"
-             hx-trigger="load, every 2s"
-             hx-target="#message">
-            En attente du début de la partie...
-        </div>
-    </div>
-
-    <div id="actions" style="display: none;">
-        <button hx-post="/api/parties/{partieId}/joueurs/{joueurId}/coup?coup=cooperer"
-                hx-target="#message">
-            Coopérer
-        </button>
-        <button hx-post="/api/parties/{partieId}/joueurs/{joueurId}/coup?coup=trahir"
-                hx-target="#message">
-            Trahir
-        </button>
-        <button hx-post="/api/parties/{partieId}/joueurs/{joueurId}/coup?coup=abandonner"
-                hx-target="#message">
-            Abandonner
-        </button>
+<div id="game-container" class="container">
+    <div id="game-content">
+        <!-- This div will be populated by HTMX -->
     </div>
 </div>
 
 <script>
-    document.body.addEventListener('htmx:afterSettle', function(evt) {
-        // Stockage des IDs dans le localStorage
-        if (evt.detail.path && evt.detail.path.includes('/parties/creer')) {
-            const response = JSON.parse(evt.detail.xhr.response);
-            localStorage.setItem('partieId', response.id);
-            localStorage.setItem('joueurId', response.idJoueur1);
-        }
-        if (evt.detail.path && evt.detail.path.includes('/parties/rejoindre')) {
-            const response = JSON.parse(evt.detail.xhr.response);
-            localStorage.setItem('partieId', response.id);
-            localStorage.setItem('joueurId', response.idJoueur2);
-        }
+    let joueurId = null;
 
-        // Mise à jour des URLs avec les IDs corrects
-        updateUrls();
+    document.body.addEventListener('htmx:afterOnLoad', function(event) {
+        try {
+            const response = JSON.parse(event.detail.xhr.responseText);
+
+            // Set player ID based on which button was clicked
+            if (event.detail.requestConfig.elt.id === "create-game-btn") {
+                joueurId = response.idJoueur1;
+            } else if (event.detail.requestConfig.elt.id === "join-game-btn") {
+                joueurId = response.idJoueur2;
+            }
+
+            if (joueurId) {
+                // Hide connection container
+                document.getElementById("connection-container").classList.add("hidden");
+
+                // Update game content
+                const gameContent = `
+                        <h2>Informations de la Partie</h2>
+                        <div id="player-info">
+                            <p>Pipi Popo</p>
+                            <p>Score : <span id="player-score">0</span></p>
+                            <p>Tours Restants : <span id="remaining-turns">10</span></p>
+                        </div>
+                        <div id="actions">
+                            <button class="game-action" data-action="cooperer">Coopérer</button>
+                            <button class="game-action" data-action="trahir">Trahir</button>
+                            <button class="game-action" data-action="abandonner">Abandonner</button>
+                        </div>
+                    `;
+
+                document.getElementById("game-content").innerHTML = gameContent;
+
+                // Setup game actions and start polling
+                setupGameActions(joueurId);
+                startGamePolling(joueurId);
+                updatePlayerInfo(response);
+            }
+        } catch (error) {
+            console.error('Error processing response:', error);
+        }
     });
 
-    function updateUrls() {
-        const partieId = localStorage.getItem('partieId');
-        const joueurId = localStorage.getItem('joueurId');
+    function updatePlayerInfo(gameInfo) {
+        const playerScoreElement = document.getElementById("player-score");
+        const remainingTurnsElement = document.getElementById("remaining-turns");
 
-        if (partieId && joueurId) {
-            document.querySelectorAll('[hx-get], [hx-post]').forEach(el => {
-                el.setAttribute('hx-get', el.getAttribute('hx-get')?.replace('{partieId}', partieId));
-                el.setAttribute('hx-post', el.getAttribute('hx-post')?.replace('{partieId}', partieId));
-                el.setAttribute('hx-get', el.getAttribute('hx-get')?.replace('{joueurId}', joueurId));
-                el.setAttribute('hx-post', el.getAttribute('hx-post')?.replace('{joueurId}', joueurId));
-            });
+        if (playerScoreElement && remainingTurnsElement && gameInfo) {
+            const playerScore = joueurId === gameInfo.idJoueur1 ? gameInfo.scoreJoueur1 : gameInfo.scoreJoueur2;
+            playerScoreElement.textContent = playerScore || 0;
+            remainingTurnsElement.textContent = gameInfo.nbTours || 10;
         }
     }
+
+    let globalScore = 0;  // Move score to global scope
+
+    function startGamePolling(joueurId) {
+        setInterval(() => {
+            Promise.all([
+                fetch(`/api/parties/status`).then(response => response.text()),
+                fetch(`/api/parties/joueurs/${joueurId}/score`).then(response => response.json())
+            ])
+                .then(([statusText, currentScore]) => {
+                    globalScore = currentScore;  // Update global score
+                    const gameContent = document.getElementById("game-content");
+                    if (gameContent) {
+                        gameContent.innerHTML = `
+                    <h2>Informations de la Partie</h2>
+                    <div id="player-info">
+                        <p>${statusText}</p>
+                        <p id="please-score">Score actuel: ${globalScore}</p>
+                    </div>
+                    <div id="actions">
+                        <button class="game-action" data-coup="cooperer">Coopérer</button>
+                        <button class="game-action" data-coup="trahir">Trahir</button>
+                        <button class="game-action" data-coup="abandonner">Abandonner</button>
+                    </div>
+                `;
+                        setupGameActions(joueurId);
+                    }
+                })
+                .catch(error => console.error('Polling error:', error));
+        }, 2000);
+    }
+
+    function updateScore(joueurId) {
+        return fetch(`/api/parties/joueurs/${joueurId}/score`)
+            .then(response => response.json())
+            .then(newScore => {
+                globalScore = newScore;
+                const scoreElement = document.getElementById('please-score');
+                if (scoreElement) {
+                    scoreElement.textContent = `Score actuel: ${globalScore}`;
+                }
+                return globalScore;
+            })
+            .catch(error => {
+                console.error('Error updating score:', error);
+                return globalScore;
+            });
+    }
+
+    function setupGameActions(joueurId) {
+        const actionButtons = document.querySelectorAll('.game-action');
+
+        actionButtons.forEach(button => {
+            button.addEventListener('click', async () => {
+                const coup = button.dataset.coup;
+
+                try {
+                    const response = await fetch(`/api/parties/joueurs/${joueurId}/coup?coup=${coup}`, {
+                        method: 'POST'
+                    });
+
+                    if (response.ok) {
+                        const newScore = await updateScore(joueurId);
+                        console.log(`Coup ${coup} joué. New score: ${newScore}`);
+                    }
+                } catch (error) {
+                    console.error(`Error playing coup ${coup}:`, error);
+                }
+            });
+        });
+    }
+    function createGame(){
+        setMyVariable(true);
+    }
+    function joinGame(){
+        setMyVariable(false);
+    }
+    // Store a value
+    function setMyVariable(value) {
+        localStorage.setItem('isPlayer1', value);
+    }
+
+    // Get the value
+    function getMyVariable() {
+        return localStorage.getItem('isPlayer1');
+    }
+
 </script>
 </body>
 </html>

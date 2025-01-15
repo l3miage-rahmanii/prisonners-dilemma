@@ -16,7 +16,7 @@ import java.util.List;
 public class PartieEntity {
     private String id;
     private String status;
-    private Integer nbTours = 5;
+    private Integer nbTours;
     private int idJoueur1;
     private int idJoueur2;
     private List<CoupEnum> coupsJoueur1;

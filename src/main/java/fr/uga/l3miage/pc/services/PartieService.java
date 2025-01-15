@@ -7,6 +7,7 @@
 
         import fr.uga.l3miage.pc.requests.PartieRequestDTO;
         import fr.uga.l3miage.pc.responses.PartieResponseDTO;
+        import jakarta.servlet.http.Part;
         import lombok.RequiredArgsConstructor;
         import org.springframework.stereotype.Service;
 
@@ -72,43 +73,46 @@
 
             } */
 
-            public PartieResponseDTO creerPartie(PartieRequestDTO partieRequestDTO) {
-                if (partie.getStatus().equals(EN_COURS) || partie.getStatus().equals(EN_ATTENTE)) {
-                    throw new BadRequestRestException("Une partie est déjà en cours.");
+            public PartieEntity creerPartie() {
+                if(partie != null) {
+                        throw new BadRequestRestException("Une partie est déjà en cours.");
+                }
+                else {
+                    partie = PartieEntity.builder()
+                            .status(EN_ATTENTE)
+                            .nbTours(10)
+                            .idJoueur1(1)
+                            .idJoueur2(2)
+                            .scoreJoueur1(0)
+                            .scoreJoueur2(0)
+                            .coupsJoueur1(new ArrayList<>())
+                            .coupsJoueur2(new ArrayList<>())
+                            .build();
+                    System.out.println(partie.getNbTours());
+                    System.out.println(partie.getIdJoueur1());
+                    System.out.println(partie.getIdJoueur2());
                 }
 
-                if (partieRequestDTO.getNbTours() <= 0) {
-                    throw new BadRequestRestException("Le nombre de tours doit être positif");
-                }
-
-               partie = PartieEntity.builder()
-                        .status(EN_ATTENTE)
-                        .nbTours(partieRequestDTO.getNbTours())
-                        .idJoueur1(0)
-                        .scoreJoueur1(0)
-                        .scoreJoueur2(0)
-                        .coupsJoueur1(new ArrayList<>())
-                        .coupsJoueur2(new ArrayList<>())
-                        .build();
-
-                return  partieMapper.toResponse(partie);
+                return  partie;
             }
 
 
-            public PartieResponseDTO rejoindrePartie() {
+            public PartieEntity rejoindrePartie() {
 
                 if (partie.getStatus().equals(EN_COURS)) {
                     throw new BadRequestRestException("Une partie est déjà en cours");
                 }
 
                 partie.setStatus(EN_COURS);
-                partie.setIdJoueur2(1);
 
-                return  partieMapper.toResponse(partie);
+                return partie;
             }
 
 
             public String getStatus() {
+                if (partie == null) {
+                    return "Aucune partie n'a été créée";
+                }
 
                 StringBuilder status = new StringBuilder();
                 status.append("Statut: ").append(partie.getStatus());
@@ -124,33 +128,41 @@
             }
 
             public int calculerScores(int joueurId) {
-                int dernierIndex = partie.getCoupsJoueur1().size() - 1;
-                CoupEnum coupJ1 = partie.getCoupsJoueur1().get(dernierIndex);
-                CoupEnum coupJ2 = partie.getCoupsJoueur2().get(dernierIndex);
-
-                // Dilemme du prisonnier classique
-                if (coupJ1.equals(CoupEnum.COOPERER) && coupJ2.equals(CoupEnum.COOPERER)) {
-                    // Coopération mutuelle
-                    partie.setScoreJoueur1(partie.getScoreJoueur1() + 3);
-                    partie.setScoreJoueur2(partie.getScoreJoueur2() + 3);
-                } else if (coupJ1.equals(CoupEnum.TRAHIR) && coupJ2.equals(CoupEnum.TRAHIR)) {
-                    // Trahison mutuelle
-                    partie.setScoreJoueur1(partie.getScoreJoueur1() + 1);
-                    partie.setScoreJoueur2(partie.getScoreJoueur2() + 1);
-                } else if (coupJ1.equals(CoupEnum.TRAHIR) && coupJ2.equals(CoupEnum.COOPERER)) {
-                    // J1 trahit, J2 coopère
-                    partie.setScoreJoueur1(partie.getScoreJoueur1() + 5);
-                    partie.setScoreJoueur2(partie.getScoreJoueur2() + 0);
-                } else {
-                    // J1 coopère, J2 trahit
-                    partie.setScoreJoueur1(partie.getScoreJoueur1() + 0);
-                    partie.setScoreJoueur2(partie.getScoreJoueur2() + 5);
+                if (partie == null) {
+                    return 0;
                 }
 
-                if(joueurId==partie.getIdJoueur1()) {
-                    return partie.getScoreJoueur1();
+                if (partie.getCoupsJoueur1().isEmpty() || partie.getCoupsJoueur2().isEmpty()) {
+                    return 0;
                 }
-                else {return partie.getScoreJoueur2();}
+                    int dernierIndex = partie.getCoupsJoueur1().size() - 1;
+                    CoupEnum coupJ1 = partie.getCoupsJoueur1().get(dernierIndex);
+                    CoupEnum coupJ2 = partie.getCoupsJoueur2().get(dernierIndex);
+
+                    // Dilemme du prisonnier classique
+                    if (coupJ1.equals(CoupEnum.COOPERER) && coupJ2.equals(CoupEnum.COOPERER)) {
+                        // Coopération mutuelle
+                        partie.setScoreJoueur1(partie.getScoreJoueur1() + 3);
+                        partie.setScoreJoueur2(partie.getScoreJoueur2() + 3);
+                    } else if (coupJ1.equals(CoupEnum.TRAHIR) && coupJ2.equals(CoupEnum.TRAHIR)) {
+                        // Trahison mutuelle
+                        partie.setScoreJoueur1(partie.getScoreJoueur1() + 1);
+                        partie.setScoreJoueur2(partie.getScoreJoueur2() + 1);
+                    } else if (coupJ1.equals(CoupEnum.TRAHIR) && coupJ2.equals(CoupEnum.COOPERER)) {
+                        // J1 trahit, J2 coopère
+                        partie.setScoreJoueur1(partie.getScoreJoueur1() + 5);
+                        partie.setScoreJoueur2(partie.getScoreJoueur2() + 0);
+                    } else {
+                        // J1 coopère, J2 trahit
+                        partie.setScoreJoueur1(partie.getScoreJoueur1() + 0);
+                        partie.setScoreJoueur2(partie.getScoreJoueur2() + 5);
+                    }
+
+                    if (joueurId == partie.getIdJoueur1()) {
+                        return partie.getScoreJoueur1();
+                    } else {
+                        return partie.getScoreJoueur2();
+                    }
 
             }
 

@@ -14,6 +14,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PartieResponseDTO {
+    private String id;
+    private int idJoueur1;
+    private int idJoueur2;
+    private String status;
     private int scoreJoueur1;
     private int scoreJoueur2;
     private int tourActuel;

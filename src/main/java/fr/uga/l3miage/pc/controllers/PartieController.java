@@ -2,6 +2,7 @@ package fr.uga.l3miage.pc.controllers;
 
 
 
+import fr.uga.l3miage.pc.entities.PartieEntity;
 import fr.uga.l3miage.pc.enums.CoupEnum;
 import fr.uga.l3miage.pc.enums.StrategieEnum;
 import fr.uga.l3miage.pc.requests.PartieRequestDTO;
@@ -21,7 +22,7 @@ import java.rmi.server.UID;
 public class PartieController {
     private final PartieService partieService;
 
-    @PostMapping("/parties/{partieId}/joueurs/{joueurId}/coup")
+    @PostMapping("/parties/joueurs/{joueurId}/coup")
     public ResponseEntity<PartieResponseDTO> jouerCoup(
             @PathVariable int joueurId,
             @RequestParam String coup) {
@@ -44,8 +45,8 @@ public class PartieController {
     }
 
     @PostMapping("/parties/creer")
-    public ResponseEntity<PartieResponseDTO> creerPartie(@RequestBody PartieRequestDTO partieRequestDTO) {
-        return ResponseEntity.ok(partieService.creerPartie(partieRequestDTO));
+    public ResponseEntity<PartieEntity> creerPartie() {
+        return ResponseEntity.ok(partieService.creerPartie());
     }
 
     /*
@@ -60,7 +61,7 @@ public class PartieController {
      */
 
     @PostMapping("/parties/rejoindre")
-    public ResponseEntity<PartieResponseDTO> rejoindrePartie() {
+    public ResponseEntity<PartieEntity> rejoindrePartie() {
                     return ResponseEntity.ok(partieService.rejoindrePartie());
     }
 
