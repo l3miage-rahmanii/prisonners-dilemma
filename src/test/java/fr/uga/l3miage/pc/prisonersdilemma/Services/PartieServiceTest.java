@@ -663,4 +663,7 @@ class PartieServiceTest {
         assertEquals(8, partieEntity.getScoreJoueur1()); // 3 + 5
         assertEquals(3, partieEntity.getScoreJoueur2()); // 3 + 0
     }
+
+
+
 }

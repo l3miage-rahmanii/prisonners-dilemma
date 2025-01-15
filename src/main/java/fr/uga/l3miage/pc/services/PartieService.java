@@ -155,19 +155,19 @@
                 return status.toString();
             }
 
-            public int getScore(int joueurId) {
-                if (partie == null) {
-                    return 0;
+                public int getScore(int joueurId) {
+                    if (partie == null) {
+                        return 0;
+                    }
+
+                    if (joueurId != partie.getIdJoueur1() && joueurId != partie.getIdJoueur2()) {
+                        throw new IllegalArgumentException("ID de joueur invalide");
+                    }
+
+                    return joueurId == partie.getIdJoueur1() ? partie.getScoreJoueur1() : partie.getScoreJoueur2();
                 }
 
-                if (joueurId != partie.getIdJoueur1() && joueurId != partie.getIdJoueur2()) {
-                    throw new IllegalArgumentException("ID de joueur invalide");
-                }
-
-                return joueurId == partie.getIdJoueur1() ? partie.getScoreJoueur1() : partie.getScoreJoueur2();
-            }
-
-            private void terminerPartie(PartieEntity partie) {
+            public void terminerPartie(PartieEntity partie) {
                 partie.setStatus(TERMINEE);
 
             }
