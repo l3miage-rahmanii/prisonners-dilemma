@@ -1,7 +1,6 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Services;
-
+/*
 import fr.uga.l3miage.pc.components.PartieComponent;
-import fr.uga.l3miage.pc.entities.JoueurEntity;
 import fr.uga.l3miage.pc.entities.PartieEntity;
 import fr.uga.l3miage.pc.enums.StrategieEnum;
 import fr.uga.l3miage.pc.exceptions.rest.BadRequestRestException;
@@ -10,9 +9,7 @@ import fr.uga.l3miage.pc.mappers.PartieMapper;
 import fr.uga.l3miage.pc.repositories.PartieRepository;
 import fr.uga.l3miage.pc.requests.PartieRequestDTO;
 import fr.uga.l3miage.pc.responses.PartieResponseDTO;
-import fr.uga.l3miage.pc.services.JoueurService;
 import fr.uga.l3miage.pc.services.PartieService;
-import fr.uga.l3miage.pc.services.ServeurService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -21,11 +18,11 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
@@ -42,8 +39,7 @@ class PartieServiceTest {
     @Mock
     private PartieMapper partieMapper;
 
-    @Mock
-    private PartieComponent partieComponent;
+    PartieEntity partie;
 
     @Mock
     private PartieRepository partieRepository;
@@ -335,6 +331,470 @@ class PartieServiceTest {
 
         // When / Then
         assertThrows(BadRequestRestException.class, () -> partieService.jouerCoup(partieId, joueurId, coup));
+    }
+
+
+    @Test
+    void jouerCoup_whenJoueur1HasStrategy_shouldUseStrategyToPlay() {
+        // Given
+        Long partieId = 1L;
+        Long joueurId = 10L;
+        String coup = "c";  // This will be ignored as strategy is used
+
+        JoueurEntity joueur1 = JoueurEntity.builder().id(10L).build();
+        JoueurEntity joueur2 = JoueurEntity.builder().id(20L).build();
+
+        PartieEntity partie = PartieEntity.builder()
+                .id(partieId)
+                .joueurs(List.of(joueur1, joueur2))
+                .strategieJoueur1(StrategieEnum.TOUJOURS_COOPERER)
+                .coupsJoueur1(new ArrayList<>())
+                .coupsJoueur2(new ArrayList<>())
+                .build();
+
+        PartieResponseDTO expectedResponse = new PartieResponseDTO();
+
+        when(partieRepository.findById(partieId)).thenReturn(Optional.of(partie));
+        when(partieRepository.save(any())).thenReturn(partie);
+        when(partieMapper.toResponse(partie)).thenReturn(expectedResponse);
+
+        // When
+        PartieResponseDTO result = partieService.jouerCoup(partieId, joueurId, coup);
+
+        // Then
+        verify(partieRepository).findById(partieId);
+        verify(partieRepository).save(partie);
+        assertEquals("c", partie.getCoupsJoueur1().get(0)); // Strategy TOUJOURS_COOPERER should play "c"
+        assertEquals(expectedResponse, result);
+    }
+
+    @Test
+    void jouerCoup_whenInvalidCoup_shouldThrowBadRequestException() {
+        // Given
+        Long partieId = 1L;
+        Long joueurId = 10L;
+        String invalidCoup = "x"; // Invalid move - neither "c" nor "t"
+
+        JoueurEntity joueur1 = JoueurEntity.builder().id(10L).build();
+        JoueurEntity joueur2 = JoueurEntity.builder().id(20L).build();
+
+        PartieEntity partie = PartieEntity.builder()
+                .id(partieId)
+                .joueurs(List.of(joueur1, joueur2))
+                .coupsJoueur1(new ArrayList<>())
+                .coupsJoueur2(new ArrayList<>())
+                .build();
+
+        when(partieRepository.findById(partieId)).thenReturn(Optional.of(partie));
+
+        // When & Then
+        assertThrows(
+                BadRequestRestException.class,
+                () -> partieService.jouerCoup(partieId, joueurId, invalidCoup)
+        );
+    }
+
+    @Test
+    void jouerCoup_whenJoueur2HasStrategy_shouldUseStrategyToPlay() {
+        // Given
+        Long partieId = 1L;
+        Long joueurId = 20L;
+        String coup = "c";  // This will be ignored as strategy is used
+
+        JoueurEntity joueur1 = JoueurEntity.builder().id(10L).build();
+        JoueurEntity joueur2 = JoueurEntity.builder().id(20L).build();
+
+        PartieEntity partie = PartieEntity.builder()
+                .id(partieId)
+                .joueurs(List.of(joueur1, joueur2))
+                .strategieJoueur2(StrategieEnum.TOUJOURS_TRAHIR)
+                .coupsJoueur1(new ArrayList<>())
+                .coupsJoueur2(new ArrayList<>())
+                .build();
+
+        PartieResponseDTO expectedResponse = new PartieResponseDTO();
+
+        when(partieRepository.findById(partieId)).thenReturn(Optional.of(partie));
+        when(partieRepository.save(any())).thenReturn(partie);
+        when(partieMapper.toResponse(partie)).thenReturn(expectedResponse);
+
+        // When
+        PartieResponseDTO result = partieService.jouerCoup(partieId, joueurId, coup);
+
+        // Then
+        verify(partieRepository).findById(partieId);
+        verify(partieRepository).save(partie);
+        assertEquals("t", partie.getCoupsJoueur2().get(0)); // Strategy TOUJOURS_TRAHIR should play "t"
+        assertEquals(expectedResponse, result);
+    }
+
+
+
+}
+
+ */
+
+import fr.uga.l3miage.pc.entities.PartieEntity;
+import fr.uga.l3miage.pc.enums.CoupEnum;
+import fr.uga.l3miage.pc.exceptions.rest.BadRequestRestException;
+import fr.uga.l3miage.pc.mappers.PartieMapper;
+import fr.uga.l3miage.pc.responses.PartieResponseDTO;
+import fr.uga.l3miage.pc.services.PartieService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class PartieServiceTest {
+
+    @Mock
+    private PartieMapper partieMapper;
+
+    @InjectMocks
+    private PartieService partieService;
+
+    private PartieEntity partieEntity;
+    private final static int JOUEUR1_ID = 1;
+    private final static int JOUEUR2_ID = 2;
+
+    @BeforeEach
+    void setUp() {
+        partieEntity = PartieEntity.builder()
+                .status("en_attente")
+                .nbTours(10)
+                .idJoueur1(JOUEUR1_ID)
+                .idJoueur2(JOUEUR2_ID)
+                .scoreJoueur1(0)
+                .scoreJoueur2(0)
+                .coupsJoueur1(new ArrayList<>())
+                .coupsJoueur2(new ArrayList<>())
+                .build();
+    }
+
+    @Test
+    void creerPartie_Success() {
+        // When
+        PartieEntity result = partieService.creerPartie();
+
+        // Then
+        assertNotNull(result);
+        assertEquals("en_attente", result.getStatus());
+        assertEquals(10, result.getNbTours());
+        assertEquals(JOUEUR1_ID, result.getIdJoueur1());
+        assertEquals(JOUEUR2_ID, result.getIdJoueur2());
+        assertEquals(0, result.getScoreJoueur1());
+        assertEquals(0, result.getScoreJoueur2());
+        assertTrue(result.getCoupsJoueur1().isEmpty());
+        assertTrue(result.getCoupsJoueur2().isEmpty());
+    }
+
+    @Test
+    void creerPartie_PartieDejaExistante() {
+        // Given
+        partieService.partie = partieEntity;
+
+        // When & Then
+        assertThrows(BadRequestRestException.class, () -> partieService.creerPartie());
+    }
+
+    @Test
+    void rejoindrePartie_Success() {
+        // Given
+        partieService.partie = partieEntity;
+
+        // When
+        PartieEntity result = partieService.rejoindrePartie();
+
+        // Then
+        assertEquals("en_cours", result.getStatus());
+    }
+
+    @Test
+    void rejoindrePartie_PartieDejaEnCours() {
+        // Given
+        partieEntity.setStatus("en_cours");
+        partieService.partie = partieEntity;
+
+        // When & Then
+        assertThrows(BadRequestRestException.class, () -> partieService.rejoindrePartie());
+    }
+
+    @Test
+    void jouerCoup_TourInvalide() {
+        // Given
+        partieEntity.setStatus("en_cours");
+        partieService.partie = partieEntity;
+        partieEntity.getCoupsJoueur1().add(CoupEnum.COOPERER);
+
+        // When & Then
+        assertThrows(BadRequestRestException.class,
+                () -> partieService.jouerCoup(JOUEUR1_ID, CoupEnum.COOPERER));
+    }
+
+    @Test
+    void jouerCoup_Success() {
+        // Given
+        partieEntity.setStatus("en_cours");
+        partieService.partie = partieEntity;
+        when(partieMapper.toResponse(any())).thenReturn(new PartieResponseDTO());
+
+        // When
+        PartieResponseDTO result = partieService.jouerCoup(JOUEUR1_ID, CoupEnum.COOPERER);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, partieEntity.getCoupsJoueur1().size());
+        assertEquals(CoupEnum.COOPERER, partieEntity.getCoupsJoueur1().get(0));
+    }
+
+    @Test
+    void getStatus_AucunePartie() {
+        // Given
+        partieService.partie = null;
+
+        // When
+        String result = partieService.getStatus();
+
+        // Then
+        assertEquals("Aucune partie n'a ete creee", result);
+    }
+
+    @Test
+    void getStatus_PartieEnCours() {
+        // Given
+        partieEntity.setStatus("en_cours");
+        partieEntity.getCoupsJoueur1().add(CoupEnum.COOPERER);
+        partieEntity.getCoupsJoueur2().add(CoupEnum.TRAHIR);
+        partieService.partie = partieEntity;
+
+        // When
+        String result = partieService.getStatus();
+
+        // Then
+        assertEquals("Statut: en_cours - Tour: 2/10", result);
+    }
+
+    @Test
+    void calculerScoresDuTour_DoubleCooperation() {
+        // Given
+        partieService.partie = partieEntity;
+        partieEntity.getCoupsJoueur1().add(CoupEnum.COOPERER);
+        partieEntity.getCoupsJoueur2().add(CoupEnum.COOPERER);
+
+        // When
+        partieService.calculerScoresDuTour();
+
+        // Then
+        assertEquals(3, partieEntity.getScoreJoueur1());
+        assertEquals(3, partieEntity.getScoreJoueur2());
+    }
+
+    @Test
+    void calculerScoresDuTour_DoubleTrahison() {
+        // Given
+        partieService.partie = partieEntity;
+        partieEntity.getCoupsJoueur1().add(CoupEnum.TRAHIR);
+        partieEntity.getCoupsJoueur2().add(CoupEnum.TRAHIR);
+
+        // When
+        partieService.calculerScoresDuTour();
+
+        // Then
+        assertEquals(1, partieEntity.getScoreJoueur1());
+        assertEquals(1, partieEntity.getScoreJoueur2());
+    }
+
+    @Test
+    void calculerScoresDuTour_J1TrahitJ2Coopere() {
+        // Given
+        partieService.partie = partieEntity;
+        partieEntity.getCoupsJoueur1().add(CoupEnum.TRAHIR);
+        partieEntity.getCoupsJoueur2().add(CoupEnum.COOPERER);
+
+        // When
+        partieService.calculerScoresDuTour();
+
+        // Then
+        assertEquals(5, partieEntity.getScoreJoueur1());
+        assertEquals(0, partieEntity.getScoreJoueur2());
+    }
+
+    @Test
+    void calculerScoresDuTour_J1CoopereJ2Trahit() {
+        // Given
+        partieService.partie = partieEntity;
+        partieEntity.getCoupsJoueur1().add(CoupEnum.COOPERER);
+        partieEntity.getCoupsJoueur2().add(CoupEnum.TRAHIR);
+
+        // When
+        partieService.calculerScoresDuTour();
+
+        // Then
+        assertEquals(0, partieEntity.getScoreJoueur1());
+        assertEquals(5, partieEntity.getScoreJoueur2());
+    }
+
+    @Test
+    void calculerScoresDuTour_MultipleTours() {
+        // Given
+        partieService.partie = partieEntity;
+        // Premier tour: coopération mutuelle
+        partieEntity.getCoupsJoueur1().add(CoupEnum.COOPERER);
+        partieEntity.getCoupsJoueur2().add(CoupEnum.COOPERER);
+        partieService.calculerScoresDuTour();
+
+        // Deuxième tour: J1 trahit, J2 coopère
+        partieEntity.getCoupsJoueur1().add(CoupEnum.TRAHIR);
+        partieEntity.getCoupsJoueur2().add(CoupEnum.COOPERER);
+
+        // When
+        partieService.calculerScoresDuTour();
+
+        // Then
+        assertEquals(8, partieEntity.getScoreJoueur1()); // 3 + 5
+        assertEquals(3, partieEntity.getScoreJoueur2()); // 3 + 0
+    }
+
+    @Test
+    void getScore_WhenPartieIsNull_ShouldReturnZero() {
+        // Arrange
+        partieService.partie = null;
+
+        // Act
+        int score = partieService.getScore(1);
+
+        // Assert
+        assertEquals(0, score);
+    }
+
+    @Test
+    void getScore_ForJoueur1_ShouldReturnJoueur1Score() {
+        // Arrange
+        partieService.partie = PartieEntity.builder()
+                .idJoueur1(1)
+                .idJoueur2(2)
+                .scoreJoueur1(10)
+                .scoreJoueur2(5)
+                .build();
+
+        // Act
+        int score = partieService.getScore(1);
+
+        // Assert
+        assertEquals(10, score);
+    }
+
+    @Test
+    void getScore_ForJoueur2_ShouldReturnJoueur2Score() {
+        // Arrange
+        partieService.partie = PartieEntity.builder()
+                .idJoueur1(1)
+                .idJoueur2(2)
+                .scoreJoueur1(10)
+                .scoreJoueur2(5)
+                .build();
+
+        // Act
+        int score = partieService.getScore(2);
+
+        // Assert
+        assertEquals(5, score);
+    }
+
+    @Test
+    void getScore_WithInvalidJoueurId_ShouldThrowIllegalArgumentException() {
+        // Arrange
+        partieService.partie = PartieEntity.builder()
+                .idJoueur1(1)
+                .idJoueur2(2)
+                .build();
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> partieService.getScore(3));
+    }
+
+    @Test
+    void testAbandonner() {
+        // Given
+        partieService.partie = partieEntity;
+        partieEntity.setStatus("en_cours");
+
+        // When
+        PartieResponseDTO result = partieService.jouerCoup(JOUEUR1_ID, CoupEnum.ABANDONNER);
+
+        // Then
+        assertNull(result);
+    }
+
+    @Test
+    void testTerminerPartie() {
+        // Given
+        partieService.partie = partieEntity;
+        partieEntity.setStatus("en_cours");
+
+        // When
+        partieService.terminerPartie(partieEntity);
+
+        // Then
+        assertEquals("terminee", partieEntity.getStatus());
+    }
+
+    @Test
+    void testJouerCoupFinDePartie() {
+        // Given
+        partieService.partie = partieEntity;
+        partieEntity.setStatus("en_cours");
+        partieEntity.setNbTours(2);
+        when(partieMapper.toResponse(any())).thenReturn(new PartieResponseDTO());
+
+        // Premier tour
+        partieService.jouerCoup(JOUEUR1_ID, CoupEnum.COOPERER);
+        partieService.jouerCoup(JOUEUR2_ID, CoupEnum.COOPERER);
+
+        // Deuxième tour (dernier)
+        partieService.jouerCoup(JOUEUR1_ID, CoupEnum.COOPERER);
+
+        // When
+        PartieResponseDTO result = partieService.jouerCoup(JOUEUR2_ID, CoupEnum.COOPERER);
+
+        // Then
+        assertNotNull(result);
+        assertEquals("terminee", partieEntity.getStatus());
+    }
+
+    @Test
+    void testGetStatusEnAttente() {
+        // Given
+        partieService.partie = partieEntity;
+        partieEntity.setStatus("en_attente");
+
+        // When
+        String result = partieService.getStatus();
+
+        // Then
+        assertEquals("Statut: en_attente", result);
+    }
+
+    @Test
+    void testGetStatusTerminee() {
+        // Given
+        partieService.partie = partieEntity;
+        partieEntity.setStatus("terminee");
+
+        // When
+        String result = partieService.getStatus();
+
+        // Then
+        assertEquals("Statut: terminee", result);
     }
 
 }

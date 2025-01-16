@@ -1,25 +1,37 @@
 package fr.uga.l3miage.pc.strategies;
 
+import fr.uga.l3miage.pc.enums.CoupEnum;
+
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.Random;
 
-public class VraiPacificateur implements Strategie {
-    private String[] historique;
-    private int index;
+public class VraiPacificateur extends Strategie {
     private Random random;
-    public VraiPacificateur(String[] historique) {
-        this.historique = historique;
-        this.index = 0;
+
+    public VraiPacificateur() {
         this.random = new SecureRandom();
     }
+
     @Override
-    public String prochainCoup() {
-        if (index >= 2 && historique[index - 1].equals("t") && historique[index - 2].equals("t")) {
-            return random.nextDouble() < 0.3 ? "c" : "t"; // 30% de chance de coopérer pour apaiser
+    public CoupEnum prochainCoup(List<CoupEnum> historiqueAdversaire) {
+        int taille = historiqueAdversaire.size();
+
+        if (taille >= 2) {
+            CoupEnum avantDernierCoup = historiqueAdversaire.get(taille - 2);
+            CoupEnum dernierCoup = historiqueAdversaire.get(taille - 1);
+
+            // Si l'adversaire a trahi deux fois de suite
+            if (avantDernierCoup == CoupEnum.TRAHIR && dernierCoup == CoupEnum.TRAHIR) {
+                // Parfois coopérer pour essayer de faire la paix
+                if (random.nextDouble() < 0.2) {  // 20% de chance de coopérer
+                    return CoupEnum.COOPERER;
+                }
+                return CoupEnum.TRAHIR;
+            }
         }
-        return "c"; // Coopérer tant que l'adversaire n'a pas trahi deux fois de suite
-    }
-    public void miseAJourDernierCoupAdversaire(String coupAdversaire) {
-        historique[index++] = coupAdversaire;
+
+        // Coopérer si l'adversaire ne trahit pas deux fois de suite
+        return CoupEnum.COOPERER;
     }
 }

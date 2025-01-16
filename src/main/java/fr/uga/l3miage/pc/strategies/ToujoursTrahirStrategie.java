@@ -1,10 +1,14 @@
 package fr.uga.l3miage.pc.strategies;
 
-public class ToujoursTrahirStrategie implements Strategie {
+import fr.uga.l3miage.pc.enums.CoupEnum;
 
+import java.util.List;
 
+public class ToujoursTrahirStrategie extends Strategie {
     @Override
-    public String prochainCoup() {
-        return "t";
+    public CoupEnum prochainCoup(List<CoupEnum> coup) {
+        return CoupEnum.TRAHIR;
     }
 }
+
+

@@ -1,70 +1,83 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Strategies;
 
+import fr.uga.l3miage.pc.enums.CoupEnum;
 import fr.uga.l3miage.pc.strategies.VraiPacificateur;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 class VraiPacificateurTest {
-
-    private VraiPacificateur strategie;
-    private String[] historique;
+    private VraiPacificateur vraiPacificateur;
+    private Random mockRandom;
 
     @BeforeEach
-    void setUp() {
-        // Initialisation de l'historique pour simuler les coups précédents
-        historique = new String[10];
-        strategie = new VraiPacificateur(historique);
+    void setUp() throws Exception {
+        // Create a mock Random instance
+        mockRandom = Mockito.mock(Random.class);
+
+        // Instantiate VraiPacificateur
+        vraiPacificateur = new VraiPacificateur();
+
+        // Use reflection to inject the mocked Random into the private 'random' field
+        Field randomField = VraiPacificateur.class.getDeclaredField("random");
+        randomField.setAccessible(true);
+        randomField.set(vraiPacificateur, mockRandom);
+    }
+    @Test
+    void testProchainCoup_LessThanTwoMoves() {
+        List<CoupEnum> historiqueAdversaire = List.of(CoupEnum.COOPERER);
+        CoupEnum resultat = vraiPacificateur.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.COOPERER, resultat, "Should cooperate when history has less than two moves.");
     }
 
     @Test
-    void testPremierCoup() {
-        // Vérifie que le premier coup est toujours "c" (coopération)
-        assertEquals("c", strategie.prochainCoup());
+    void testProchainCoup_NoConsecutiveTrahir() {
+        List<CoupEnum> historiqueAdversaire = List.of(CoupEnum.COOPERER, CoupEnum.COOPERER);
+        CoupEnum resultat = vraiPacificateur.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.COOPERER, resultat, "Should cooperate when the last two moves are not both TRAHIR.");
     }
 
     @Test
-    void testCooperationSansTrahison() {
-        // Simule des coups où l'adversaire ne trahit pas
-        strategie.miseAJourDernierCoupAdversaire("c");
-        strategie.miseAJourDernierCoupAdversaire("c");
-        assertEquals("c", strategie.prochainCoup());
+    void testProchainCoup_TwoConsecutiveTrahir_RandomCooperate() {
+        List<CoupEnum> historiqueAdversaire = List.of(CoupEnum.COOPERER, CoupEnum.TRAHIR, CoupEnum.TRAHIR);
+
+        // Mock the random chance to ensure cooperation (20% chance)
+        when(mockRandom.nextDouble()).thenReturn(0.1);
+
+        CoupEnum resultat = vraiPacificateur.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.COOPERER, resultat, "Should cooperate 20% of the time when the last two moves are TRAHIR.");
     }
 
     @Test
-    void testReponseApresDoubleTrahison() {
-        // Simule des trahisons consécutives par l'adversaire
-        strategie.miseAJourDernierCoupAdversaire("t");
-        strategie.miseAJourDernierCoupAdversaire("t");
+    void testProchainCoup_TwoConsecutiveTrahir_RandomTrahir() {
+        List<CoupEnum> historiqueAdversaire = List.of(CoupEnum.COOPERER, CoupEnum.TRAHIR, CoupEnum.TRAHIR);
 
-        // Vérifie que le coup suivant est aléatoire, soit "c" ou "t"
-        String coup = strategie.prochainCoup();
-        assertTrue(coup.equals("c") || coup.equals("t"));
+        // Mock the random chance to ensure betrayal (80% chance)
+        when(mockRandom.nextDouble()).thenReturn(0.5);
+
+        CoupEnum resultat = vraiPacificateur.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.TRAHIR, resultat, "Should betray 80% of the time when the last two moves are TRAHIR.");
     }
 
-  /*  @Test
-    void testProbabiliteApresDoubleTrahison() {
-        // Simule plusieurs parties pour tester la probabilité de coopération après une double trahison
-        int coopCount = 0;
-        int betrayCount = 0;
+    @Test
+    void testProchainCoup_AllCooperate() {
+        List<CoupEnum> historiqueAdversaire = List.of(CoupEnum.COOPERER, CoupEnum.COOPERER, CoupEnum.COOPERER);
+        CoupEnum resultat = vraiPacificateur.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.COOPERER, resultat, "Should always cooperate if the adversary has always cooperated.");
+    }
 
-        strategie.miseAJourDernierCoupAdversaire("t");
-        strategie.miseAJourDernierCoupAdversaire("t");
+    @Test
+    void testProchainCoup_MixedButNoConsecutiveTrahir() {
+        List<CoupEnum> historiqueAdversaire = List.of(CoupEnum.COOPERER, CoupEnum.TRAHIR, CoupEnum.COOPERER, CoupEnum.TRAHIR);
+        CoupEnum resultat = vraiPacificateur.prochainCoup(historiqueAdversaire);
+        assertEquals(CoupEnum.COOPERER, resultat, "Should cooperate if there are no two consecutive TRAHIR moves.");
+    }
 
-        // Effectuer 100 essais pour vérifier la distribution
-        for (int i = 0; i < 100; i++) {
-            String coup = strategie.prochainCoup();
-            if (coup.equals("c")) {
-                coopCount++;
-            } else if (coup.equals("t")) {
-                betrayCount++;
-            }
-        }
-
-        // Vérifie qu'environ 30% des coups sont "c" (coopération)
-        double coopRate = coopCount / 100.0;
-        assertTrue(coopRate >= 0.2 && coopRate <= 0.4, "La probabilité de coopération doit être proche de 30%");
-    } */
 }

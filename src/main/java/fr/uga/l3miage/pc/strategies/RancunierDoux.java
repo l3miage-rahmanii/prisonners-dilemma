@@ -1,36 +1,38 @@
 package fr.uga.l3miage.pc.strategies;
 
-public class RancunierDoux implements Strategie {
-    private String[] historique;
-    private int index;
+import fr.uga.l3miage.pc.enums.CoupEnum;
+
+import java.util.List;
+
+public class RancunierDoux extends Strategie {
     private boolean estRancunier;
     private int compteurRepresailles;
 
-    public RancunierDoux(String[] historique) {
-        this.historique = historique;
-        this.index = 0;
+    public RancunierDoux() {
         this.estRancunier = false;
         this.compteurRepresailles = 0;
     }
 
     @Override
-    public String prochainCoup() {
+    public CoupEnum prochainCoup(List<CoupEnum> historiqueAdversaire) {
         if (estRancunier) {
             if (compteurRepresailles > 0) {
                 compteurRepresailles--;
-                return "t"; // Punit par trois trahisons
+                return CoupEnum.TRAHIR;
+            } else if (compteurRepresailles > -3) {
+                compteurRepresailles--;
+                return CoupEnum.COOPERER;
+            } else {
+                estRancunier = false;
             }
-            estRancunier = false;
-            return "c"; // Coopère après représailles
         }
-        return "c"; // Coopère par défaut
-    }
 
-    public void miseAJourDernierCoupAdversaire(String coupAdversaire) {
-        if (!estRancunier && coupAdversaire.equals("t")) {
+        CoupEnum dernierCoupAdversaire = historiqueAdversaire.get(historiqueAdversaire.size() - 1);
+        if (dernierCoupAdversaire == CoupEnum.TRAHIR) {
             estRancunier = true;
-            compteurRepresailles = 3; // Punit par trois trahisons
+            compteurRepresailles = 2;
         }
-        historique[index++] = coupAdversaire;
+
+        return CoupEnum.COOPERER;
     }
 }

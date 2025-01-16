@@ -1,121 +1,234 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:hx-on="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dilemme du Prisonnier</title>
     <script src="https://unpkg.com/htmx.org"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .hidden {
+            display: none;
         }
 
-        h1 {
-            margin-top: 20px;
-            color: #444;
+        .game-container {
+            background: linear-gradient(135deg, #f6f8fc 0%, #e9edf5 100%);
+            min-height: 100vh;
         }
 
-        #score-container, #message-container {
-            margin: 20px 0;
-            text-align: center;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            max-width: 600px;
+        .button-primary {
+            background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        #score {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #0078d4;
+        .button-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
         }
 
-        #message {
-            font-size: 1.2rem;
-            color: #444;
+        .button-secondary {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        #actions {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
+        .button-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
         }
 
-        button {
-            background-color: #0078d4;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 20px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+        .button-neutral {
+            background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        button:hover {
-            background-color: #005ea6;
+        .button-neutral:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(107, 114, 128, 0.2);
         }
 
-        button:active {
-            background-color: #003e70;
-        }
-
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
+        .game-info-card {
+            backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
     </style>
 </head>
-<body>
-<h1>Dilemme du Prisonnier</h1>
+<body class="game-container">
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold text-center mb-12 text-gray-800">Dilemme du Prisonnier</h1>
 
-<!-- Score Section -->
-<div id="score-container">
-    <h2>Score</h2>
-    <div id="score" hx-get="/api/joueurs/1" hx-trigger="load" hx-target="#score" hx-swap="innerHTML">
-        0 <!-- Score initial -->
+    <!-- Connection Section -->
+    <div id="connection-container" class="max-w-md mx-auto">
+        <h2 class="text-2xl font-semibold mb-8 text-center text-gray-700">Connexion</h2>
+        <div id="game-options" class="space-y-4">
+            <button id="create-game-btn"
+                    class="button-primary w-full py-3 px-6 rounded-lg text-white font-medium shadow-lg"
+                    hx-post="/api/parties/creer"
+                    hx-target="#game-content"
+                    hx-swap="innerHTML"
+                    hx-ext="json-enc"
+                    hx-on:click="createGame()">
+                Créer une partie
+            </button>
+            <button id="join-game-btn"
+                    class="button-secondary w-full py-3 px-6 rounded-lg text-white font-medium shadow-lg"
+                    hx-post="/api/parties/rejoindre"
+                    hx-target="#game-content"
+                    hx-swap="innerHTML"
+                    hx-on:click="joinGame()">
+                Rejoindre une partie
+            </button>
+        </div>
+    </div>
+
+    <!-- Game Section -->
+    <div id="game-container" class="max-w-xl mx-auto mt-8">
+        <div id="game-content" class="game-info-card rounded-xl p-8 shadow-xl"></div>
     </div>
 </div>
 
-<!-- Message Section -->
-<div id="message-container">
-    <h2>Message</h2>
-    <div id="message">Bienvenue au jeu !</div>
-</div>
+<script>
+    let joueurId = null;
 
-<!-- Action Buttons -->
-<div id="actions">
-    <button hx-post="/api/parties/1/joueurs/1/coup?coup=cooperer"
-            hx-target="#message"
-            hx-swap="innerHTML">
-        Coopérer
-    </button>
-    <button hx-post="/api/parties/1/joueurs/1/coup?coup=trahir"
-            hx-target="#message"
-            hx-swap="innerHTML">
-        Trahir
-    </button>
-    <button hx-post="/api/parties/1/joueurs/1/coup?coup=abandonner"
-            hx-target="#message"
-            hx-swap="innerHTML">
-        Abandonner
-    </button>
-    <button hx-post="/api/parties/1/joueurs/1/coup?coup=reinitialiser"
-            hx-target="#message"
-            hx-swap="innerHTML">
-        Réinitialiser
-    </button>
-</div>
+    document.body.addEventListener('htmx:afterOnLoad', function(event) {
+        try {
+            const response = JSON.parse(event.detail.xhr.responseText);
+
+            if (event.detail.requestConfig.elt.id === "create-game-btn") {
+                joueurId = response.idJoueur1;
+            } else if (event.detail.requestConfig.elt.id === "join-game-btn") {
+                joueurId = response.idJoueur2;
+            }
+
+            if (joueurId) {
+                document.getElementById("connection-container").classList.add("hidden");
+
+                const gameContent = `
+                    <div class="space-y-6">
+                        <h2 class="text-2xl font-semibold text-gray-800 mb-6">Informations de la Partie</h2>
+                        <div id="player-info" class="space-y-3">
+                            <p class="text-lg text-gray-700">Joueur ${joueurId}</p>
+                            <p class="text-lg text-gray-700">Tours Restants : <span id="remaining-turns" class="font-semibold">10</span></p>
+                        </div>
+                        <div id="actions" class="grid grid-cols-2 gap-4 mt-8">
+                            <button class="game-action button-primary py-3 px-6 rounded-lg text-white font-medium" data-action="cooperer">Coopérer</button>
+                            <button class="game-action button-secondary py-3 px-6 rounded-lg text-white font-medium" data-action="trahir">Trahir</button>
+                            <button class="game-action button-neutral py-3 px-6 rounded-lg text-white font-medium col-span-2" data-action="abandonner">Abandonner</button>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById("game-content").innerHTML = gameContent;
+
+                setupGameActions(joueurId);
+                startGamePolling(joueurId);
+                updatePlayerInfo(response);
+            }
+        } catch (error) {
+            console.error('Error processing response:', error);
+        }
+    });
+
+    function updatePlayerInfo(gameInfo) {
+        const playerScoreElement = document.getElementById("player-score");
+        const remainingTurnsElement = document.getElementById("remaining-turns");
+
+        if (playerScoreElement && remainingTurnsElement && gameInfo) {
+            const playerScore = joueurId === gameInfo.idJoueur1 ? gameInfo.scoreJoueur1 : gameInfo.scoreJoueur2;
+            playerScoreElement.textContent = playerScore || 0;
+            remainingTurnsElement.textContent = gameInfo.nbTours || 10;
+        }
+    }
+
+    let globalScore = 0;
+
+    function startGamePolling(joueurId) {
+        setInterval(() => {
+            Promise.all([
+                fetch(`/api/parties/status`).then(response => response.text()),
+                fetch(`/api/parties/joueurs/${joueurId}/score`).then(response => response.json())
+            ])
+                .then(([statusText, currentScore]) => {
+                    globalScore = currentScore;
+                    const gameContent = document.getElementById("game-content");
+                    if (gameContent) {
+                        gameContent.innerHTML = `
+                            <div class="space-y-6">
+                                <h2 class="text-2xl font-semibold text-gray-800 mb-6">Informations de la Partie</h2>
+                                <div id="player-info" class="space-y-3">
+                                    <p class="text-lg text-gray-700">${statusText}</p>
+                                    <p id="please-score" class="text-lg font-semibold text-gray-800">Score actuel: ${globalScore}</p>
+                                </div>
+                                <div id="actions" class="grid grid-cols-2 gap-4 mt-8">
+                                    <button class="game-action button-primary py-3 px-6 rounded-lg text-white font-medium" data-coup="cooperer">Coopérer</button>
+                                    <button class="game-action button-secondary py-3 px-6 rounded-lg text-white font-medium" data-coup="trahir">Trahir</button>
+                                    <button class="game-action button-neutral py-3 px-6 rounded-lg text-white font-medium col-span-2" data-coup="abandonner">Abandonner</button>
+                                </div>
+                            </div>
+                        `;
+                        setupGameActions(joueurId);
+                    }
+                })
+                .catch(error => console.error('Polling error:', error));
+        }, 2000);
+    }
+
+    function updateScore(joueurId) {
+        return fetch(`/api/parties/joueurs/${joueurId}/score`)
+            .then(response => response.json())
+            .then(newScore => {
+                globalScore = newScore;
+                const scoreElement = document.getElementById('please-score');
+                if (scoreElement) {
+                    scoreElement.textContent = `Score actuel: ${globalScore}`;
+                }
+                return globalScore;
+            })
+            .catch(error => {
+                console.error('Error updating score:', error);
+                return globalScore;
+            });
+    }
+
+    function setupGameActions(joueurId) {
+        const actionButtons = document.querySelectorAll('.game-action');
+
+        actionButtons.forEach(button => {
+            button.addEventListener('click', async () => {
+                const coup = button.dataset.coup;
+
+                try {
+                    const response = await fetch(`/api/parties/joueurs/${joueurId}/coup?coup=${coup}`, {
+                        method: 'POST'
+                    });
+
+                    if (response.ok) {
+                        const newScore = await updateScore(joueurId);
+                        console.log(`Coup ${coup} joué. New score: ${newScore}`);
+                    }
+                } catch (error) {
+                    console.error(`Error playing coup ${coup}:`, error);
+                }
+            });
+        });
+    }
+
+    function createGame() {
+        setMyVariable(true);
+    }
+
+    function joinGame() {
+        setMyVariable(false);
+    }
+
+    function setMyVariable(value) {
+        localStorage.setItem('isPlayer1', value);
+    }
+
+    function getMyVariable() {
+        return localStorage.getItem('isPlayer1');
+    }
+</script>
 </body>
 </html>

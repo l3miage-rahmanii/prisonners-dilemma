@@ -2,13 +2,14 @@ package fr.uga.l3miage.pc.controllers;
 
 
 
-import fr.uga.l3miage.pc.enums.StrategieEnum;
-import fr.uga.l3miage.pc.requests.PartieRequestDTO;
+import fr.uga.l3miage.pc.entities.PartieEntity;
+import fr.uga.l3miage.pc.enums.CoupEnum;
 import fr.uga.l3miage.pc.responses.PartieResponseDTO;
 import fr.uga.l3miage.pc.services.PartieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 
 @RestController
@@ -18,85 +19,55 @@ import org.springframework.web.bind.annotation.*;
 public class PartieController {
     private final PartieService partieService;
 
-    @PostMapping("/parties/{partieId}/joueurs/{joueurId}/coup")
-    public ResponseEntity<String> jouerCoup(
-            @PathVariable Long partieId,
-            @PathVariable Long joueurId,
+    @PostMapping("/parties/joueurs/{joueurId}/coup")
+    public ResponseEntity<PartieResponseDTO> jouerCoup(
+            @PathVariable int joueurId,
             @RequestParam String coup) {
-        try {
-            String coupNormalise;
-            // Normalize the move
-            switch(coup.toLowerCase()) {
-                case "cooperer":
-                    coupNormalise = "c";
-                    break;
-                case "trahir":
-                    coupNormalise = "t";
-                    break;
-                case "abandonner":
-                    partieService.changerStrategie(partieId, joueurId, StrategieEnum.TOUJOURS_TRAHIR);
-                    return ResponseEntity.ok("Partie abandonnée");
-                case "reinitialiser":
-                    // Create new game
-                    PartieRequestDTO newGame = PartieRequestDTO.builder()
-                            .nom("Nouvelle Partie")
-                            .nbTours(10)
-                            .build();
-                    PartieResponseDTO newPartie = partieService.creerPartie(newGame);
-                    return ResponseEntity.ok("Nouvelle partie créée: " + newPartie.getId());
+
+        CoupEnum coupEnum = CoupEnum.COOPERER;
+        // Normalize the move
+        switch(coup.toLowerCase()) {
+            case "trahir":
+                coupEnum = CoupEnum.TRAHIR;
+                break;
+            case "abandonner":
+                coupEnum = CoupEnum.ABANDONNER;
+                break;
                 default:
-                    return ResponseEntity.badRequest().body("Coup invalide");
-            }
-
-            PartieResponseDTO response = partieService.jouerCoup(partieId, joueurId, coupNormalise);
-
-            // Build a detailed response message
-            StringBuilder message = new StringBuilder();
-            message.append("Coup joué. ");
-
-            // Check if it's player 1 or 2 based on their last moves
-            boolean isJoueur1 = response.getCoupsJoueur1() != null &&
-                    !response.getCoupsJoueur1().isEmpty() &&
-                    response.getCoupsJoueur1().get(response.getCoupsJoueur1().size() - 1).equals(coupNormalise);
-
-            int score = isJoueur1 ? response.getScoreJoueur1() : response.getScoreJoueur2();
-            message.append("Score: ").append(score);
-
-            // Add game status information
-            if (response.isPartieTerminee()) {
-                message.append(". ").append(response.getMessageResultat());
-            } else {
-                message.append(". Tour ").append(response.getTourActuel());
-            }
-
-            return ResponseEntity.ok(message.toString());
-
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+                    break;
         }
+
+        return ResponseEntity.ok(partieService.jouerCoup(joueurId, coupEnum));
     }
 
     @PostMapping("/parties/creer")
-    public ResponseEntity<PartieResponseDTO> creerPartie(@RequestBody PartieRequestDTO partieRequestDTO) {
-        return ResponseEntity.ok(partieService.creerPartie(partieRequestDTO));
+    public ResponseEntity<PartieEntity> creerPartie() {
+        return ResponseEntity.ok(partieService.creerPartie());
     }
 
-    @PostMapping("/parties/{partieId}/joueurs/{joueurId}/strategie")
-    public ResponseEntity<PartieResponseDTO> changerStrategie(
-            @PathVariable Long partieId,
-            @PathVariable Long joueurId,
-            @RequestParam StrategieEnum strategie) {
-        return ResponseEntity.ok(partieService.changerStrategie(partieId, joueurId, strategie));
+    @PostMapping("/parties/rejoindre")
+    public ResponseEntity<PartieEntity> rejoindrePartie() {
+        return ResponseEntity.ok(partieService.rejoindrePartie());
     }
 
-    @PostMapping("/parties/{partieId}/rejoindre")
-    public ResponseEntity<PartieResponseDTO> rejoindrePartie(
-            @PathVariable Long partieId,
-            @PathVariable Long joueurId) {
-        return ResponseEntity.ok(partieService.rejoindrePartie(partieId, joueurId));
+    @GetMapping("/parties/status")
+    public ResponseEntity<String> getStatus() {
+        return ResponseEntity.ok(partieService.getStatus());
     }
 
+    @GetMapping("/parties/joueurs/{joueurId}/score")
+    public ResponseEntity<Integer> getScore(
+            @PathVariable int joueurId) {
+        return ResponseEntity.ok(partieService.getScore(joueurId));  // Changé de calculerScores à getScore
+    }
 
+    @GetMapping("/parties/joueurs/scores")
+    public String getScores() {
+        int score1 = partieService.getScore(1);  // Changé de calculerScores à getScore
+        int score2 = partieService.getScore(2);  // Changé de calculerScores à getScore
+        return String.format("""
+        <p class="text-lg font-semibold text-gray-800">Joueur 1: <span id="score-player1">%d</span></p>
+        <p class="text-lg font-semibold text-gray-800">Joueur 2: <span id="score-player2">%d</span></p>
+        """, score1, score2);
+    }
 }
-
-

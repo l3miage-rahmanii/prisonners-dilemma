@@ -1,95 +1,55 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Strategies;
 
+import fr.uga.l3miage.pc.enums.CoupEnum;
 import fr.uga.l3miage.pc.strategies.DonnantPourDeuxDonnants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DonnantPourDeuxDonnantsTest {
 
-    private static final int TAILLE_HISTORIQUE = 10;
-    private DonnantPourDeuxDonnants strategie;
-    private String[] historique;
+    private DonnantPourDeuxDonnants strategy;
 
     @BeforeEach
     void setUp() {
-        historique = new String[TAILLE_HISTORIQUE];
-        strategie = new DonnantPourDeuxDonnants(historique);
+        strategy = new DonnantPourDeuxDonnants();
     }
 
     @Test
-    void testPremierCoup() {
-        // Le premier coup devrait être une coopération
-        assertEquals("c", strategie.prochainCoup(),
-                "Le premier coup devrait être une coopération ('c')");
+    void whenLastTwoMovesAreSame_shouldReturnThatMove() {
+        // Test when last two moves are both COOPERER
+        List<CoupEnum> historique1 = Arrays.asList(CoupEnum.TRAHIR, CoupEnum.COOPERER, CoupEnum.COOPERER);
+        assertEquals(CoupEnum.COOPERER, strategy.prochainCoup(historique1));
+
+        // Test when last two moves are both TRAHIR
+        List<CoupEnum> historique2 = Arrays.asList(CoupEnum.COOPERER, CoupEnum.TRAHIR, CoupEnum.TRAHIR);
+        assertEquals(CoupEnum.TRAHIR, strategy.prochainCoup(historique2));
     }
 
     @Test
-    void testCooperationParDefaut() {
-        // Test avec une seule trahison
-        strategie.prochainCoup();
-        strategie.miseAJourDernierCoupAdversaire("t");
+    void whenLastTwoMovesAreDifferent_shouldReturnSecondToLastMove() {
+        // Test when last moves are COOPERER, TRAHIR
+        List<CoupEnum> historique1 = Arrays.asList(CoupEnum.TRAHIR, CoupEnum.COOPERER, CoupEnum.TRAHIR);
+        assertEquals(CoupEnum.COOPERER, strategy.prochainCoup(historique1));
 
-        assertEquals("c", strategie.prochainCoup(),
-                "Devrait coopérer après une seule trahison");
+        // Test when last moves are TRAHIR, COOPERER
+        List<CoupEnum> historique2 = Arrays.asList(CoupEnum.COOPERER, CoupEnum.TRAHIR, CoupEnum.COOPERER);
+        assertEquals(CoupEnum.TRAHIR, strategy.prochainCoup(historique2));
     }
 
     @Test
-    void testReactionDeuxTrahisonsConsecutives() {
-        // Première séquence
-        strategie.prochainCoup();
-        strategie.miseAJourDernierCoupAdversaire("t");
-
-        // Deuxième séquence
-        strategie.prochainCoup();
-        strategie.miseAJourDernierCoupAdversaire("t");
-
-        // Devrait trahir après deux trahisons
-        assertEquals("t", strategie.prochainCoup(),
-                "Devrait trahir après deux trahisons consécutives");
-    }
-
-    @Test
-    void testRetourCooperationApresTrahisonNonConsecutive() {
-        // Séquence: t, c, t
-        strategie.prochainCoup();
-        strategie.miseAJourDernierCoupAdversaire("t");
-
-        strategie.prochainCoup();
-        strategie.miseAJourDernierCoupAdversaire("c");
-
-        strategie.prochainCoup();
-        strategie.miseAJourDernierCoupAdversaire("t");
-
-        assertEquals("c", strategie.prochainCoup(),
-                "Devrait coopérer car les trahisons ne sont pas consécutives");
-    }
-
-    @Test
-    void testSequenceComplexe() {
-        // Test d'une séquence complexe de coups
-        String[] sequenceAdversaire = {"t", "t", "c", "t", "t", "c"};
-        String[] reponseAttendue = {"c", "c", "t", "c", "c", "t"};
-
-        for (int i = 0; i < sequenceAdversaire.length; i++) {
-            String coupJoue = strategie.prochainCoup();
-            assertEquals(reponseAttendue[i], coupJoue,
-                    "Coup incorrect à l'itération " + i);
-            strategie.miseAJourDernierCoupAdversaire(sequenceAdversaire[i]);
-        }
-    }
-
-    @Test
-    void testDepassementHistorique() {
-
-        for (int i = 0; i < TAILLE_HISTORIQUE; i++) {
-            strategie.prochainCoup();
-            strategie.miseAJourDernierCoupAdversaire("c");
-        }
-
-        assertThrows(ArrayIndexOutOfBoundsException.class,
-                () -> strategie.miseAJourDernierCoupAdversaire("c"),
-                "Une exception devrait être levée lors du dépassement de l'historique");
+    void testWithLongerHistory() {
+        List<CoupEnum> historique = Arrays.asList(
+                CoupEnum.COOPERER,
+                CoupEnum.TRAHIR,
+                CoupEnum.COOPERER,
+                CoupEnum.COOPERER,
+                CoupEnum.COOPERER
+        );
+        assertEquals(CoupEnum.COOPERER, strategy.prochainCoup(historique));
     }
 }

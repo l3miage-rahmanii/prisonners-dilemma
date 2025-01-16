@@ -1,126 +1,96 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Strategies;
 
+import fr.uga.l3miage.pc.enums.CoupEnum;
 import fr.uga.l3miage.pc.strategies.SondeurRepentant;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class SondeurRepentantTest {
-
-    private static final int TAILLE_HISTORIQUE = 10;
-    private SondeurRepentant strategie;
-    private String[] historique;
+private SondeurRepentant strategie;
+private List<CoupEnum> historique;
 
     @BeforeEach
     void setUp() {
-        historique = new String[TAILLE_HISTORIQUE];
-        strategie = new SondeurRepentant(historique);
+        strategie = new SondeurRepentant();
+        historique = new ArrayList<>();
     }
 
     @Test
-    void testPremierCoupPossible() {
-        // Le premier coup devrait être soit "c" soit "t" (à cause de l'aléatoire)
-        String premierCoup = strategie.prochainCoup();
-        assertTrue(premierCoup.equals("c") || premierCoup.equals("t"),
-                "Le premier coup devrait être 'c' ou 't'");
+    void testPremierCoup() {
+        // Le premier coup devrait toujours être COOPERER
+        assertEquals(CoupEnum.COOPERER, strategie.prochainCoup(historique));
     }
 
+    @Test
+    void testRepentirApresTrahison() {
+        // On mocke le Random pour forcer une trahison
+        Random mockRandom = mock(Random.class);
+        when(mockRandom.nextDouble()).thenReturn(0.05); // Valeur < 0.1 pour forcer la trahison
 
-    void testDistributionAleatoire() {
-        // Sur un grand nombre d'essais, on devrait voir environ 10% de trahisons
-        int nombreEssais = 1000;
-        int nombreTrahisons = 0;
+        // On injecte le mock dans la stratégie via réflexion
+        try {
+            java.lang.reflect.Field randomField = SondeurRepentant.class.getDeclaredField("random");
+            randomField.setAccessible(true);
+            randomField.set(strategie, mockRandom);
+        } catch (Exception e) {
+            fail("Erreur lors de l'injection du mock: " + e.getMessage());
+        }
 
-        for (int i = 0; i < nombreEssais; i++) {
-            if (strategie.prochainCoup().equals("t")) {
-                nombreTrahisons++;
+        // Premier coup : l'adversaire coopère
+        historique.add(CoupEnum.COOPERER);
+        // La stratégie devrait trahir (grâce au mock)
+        assertEquals(CoupEnum.TRAHIR, strategie.prochainCoup(historique));
+
+        // L'adversaire trahit en réponse
+        historique.add(CoupEnum.TRAHIR);
+        // La stratégie devrait se repentir et coopérer
+        assertEquals(CoupEnum.COOPERER, strategie.prochainCoup(historique));
+    }
+
+    @RepeatedTest(100)
+    void testProbabiliteTrahison() {
+        // Test statistique de la probabilité de trahison
+        historique.add(CoupEnum.COOPERER);
+        int trahisons = 0;
+        int iterations = 1000;
+
+        for (int i = 0; i < iterations; i++) {
+            if (strategie.prochainCoup(historique) == CoupEnum.TRAHIR) {
+                trahisons++;
             }
         }
 
-        // Vérifie que le taux de trahison est proche de 10% (entre 5% et 15% pour être large)
-        double tauxTrahison = (double) nombreTrahisons / nombreEssais;
-        assertTrue(tauxTrahison >= 0.05 && tauxTrahison <= 0.15,
-                "Le taux de trahison devrait être proche de 10% mais était de " + (tauxTrahison * 100) + "%");
+        // On vérifie que le taux de trahison est proche de 10% avec une marge d'erreur
+        double tauxTrahison = (double) trahisons / iterations;
+        assertTrue(tauxTrahison > 0.05 && tauxTrahison < 0.15,
+                "Le taux de trahison (" + tauxTrahison + ") devrait être proche de 0.1");
     }
 
     @Test
-    void testRepentanceApresTrahison() {
-        // Force une situation où l'adversaire trahit
-        strategie.prochainCoup();
-        strategie.miseAJourDernierCoupAdversaire("t");
+    void testSequenceComplexe() {
+        // Test d'une séquence complexe de coups
+        List<CoupEnum> sequence = List.of(
+                CoupEnum.COOPERER,
+                CoupEnum.TRAHIR,
+                CoupEnum.COOPERER,
+                CoupEnum.COOPERER,
+                CoupEnum.TRAHIR
+        );
 
-        // Le prochain coup devrait être une coopération (repentance)
-        assertEquals("c", strategie.prochainCoup(),
-                "Devrait coopérer après une trahison de l'adversaire (repentance)");
-    }
-
-    @Test
-    void testFinRepentance() {
-        // Vérifie que la repentance ne dure qu'un tour
-        strategie.prochainCoup();
-        strategie.miseAJourDernierCoupAdversaire("t");
-
-        // Premier coup de repentance
-        strategie.prochainCoup();
-
-        // Les coups suivants devraient suivre le pattern normal (possibilité de trahir)
-        Set<String> coups = new HashSet<>();
-        for (int i = 0; i < 100; i++) {
-            coups.add(strategie.prochainCoup());
+        for (CoupEnum coup : sequence) {
+            historique.add(coup);
+            CoupEnum prochainCoup = strategie.prochainCoup(historique);
+            assertNotNull(prochainCoup, "Le prochain coup ne devrait pas être null");
         }
-
-        assertTrue(coups.contains("t"),
-                "Après la repentance, la stratégie devrait pouvoir trahir à nouveau");
-    }
-
-    @Test
-    void testDepassementHistorique() {
-        // Remplit l'historique jusqu'à sa limite
-        for (int i = 0; i < TAILLE_HISTORIQUE; i++) {
-            strategie.prochainCoup();
-            strategie.miseAJourDernierCoupAdversaire("c");
-        }
-
-        // Vérifie qu'une exception est levée lors du dépassement
-        assertThrows(ArrayIndexOutOfBoundsException.class,
-                () -> strategie.miseAJourDernierCoupAdversaire("c"),
-                "Une exception devrait être levée lors du dépassement de l'historique");
-    }
-
-    @Test
-    void testConsistanceHistorique() {
-        // Vérifie que l'historique est correctement mis à jour
-        String[] coups = {"c", "t", "c"};
-
-        for (int i = 0; i < coups.length; i++) {
-            strategie.prochainCoup();
-            strategie.miseAJourDernierCoupAdversaire(coups[i]);
-            assertEquals(coups[i], historique[i],
-                    "L'historique n'est pas correctement mis à jour à l'index " + i);
-        }
-    }
-
-    @Test
-    void testReactionApresTrahisonSansRepentance() {
-        // Vérifie le comportement quand on force une trahison sans repentance
-        String premierCoup = strategie.prochainCoup();
-        // Simule une série de coopérations pour établir un pattern
-        strategie.miseAJourDernierCoupAdversaire("t");
-        strategie.prochainCoup(); // Coup de repentance
-
-        // Les coups suivants devraient suivre le pattern normal
-        boolean trahisonTrouvee = false;
-        for (int i = 0; i < 100 && !trahisonTrouvee; i++) {
-            if (strategie.prochainCoup().equals("t")) {
-                trahisonTrouvee = true;
-            }
-        }
-
-        assertTrue(trahisonTrouvee,
-                "La stratégie devrait pouvoir trahir après la période de repentance");
     }
 }

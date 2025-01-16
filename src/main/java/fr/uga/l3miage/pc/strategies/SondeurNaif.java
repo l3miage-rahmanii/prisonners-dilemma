@@ -1,29 +1,36 @@
 package fr.uga.l3miage.pc.strategies;
 
+import fr.uga.l3miage.pc.enums.CoupEnum;
+
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.Random;
 
-public class SondeurNaif implements Strategie {
-    private String[] historique;
-    private int index;
-    private Random random;
 
-    public SondeurNaif(String[] historique) {
-        this.historique = historique;
-        this.index = 0;
+public class SondeurNaif extends Strategie {
+
+    private Random random;
+    public Random getRandom() {
+        return random;
+    }
+
+    public void setRandom(Random random) {
+        this.random = random;
+    }
+
+    public SondeurNaif() {
         this.random = new SecureRandom();
     }
 
     @Override
-    public String prochainCoup() {
-        if (random.nextDouble() < 0.1) { // 10% de probabilité de trahir pour tester
-            return "t";
+    public CoupEnum prochainCoup(List<CoupEnum> historique) {
+        if (random.nextDouble() < 0.1) {
+            return CoupEnum.TRAHIR;
         }
-        return index > 0 && historique[index - 1].equals("t") ? "t" : "c";
+        return historique.get(historique.size() - 1);
     }
 
 
-    public void miseAJourDernierCoupAdversaire(String coupAdversaire) {
-        historique[index++] = coupAdversaire;
-    }
 }
+
+

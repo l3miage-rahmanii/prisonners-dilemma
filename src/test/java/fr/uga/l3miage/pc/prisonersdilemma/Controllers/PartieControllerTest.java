@@ -1,21 +1,21 @@
 package fr.uga.l3miage.pc.prisonersdilemma.Controllers;
 
 import fr.uga.l3miage.pc.controllers.PartieController;
-import fr.uga.l3miage.pc.enums.StrategieEnum;
-import fr.uga.l3miage.pc.exceptions.rest.BadRequestRestException;
-import fr.uga.l3miage.pc.requests.PartieRequestDTO;
+import fr.uga.l3miage.pc.entities.PartieEntity;
+import fr.uga.l3miage.pc.enums.CoupEnum;
 import fr.uga.l3miage.pc.responses.PartieResponseDTO;
 import fr.uga.l3miage.pc.services.PartieService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
-
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(MockitoExtension.class)
 class PartieControllerTest {
 
     @Mock
@@ -24,238 +24,245 @@ class PartieControllerTest {
     @InjectMocks
     private PartieController partieController;
 
+    private PartieEntity partieEntity;
+    private PartieResponseDTO partieResponseDTO;
+
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
-/*
-    @Test
-    void testJouerCoup() {
-        // Given
-        Long partieId = 1L;
-        Long joueurId = 1L;
-        String coup = "cooperer";
-        String expectedMessage = "Coup joué. Score: 10. Tour 2";
-
-        PartieResponseDTO response = new PartieResponseDTO();
-        response.setScoreJoueur1(10);
-        response.setTourActuel(2);
-        response.setPartieTerminee(false);
-
-        when(partieService.jouerCoup(partieId, joueurId, "c")).thenReturn(response);
-
-        // When
-        ResponseEntity<String> result = partieController.jouerCoup(partieId, joueurId, coup);
-
-        // Then
-        assertEquals(200, result.getStatusCodeValue());
-        assertEquals(expectedMessage, result.getBody());
-        verify(partieService, times(1)).jouerCoup(partieId, joueurId, "c");
-    }
-
-
-
-
-    @Test
-    void testJouerCoupInvalide() {
-        // Given
-        Long partieId = 1L;
-        Long joueurId = 1L;
-        String coup = "invalid"; // Coup invalide
-
-        // Simuler que le service lève une exception lorsque le coup est invalide
-        doThrow(new BadRequestRestException("Coup invalide. Utilisez 'c' pour coopérer ou 't' pour trahir"))
-                .when(partieService).jouerCoup(partieId, joueurId, coup);
-
-        // When & Then
-        BadRequestRestException thrown = assertThrows(BadRequestRestException.class, () -> {
-            partieController.jouerCoup(partieId, joueurId, coup);
-        });
-
-        // Vérification du message de l'exception
-        assertEquals("Coup invalide. Utilisez 'c' pour coopérer ou 't' pour trahir", thrown.getMessage());
-
-        // Vérification que le service a été appelé une fois avec les bons paramètres
-        verify(partieService, times(1)).jouerCoup(partieId, joueurId, coup);
-    }
-
- */
-
-    @Test
-    void testCreerPartie() {
-        // Given
-        PartieRequestDTO partieRequestDTO = new PartieRequestDTO();
-        partieRequestDTO.setNom("Partie test");
-        partieRequestDTO.setNbTours(10);
-
-        PartieResponseDTO response = new PartieResponseDTO();
-        response.setId(1L);
-        response.setNom("Partie test");
-        response.setStatus("en_attente");
-
-        when(partieService.creerPartie(partieRequestDTO)).thenReturn(response);
-
-        // When
-        ResponseEntity<PartieResponseDTO> result = partieController.creerPartie(partieRequestDTO);
-
-        // Then
-        PartieResponseDTO actualResponse = result.getBody(); // Récupérer le body
-        assertNotNull(actualResponse);
-        assertEquals("Partie test", actualResponse.getNom());
-        assertEquals("en_attente", actualResponse.getStatus());
-        verify(partieService, times(1)).creerPartie(partieRequestDTO);
-    }
-
-
-    @Test
-    void testChangerStrategie() {
-        // Given
-        Long partieId = 1L;
-        Long joueurId = 1L;
-        StrategieEnum strategie = StrategieEnum.DONNANT_DONNANT;
-
-        PartieResponseDTO response = new PartieResponseDTO();
-        response.setId(partieId);
-        response.setStatus("En cours");
-
-        when(partieService.changerStrategie(partieId, joueurId, strategie)).thenReturn(response);
-
-        // When
-        ResponseEntity<PartieResponseDTO> result = partieController.changerStrategie(partieId, joueurId, strategie);
-
-        // Then
-        PartieResponseDTO actualResponse = result.getBody();
-        assertNotNull(actualResponse);
-        assertEquals(partieId, actualResponse.getId());
-        assertEquals("En cours", actualResponse.getStatus());
-        verify(partieService, times(1)).changerStrategie(partieId, joueurId, strategie);
-    }
-
-
-    @Test
-    void testRejoindrePartie() {
-        // Given
-        Long partieId = 1L;
-        Long joueurId = 2L;
-
-        PartieResponseDTO response = new PartieResponseDTO();
-        response.setId(partieId);
-        response.setStatus("en_cours");
-
-        when(partieService.rejoindrePartie(partieId, joueurId)).thenReturn(response);
-
-        // When
-        ResponseEntity<PartieResponseDTO> result = partieController.rejoindrePartie(partieId, joueurId);
-
-        // Then
-        PartieResponseDTO actualResponse = result.getBody();
-        assertNotNull(actualResponse);
-        assertEquals(partieId, actualResponse.getId());
-        assertEquals("en_cours", actualResponse.getStatus());
-        verify(partieService, times(1)).rejoindrePartie(partieId, joueurId);
-    }
-
-
-    @Test
-    void testRejoindrePartie_DejaDansPartie() {
-        // Given
-        Long partieId = 1L;
-        Long joueurId = 1L;  // Joueur déjà dans la partie
-        when(partieService.rejoindrePartie(partieId, joueurId)).thenThrow(new BadRequestRestException("Le joueur est déjà dans la partie"));
-
-        // When & Then
-        BadRequestRestException thrown = assertThrows(BadRequestRestException.class, () -> {
-            partieController.rejoindrePartie(partieId, joueurId);
-        });
-        assertEquals("Le joueur est déjà dans la partie", thrown.getMessage());
-    }
-/*
-    @Test
-    void testJouerCoupPartieTerminee() {
-        // Given
-        Long partieId = 1L;
-        Long joueurId = 1L;
-        String coup = "cooperer";
-
-        PartieResponseDTO response = new PartieResponseDTO();
-        response.setScoreJoueur1(10);
-        response.setScoreJoueur2(5);
-        response.setPartieTerminee(true);  // Partie terminée
-        response.setMessageResultat("Le joueur 1 a gagné");
-
-        when(partieService.jouerCoup(partieId, joueurId, "c")).thenReturn(response);
-
-        // When
-        ResponseEntity<String> result = partieController.jouerCoup(partieId, joueurId, coup);
-
-        // Then
-        assertEquals(200, result.getStatusCodeValue());
-        assertEquals("Coup joué. Score: 5. Le joueur 1 a gagné", result.getBody());
-        verify(partieService, times(1)).jouerCoup(partieId, joueurId, "c");
-    }
-Affichage à améliorer
-
-    @Test
-    void testJouerCoupAbandonner() {
-        // Given
-        Long partieId = 1L;
-        Long joueurId = 1L;
-        String coup = "abandonner";
-
-        // When
-        ResponseEntity<String> result = partieController.jouerCoup(partieId, joueurId, coup);
-
-        // Then
-        assertEquals(200, result.getStatusCodeValue());
-        assertEquals("Partie abandonnée", result.getBody());
-
-        verify(partieService, times(1)).abandonnerPartie(partieId, joueurId, StrategieEnum.TOUJOURS_TRAHIR);
-    }
-
-    @Test
-    void testJouerCoupReinitialiser() {
-        // Given
-        Long partieId = 1L;
-        Long joueurId = 1L;
-        String coup = "reinitialiser";
-
-        PartieRequestDTO newGame = PartieRequestDTO.builder()
-                .nom("Nouvelle Partie")
+        partieEntity = PartieEntity.builder()
+                .status("en_attente")
                 .nbTours(10)
+                .idJoueur1(1)
+                .idJoueur2(2)
                 .build();
 
-        PartieResponseDTO newPartie = new PartieResponseDTO();
-        newPartie.setId(2L);
-        newPartie.setNom("Nouvelle Partie");
+        partieResponseDTO = new PartieResponseDTO();
+    }
 
-        when(partieService.creerPartie(any(PartieRequestDTO.class))).thenReturn(newPartie);
+    @Test
+    void jouerCoup_Cooperer() {
+        // Given
+        when(partieService.jouerCoup(1, CoupEnum.COOPERER)).thenReturn(partieResponseDTO);
 
         // When
-        ResponseEntity<String> result = partieController.jouerCoup(partieId, joueurId, coup);
+        ResponseEntity<PartieResponseDTO> response = partieController.jouerCoup(1, "cooperer");
 
         // Then
-        assertEquals(200, result.getStatusCodeValue());
-        assertEquals("Nouvelle partie créée: 2", result.getBody());
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        verify(partieService).jouerCoup(1, CoupEnum.COOPERER);
+    }
 
-        verify(partieService, times(1)).creerPartie(any(PartieRequestDTO.class));
-    } */
+    @Test
+    void jouerCoup_Trahir() {
+        // Given
+        when(partieService.jouerCoup(1, CoupEnum.TRAHIR)).thenReturn(partieResponseDTO);
 
-@Test
-void testCreerPartieInvalide() {
-    // Given
-    PartieRequestDTO partieRequestDTO = new PartieRequestDTO();
-    partieRequestDTO.setNom("");  // Nom vide, invalide
-    partieRequestDTO.setNbTours(-1);  // Nombre de tours invalide
+        // When
+        ResponseEntity<PartieResponseDTO> response = partieController.jouerCoup(1, "trahir");
 
-    when(partieService.creerPartie(partieRequestDTO)).thenThrow(new BadRequestRestException("Nom de la partie et nombre de tours sont obligatoires"));
+        // Then
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        verify(partieService).jouerCoup(1, CoupEnum.TRAHIR);
+    }
 
-    // When & Then
-    BadRequestRestException thrown = assertThrows(BadRequestRestException.class, () -> {
-        partieController.creerPartie(partieRequestDTO);
-    });
+    @Test
+    void jouerCoup_Abandonner() {
+        // Given
+        when(partieService.jouerCoup(1, CoupEnum.ABANDONNER)).thenReturn(partieResponseDTO);
 
-    assertEquals("Nom de la partie et nombre de tours sont obligatoires", thrown.getMessage());
-    verify(partieService, times(1)).creerPartie(partieRequestDTO);
-}
+        // When
+        ResponseEntity<PartieResponseDTO> response = partieController.jouerCoup(1, "abandonner");
 
+        // Then
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        verify(partieService).jouerCoup(1, CoupEnum.ABANDONNER);
+    }
+
+    @Test
+    void creerPartie_Success() {
+        // Given
+        when(partieService.creerPartie()).thenReturn(partieEntity);
+
+        // When
+        ResponseEntity<PartieEntity> response = partieController.creerPartie();
+
+        // Then
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(partieEntity, response.getBody());
+        verify(partieService).creerPartie();
+    }
+
+    @Test
+    void rejoindrePartie_Success() {
+        // Given
+        when(partieService.rejoindrePartie()).thenReturn(partieEntity);
+
+        // When
+        ResponseEntity<PartieEntity> response = partieController.rejoindrePartie();
+
+        // Then
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(partieEntity, response.getBody());
+        verify(partieService).rejoindrePartie();
+    }
+
+    @Test
+    void getStatus_Success() {
+        // Given
+        String expectedStatus = "en_cours";
+        when(partieService.getStatus()).thenReturn(expectedStatus);
+
+        // When
+        ResponseEntity<String> response = partieController.getStatus();
+
+        // Then
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(expectedStatus, response.getBody());
+        verify(partieService).getStatus();
+    }
+
+    @Test
+    void getScore_Success() {
+        // Given
+        int expectedScore = 10;
+        when(partieService.getScore(1)).thenReturn(expectedScore);
+
+        // When
+        ResponseEntity<Integer> response = partieController.getScore(1);
+
+        // Then
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(expectedScore, response.getBody());
+        verify(partieService).getScore(1);
+    }
+
+    @Test
+    void getScores_Success() {
+        // Given
+        when(partieService.getScore(1)).thenReturn(10);
+        when(partieService.getScore(2)).thenReturn(15);
+
+        // When
+        String response = partieController.getScores();
+
+        // Then
+        assertNotNull(response);
+        assertTrue(response.contains("10"));
+        assertTrue(response.contains("15"));
+        verify(partieService).getScore(1);
+        verify(partieService).getScore(2);
+    }
+
+    @Test
+    void jouerCoup_CoupInconnu() {
+        // Given
+        when(partieService.jouerCoup(1, CoupEnum.COOPERER)).thenReturn(partieResponseDTO);
+
+        // When
+        ResponseEntity<PartieResponseDTO> response = partieController.jouerCoup(1, "coup_inconnu");
+
+        // Then
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        // Par défaut, un coup inconnu est traité comme COOPERER
+        verify(partieService).jouerCoup(1, CoupEnum.COOPERER);
+    }
+
+    @Test
+    void jouerCoup_EmptyCoup() {
+        // Given
+        when(partieService.jouerCoup(1, CoupEnum.COOPERER)).thenReturn(partieResponseDTO);
+
+        // When
+        ResponseEntity<PartieResponseDTO> response = partieController.jouerCoup(1, "");
+
+        // Then
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        verify(partieService).jouerCoup(1, CoupEnum.COOPERER);
+    }
+
+    @Test
+    void jouerCoup_CaseSensitivity() {
+        // Given
+        when(partieService.jouerCoup(1, CoupEnum.TRAHIR)).thenReturn(partieResponseDTO);
+
+        // When
+        ResponseEntity<PartieResponseDTO> response = partieController.jouerCoup(1, "TRAHIR");
+
+        // Then
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        verify(partieService).jouerCoup(1, CoupEnum.TRAHIR);
+    }
+
+    @Test
+    void getScores_ValidateHtmlFormat() {
+        // Given
+        when(partieService.getScore(1)).thenReturn(10);
+        when(partieService.getScore(2)).thenReturn(20);
+
+        // When
+        String response = partieController.getScores();
+
+        // Then
+        assertTrue(response.contains("<p class=\"text-lg font-semibold text-gray-800\">"));
+        assertTrue(response.contains("<span id=\"score-player1\">10</span>"));
+        assertTrue(response.contains("<span id=\"score-player2\">20</span>"));
+        assertTrue(response.contains("Joueur 1:"));
+        assertTrue(response.contains("Joueur 2:"));
+    }
+
+    @Test
+    void getScore_NegativeJoueurId() {
+        // Given
+        int expectedScore = 0;
+        when(partieService.getScore(-1)).thenReturn(expectedScore);
+
+        // When
+        ResponseEntity<Integer> response = partieController.getScore(-1);
+
+        // Then
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(expectedScore, response.getBody());
+        verify(partieService).getScore(-1);
+    }
+
+    @Test
+    void getScore_LargeJoueurId() {
+        // Given
+        int expectedScore = 0;
+        when(partieService.getScore(Integer.MAX_VALUE)).thenReturn(expectedScore);
+
+        // When
+        ResponseEntity<Integer> response = partieController.getScore(Integer.MAX_VALUE);
+
+        // Then
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(expectedScore, response.getBody());
+        verify(partieService).getScore(Integer.MAX_VALUE);
+    }
+
+    @Test
+    void jouerCoup_MixedCaseInput() {
+        // Given
+        when(partieService.jouerCoup(1, CoupEnum.TRAHIR)).thenReturn(partieResponseDTO);
+
+        // When
+        ResponseEntity<PartieResponseDTO> response = partieController.jouerCoup(1, "TrAhIr");
+
+        // Then
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        verify(partieService).jouerCoup(1, CoupEnum.TRAHIR);
+    }
 }
