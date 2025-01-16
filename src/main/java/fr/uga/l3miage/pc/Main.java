@@ -2,13 +2,19 @@ package fr.uga.l3miage.pc;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@SpringBootApplication(scanBasePackages = {"fr.uga.l3miage.pc"})
+
 @EntityScan(basePackages = "fr.uga.l3miage.pc.entities")
+@SpringBootApplication(
+        scanBasePackages = {"fr.uga.l3miage.pc"},  // Specify the base package for component scanning
+        exclude = {DataSourceAutoConfiguration.class}  // Exclude DataSource auto-configuration
+)
 public class Main {
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
